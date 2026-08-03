@@ -121,7 +121,7 @@ export const RoutePage: React.FC = () => {
         <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50/80 rounded-t-lg">
           <div className="flex items-center gap-2">
             <ForkOutlined className="text-red-600 font-bold" />
-            <span className="font-semibold text-gray-800 text-sm">Traffic Routes</span>
+            <span className="font-semibold text-gray-800 text-sm">Tuyến đường giao thông</span>
             <Badge
               count={`${items.filter((i: IRouteItem) => i.rawJson).length}/${ROUTE_FILES.length}`}
               style={{ backgroundColor: items.length === ROUTE_FILES.length ? "#52c41a" : "#1890ff" }}
@@ -132,13 +132,13 @@ export const RoutePage: React.FC = () => {
             size="small"
             icon={<ReloadOutlined />}
             onClick={() => refetch()}
-            title="Reload useMany"
+            title="Tải lại dữ liệu"
           />
         </div>
 
         <div className="p-3 border-b border-gray-100 flex flex-col gap-2">
           <Input
-            placeholder="Search routes..."
+            placeholder="Tìm kiếm tuyến đường..."
             prefix={<SearchOutlined className="text-gray-400" />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -179,20 +179,11 @@ export const RoutePage: React.FC = () => {
                     {!item ? (
                       <Spin size="small" className="ml-1" />
                     ) : (
-                      <span className="text-[10px] text-gray-400">({segmentCount} segments)</span>
+                      <span className="text-[10px] text-gray-400">({segmentCount} đoạn)</span>
                     )}
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Tooltip title="Locate">
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<CompassOutlined />}
-                        onClick={() => flyToRoute(name)}
-                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-600"
-                      />
-                    </Tooltip>
                     <Button
                       type="text"
                       size="small"
@@ -214,7 +205,7 @@ export const RoutePage: React.FC = () => {
         className="absolute top-3 left-3 z-20 shadow-md bg-white border-gray-300"
         style={{ display: sidebarOpen ? "none" : "flex" }}
       >
-        Route List
+        Danh sách tuyến đường
       </Button>
 
       <div className="flex-1 w-full h-full">
@@ -282,11 +273,11 @@ export const RoutePage: React.FC = () => {
             >
               <div className="p-2 text-xs flex flex-col gap-1">
                 <div className="font-bold text-sm text-red-600 border-b pb-1">
-                  <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Route"}</span>
+                  <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}</span>
                 </div>
                 {activeProperties?.chieu_dai && (
                   <div>
-                    <span className="text-gray-500">Length: </span>
+                    <span className="text-gray-500">Chiều dài: </span>
                     <span className="font-semibold">{activeProperties.chieu_dai} km</span>
                   </div>
                 )}

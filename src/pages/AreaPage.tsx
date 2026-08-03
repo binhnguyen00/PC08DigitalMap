@@ -155,7 +155,7 @@ export const AreaPage: React.FC = () => {
         <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50/80 rounded-t-lg">
           <div className="flex items-center gap-2">
             <EnvironmentOutlined className="text-red-600 font-bold" />
-            <span className="font-semibold text-gray-800 text-sm">Administrative Areas</span>
+            <span className="font-semibold text-gray-800 text-sm">Địa giới hành chính</span>
             <Badge
               count={`${items.filter((i: IAreaItem) => i.rawJson).length}/${AREA_FILES.length}`}
               style={{ backgroundColor: items.length === AREA_FILES.length ? "#52c41a" : "#1890ff" }}
@@ -166,13 +166,13 @@ export const AreaPage: React.FC = () => {
             size="small"
             icon={<ReloadOutlined />}
             onClick={() => refetch()}
-            title="Reload useMany"
+            title="Tải lại dữ liệu"
           />
         </div>
 
         <div className="p-3 border-b border-gray-100 flex flex-col gap-2">
           <Input
-            placeholder="Search areas / wards..."
+            placeholder="Tìm kiếm địa bàn / xã phường..."
             prefix={<SearchOutlined className="text-gray-400" />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -180,14 +180,14 @@ export const AreaPage: React.FC = () => {
             size="small"
           />
           <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-            <span>Show all:</span>
+            <span>Hiển thị:</span>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => toggleAllVisibility(true)}
                 className="text-red-600 hover:underline font-medium cursor-pointer"
               >
-                Enable all
+                Hiện tất cả
               </button>
               <span>|</span>
               <button
@@ -195,7 +195,7 @@ export const AreaPage: React.FC = () => {
                 onClick={() => toggleAllVisibility(false)}
                 className="text-gray-600 hover:underline cursor-pointer"
               >
-                Disable all
+                Ẩn tất cả
               </button>
             </div>
           </div>
@@ -238,15 +238,6 @@ export const AreaPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Tooltip title="Locate">
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<CompassOutlined />}
-                        onClick={() => flyToArea(name)}
-                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-600"
-                      />
-                    </Tooltip>
                     <Button
                       type="text"
                       size="small"
@@ -263,37 +254,37 @@ export const AreaPage: React.FC = () => {
         {activeProperties && (
           <div className="p-3 border-t border-gray-200 bg-red-50/50 text-xs flex flex-col gap-1.5 rounded-b-lg">
             <div className="flex items-center justify-between font-bold text-red-900 border-b border-red-200/60 pb-1">
-              <span>{activeProperties.ten_xa || activeProperties.name || "Area details"}</span>
+              <span>{activeProperties.ten_xa || activeProperties.name || "Chi tiết địa bàn"}</span>
               {activeProperties.loai && <Tag color="red">{activeProperties.loai}</Tag>}
             </div>
 
             {activeProperties.ten_tinh && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Province/City:</span>
+                <span className="text-gray-500">Tỉnh/Thành phố:</span>
                 <span className="font-medium">{activeProperties.ten_tinh}</span>
               </div>
             )}
             {activeProperties.dtich_km2 !== undefined && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Area:</span>
+                <span className="text-gray-500">Diện tích:</span>
                 <span className="font-medium">{activeProperties.dtich_km2} km²</span>
               </div>
             )}
             {activeProperties.dan_so !== undefined && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Population:</span>
+                <span className="text-gray-500">Dân số:</span>
                 <span className="font-medium">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
               </div>
             )}
             {activeProperties.matdo_km2 !== undefined && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Density:</span>
+                <span className="text-gray-500">Mật độ:</span>
                 <span className="font-medium">{Number(activeProperties.matdo_km2).toLocaleString("vi-VN")} /km²</span>
               </div>
             )}
             {activeProperties.tru_so && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Headquarters:</span>
+                <span className="text-gray-500">Trụ sở:</span>
                 <span className="font-medium truncate max-w-42.5" title={activeProperties.tru_so}>
                   {activeProperties.tru_so}
                 </span>
@@ -301,7 +292,7 @@ export const AreaPage: React.FC = () => {
             )}
             {activeProperties.sap_nhap && (
               <div className="mt-1 pt-1 border-t border-red-200/50">
-                <span className="text-gray-500 block mb-0.5">Merger plan:</span>
+                <span className="text-gray-500 block mb-0.5">Phương án sáp nhập:</span>
                 <span className="text-gray-700 italic text-[11px] block">{activeProperties.sap_nhap}</span>
               </div>
             )}
@@ -316,7 +307,7 @@ export const AreaPage: React.FC = () => {
         className="absolute top-3 left-3 z-20 shadow-md bg-white border-gray-300"
         style={{ display: sidebarOpen ? "none" : "flex" }}
       >
-        Area List
+        Danh sách địa bàn
       </Button>
 
       <div className="flex-1 w-full h-full">
@@ -392,35 +383,35 @@ export const AreaPage: React.FC = () => {
               <div className="p-2 text-xs flex flex-col gap-1">
                 <div className="font-bold text-sm text-red-600 border-b pb-1 flex items-center gap-1.5">
                   <InfoCircleOutlined />
-                  <span>{activeProperties?.ten_xa || activeProperties?.name || "Area Info"}</span>
+                  <span>{activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}</span>
                 </div>
                 {activeProperties?.loai && (
                   <div>
-                    <span className="text-gray-500">Type: </span>
+                    <span className="text-gray-500">Loại: </span>
                     <span className="font-semibold">{activeProperties.loai}</span>
                   </div>
                 )}
                 {activeProperties?.ten_tinh && (
                   <div>
-                    <span className="text-gray-500">Province: </span>
+                    <span className="text-gray-500">Tỉnh/TP: </span>
                     <span className="font-semibold">{activeProperties.ten_tinh}</span>
                   </div>
                 )}
                 {activeProperties?.dtich_km2 !== undefined && (
                   <div>
-                    <span className="text-gray-500">Area: </span>
+                    <span className="text-gray-500">Diện tích: </span>
                     <span className="font-semibold">{activeProperties.dtich_km2} km²</span>
                   </div>
                 )}
                 {activeProperties?.dan_so !== undefined && (
                   <div>
-                    <span className="text-gray-500">Population: </span>
+                    <span className="text-gray-500">Dân số: </span>
                     <span className="font-semibold">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
                   </div>
                 )}
                 {activeProperties?.tru_so && (
                   <div>
-                    <span className="text-gray-500">Headquarters: </span>
+                    <span className="text-gray-500">Trụ sở: </span>
                     <span className="font-semibold">{activeProperties.tru_so}</span>
                   </div>
                 )}

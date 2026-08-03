@@ -35,7 +35,7 @@ export default function App() {
         list: "/areas",
         show: "/areas/show/:id",
         meta: {
-          label: "Areas",
+          label: "Địa bàn",
         },
       },
       {
@@ -43,7 +43,7 @@ export default function App() {
         list: "/routes",
         show: "/routes/show/:id",
         meta: {
-          label: "Routes",
+          label: "Tuyến đường",
         },
       },
     ],
@@ -66,14 +66,12 @@ export default function App() {
                   <Route index element={<Navigate to="/areas" replace />} />
                   <Route path="/areas" element={<AreaPage />} />
                   <Route path="/routes" element={<RoutePage />} />
-                  <Route path="/diaban" element={<Navigate to="/areas" replace />} />
-                  <Route path="/tuyenduong" element={<Navigate to="/routes" replace />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>
             </React.Suspense>
 
-            <DocumentTitleHandler handler={() => "PC08 Digital Map"} />
+            <DocumentTitleHandler handler={() => "Bản đồ số PC08"} />
           </Refine>
         </AntDesignApp>
       </ConfigProvider>

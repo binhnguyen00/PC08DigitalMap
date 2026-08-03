@@ -23,15 +23,14 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               </svg>
             </div>
             <div className="flex flex-col justify-center leading-tight shrink-0">
-              <span className="font-semibold text-sm whitespace-nowrap">PC08 Digital Map</span>
-              <span className="text-[11px] text-gray-500 hidden sm:inline whitespace-nowrap">Traffic Police GIS</span>
+              <span className="font-semibold text-sm whitespace-nowrap">PC08 GIS</span>
             </div>
           </div>
 
           <div className="flex h-full items-center gap-1 sm:gap-2 shrink-0">
             <Link
               to="/areas"
-              title="Areas"
+              title="Địa bàn"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center gap-2 shrink-0 transition-colors",
                 location.pathname.startsWith("/areas") || location.pathname.startsWith("/diaban")
@@ -40,12 +39,12 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               )}
             >
               <EnvironmentOutlined />
-              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Areas</span>
+              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Địa bàn</span>
             </Link>
 
             <Link
               to="/routes"
-              title="Routes"
+              title="Tuyến đường"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center gap-2 shrink-0 transition-colors",
                 location.pathname.startsWith("/routes") || location.pathname.startsWith("/tuyenduong")
@@ -54,7 +53,7 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               )}
             >
               <ForkOutlined />
-              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Routes</span>
+              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Tuyến đường</span>
             </Link>
           </div>
         </div>

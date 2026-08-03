@@ -51,7 +51,7 @@ client/src/
 ```
 
 **Bắt buộc:**
-- Mọi gọi API tới Odoo → qua `client/src/libs/odoo.ts` duy nhất (proxy `/web` và `/mbf` đã cấu hình trong `vite.config.ts`). Không dùng Odoo views.
+- Mọi gọi API tới CDN → qua `client/src/libs/cdn.ts`.
 - Chỉ Tailwind CSS, không vanilla CSS. Important modifier: `class!` (vd: `text-red-500!`).
 - Ưu tiên component Ant Design có sẵn.
 - Import nội bộ dùng alias `@/` (vd: `@/providers/authProvider`).
@@ -89,53 +89,6 @@ client/src/
 - Dependencies: `@ant-design/icons`, `@ant-design/x`, `@emotion/react`, `@fontsource-variable/geist`, `@refinedev/antd`, `@refinedev/cli`, `@refinedev/core`, `@refinedev/react-router`, `@refinedev/react-table`, `@refinedev/simple-rest`, `@tabler/icons-react`, `@tanstack/react-table`, `@uiw/react-md-editor`, `antd`, `class-variance-authority`, `date-fns`, `dayjs`, `mammoth`, `radix-ui`, `react`, `react-dom`, `react-router`, `recharts`, `shadcn`, `tailwind-merge`, `tailwindcss`, `tw-animate-css`, `xlsx`, `zustand`
 - DevDependencies: `@tailwindcss/postcss`, `@types/node`, `@types/react`, `@types/react-dom`, `@vitejs/plugin-react`, `autoprefixer`, `clsx`, `postcss`, `typescript`, `vite`, `vitest`
 
-# 4. Backend (Odoo 19)
-
-**Cấu trúc & Môi trường:**
-- Các module Odoo hiện có: `core`, `mbf_assistant`, `mbf_document`, `shells` (trong `server/modules/`).
-- Cấu trúc module chuẩn:
-  ```text
-  server/modules/mbf_xxx/
-  ├── __manifest__.py
-  ├── __init__.py
-  ├── models/
-  │   ├── __init__.py
-  │   └── mbf_xxx.py
-  └── security/
-      └── ir.model.access.csv
-  ```
-- Python packages đã cài sẵn (`server/requirements.txt`): `watchdog`, `openpyxl`, `google-genai`, `pillow`, `python-docx`.
-- Biến môi trường: `ODOO_DB`, `GEMINI_API_KEY`, `POSTGRES_*` được định nghĩa trong `.env`.
-
-**Quy tắc Coding:**
-- Xử lý nghiệp vụ 100% qua ORM Odoo. Tái sử dụng logic có sẵn trước khi viết mới.
-- Thao tác backend → dùng skill `odoo-19.0`.
-- Naming: module mới `mbf_xxx`, model mới `mbf.xxx.xxx`.
-- Security: `ir.model.access.csv` mặc định `1,1,1,1` cho mọi module mới.
-- Field alignment: căn cột thẳng hàng theo `=`.
-
-```python
-from odoo import models, fields, api
-
-
-class DocumentCategory(models.Model):
-  _name = 'mbf.document.category'
-  _description = 'Danh mục tài liệu'
-
-  name            = fields.Char(string='Tên danh mục', required=True)
-  description     = fields.Text(string='Mô tả')
-  parent_id       = fields.Many2one(
-                      'mbf.document.category',
-                      string='Danh mục cha',
-                      ondelete='cascade',
-                      index=True,
-                    )
-  child_ids       = fields.One2many('mbf.document.category', 'parent_id', string='Danh mục con')
-  parent_path     = fields.Char(index=True, unaccent=False)
-  document_ids    = fields.Many2many('mbf.document', string='Tài liệu')
-```
-
-# 5. Kiểm tra Code
+# 4. Kiểm tra Code
 
 - Sau mỗi lần sinh/sửa code React → chạy `pnpm --prefix client exec tsc --noEmit`.
-- Sau mỗi lần sinh/sửa code Python → chạy `python3 -m py_compile <file_path>`.

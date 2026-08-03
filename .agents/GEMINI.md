@@ -51,7 +51,7 @@ client/src/
 ```
 
 **Bắt buộc:**
-- Mọi gọi API tới Odoo → qua `client/src/libs/odoo.ts` duy nhất (proxy `/web` và `/mbf` đã cấu hình trong `vite.config.ts`). Không dùng Odoo views.
+- Mọi gọi API tới CDN → qua `client/src/libs/cdn.ts`.
 - Chỉ Tailwind CSS, không vanilla CSS. Important modifier: `class!` (vd: `text-red-500!`).
 - Ưu tiên component Ant Design có sẵn.
 - Import nội bộ dùng alias `@/` (vd: `@/providers/authProvider`).
