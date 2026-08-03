@@ -409,8 +409,8 @@ export const OverviewPage: React.FC = () => {
         <Map
           ref={mapRef}
           viewport={{
-            center: [106.6827833, 20.85861468],
-            zoom: 12,
+            center: [106.61860442940119, 20.848955740022355],
+            zoom: 11,
           }}
           styles={{
             light: SATELLITE_MAP_STYLE as any,
@@ -442,7 +442,7 @@ export const OverviewPage: React.FC = () => {
                 interactive
                 fillPaint={{
                   "fill-color": ["coalesce", ["get", "mau_sac"], color],
-                  "fill-opacity": 0.4,
+                  "fill-opacity": 0.25,
                 }}
                 fillHoverPaint={{
                   "fill-opacity": 0.7,
