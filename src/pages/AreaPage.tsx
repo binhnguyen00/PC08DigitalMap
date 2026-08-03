@@ -1,20 +1,11 @@
-import React from "react";
 import { useMany } from "@refinedev/core";
-import {
-  EnvironmentOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  SearchOutlined,
-  InfoCircleOutlined,
-  CompassOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
-import { Input, Spin, Badge, Button, Tooltip, Tag } from "antd";
+import { Badge, Button, Input, Spin } from "antd";
 import type * as GeoJSON from "geojson";
+import React from "react";
 
-import { Map, MapGeoJSON, MapControls, MapPopup, MapRef } from "@/components/map";
-import { AREA_FILES } from "@/libs/cdn";
+import { Map, MapControls, MapGeoJSON, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
 import { IAreaItem } from "@/interfaces";
+import { AREA_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import { cn } from "@/libs/tailwind";
 
 interface IHoverInfo {
@@ -154,7 +145,6 @@ export const AreaPage: React.FC = () => {
       >
         <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50/80 rounded-t-lg">
           <div className="flex items-center gap-2">
-            <EnvironmentOutlined className="text-red-600 font-bold" />
             <span className="font-semibold text-gray-800 text-sm">Địa giới hành chính</span>
             <Badge
               count={`${items.filter((i: IAreaItem) => i.rawJson).length}/${AREA_FILES.length}`}
@@ -164,23 +154,22 @@ export const AreaPage: React.FC = () => {
           <Button
             type="text"
             size="small"
-            icon={<ReloadOutlined />}
             onClick={() => refetch()}
             title="Tải lại dữ liệu"
-          />
+          >
+            Tải lại
+          </Button>
         </div>
 
         <div className="p-3 border-b border-gray-100 flex flex-col gap-2">
           <Input
             placeholder="Tìm kiếm địa bàn / xã phường..."
-            prefix={<SearchOutlined className="text-gray-400" />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             allowClear
             size="small"
           />
           <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-            <span>Hiển thị:</span>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -241,68 +230,21 @@ export const AreaPage: React.FC = () => {
                     <Button
                       type="text"
                       size="small"
-                      icon={!isHidden ? <EyeOutlined className="text-red-600" /> : <EyeInvisibleOutlined className="text-gray-400" />}
                       onClick={() => toggleVisibility(name)}
-                    />
+                      className={cn("text-xs", !isHidden ? "text-red-600" : "text-gray-400")}
+                    >
+                      {!isHidden ? "Hiện" : "Ẩn"}
+                    </Button>
                   </div>
                 </div>
               );
             })
           )}
         </div>
-
-        {activeProperties && (
-          <div className="p-3 border-t border-gray-200 bg-red-50/50 text-xs flex flex-col gap-1.5 rounded-b-lg">
-            <div className="flex items-center justify-between font-bold text-red-900 border-b border-red-200/60 pb-1">
-              <span>{activeProperties.ten_xa || activeProperties.name || "Chi tiết địa bàn"}</span>
-              {activeProperties.loai && <Tag color="red">{activeProperties.loai}</Tag>}
-            </div>
-
-            {activeProperties.ten_tinh && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Tỉnh/Thành phố:</span>
-                <span className="font-medium">{activeProperties.ten_tinh}</span>
-              </div>
-            )}
-            {activeProperties.dtich_km2 !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Diện tích:</span>
-                <span className="font-medium">{activeProperties.dtich_km2} km²</span>
-              </div>
-            )}
-            {activeProperties.dan_so !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Dân số:</span>
-                <span className="font-medium">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
-              </div>
-            )}
-            {activeProperties.matdo_km2 !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Mật độ:</span>
-                <span className="font-medium">{Number(activeProperties.matdo_km2).toLocaleString("vi-VN")} /km²</span>
-              </div>
-            )}
-            {activeProperties.tru_so && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Trụ sở:</span>
-                <span className="font-medium truncate max-w-42.5" title={activeProperties.tru_so}>
-                  {activeProperties.tru_so}
-                </span>
-              </div>
-            )}
-            {activeProperties.sap_nhap && (
-              <div className="mt-1 pt-1 border-t border-red-200/50">
-                <span className="text-gray-500 block mb-0.5">Phương án sáp nhập:</span>
-                <span className="text-gray-700 italic text-[11px] block">{activeProperties.sap_nhap}</span>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       <Button
         type="default"
-        icon={<EnvironmentOutlined />}
         onClick={() => setSidebarOpen((prev) => !prev)}
         className="absolute top-3 left-3 z-20 shadow-md bg-white border-gray-300"
         style={{ display: sidebarOpen ? "none" : "flex" }}
@@ -314,13 +256,20 @@ export const AreaPage: React.FC = () => {
         <Map
           ref={mapRef}
           viewport={{
-            center: [106.68, 20.85],
-            zoom: 11,
+            center: [106.6827833, 20.85861468],
+            zoom: 12,
           }}
-          theme="light"
-          className="w-full h-full"
+          styles={{
+            light: SATELLITE_MAP_STYLE as any,
+            dark: SATELLITE_MAP_STYLE as any,
+          }}
         >
-          <MapControls position="top-right" />
+          <MapControls position="top-right" showFullscreen />
+          <MapFullscreenTitle />
+          <MapLegend
+            districtColors={DISTRICT_COLORS}
+            hiddenAreas={hiddenItems}
+          />
 
           {items.map((item: IAreaItem) => {
             if (!item.rawJson || hiddenItems[item.id]) return null;
@@ -333,6 +282,7 @@ export const AreaPage: React.FC = () => {
                 id={`area-${item.id}`}
                 data={item.rawJson}
                 promoteId="ma_xa"
+                labelProperty="ten_xa"
                 interactive
                 fillPaint={{
                   "fill-color": ["coalesce", ["get", "mau_sac"], color],
@@ -342,11 +292,11 @@ export const AreaPage: React.FC = () => {
                   "fill-opacity": 0.75,
                 }}
                 linePaint={{
-                  "line-color": color,
+                  "line-color": "#ffffff",
                   "line-width": 1.8,
                   "line-opacity": 0.9,
                 }}
-                onHover={(e) => {
+                onHover={(e: any) => {
                   if (e) {
                     setHoverInfo({
                       feature: e.feature as any,
@@ -357,7 +307,7 @@ export const AreaPage: React.FC = () => {
                     setHoverInfo(null);
                   }
                 }}
-                onClick={(e) => {
+                onClick={(e: any) => {
                   setSelectedFeature({
                     feature: e.feature as any,
                     longitude: e.longitude,
@@ -382,21 +332,8 @@ export const AreaPage: React.FC = () => {
             >
               <div className="p-2 text-xs flex flex-col gap-1">
                 <div className="font-bold text-sm text-red-600 border-b pb-1 flex items-center gap-1.5">
-                  <InfoCircleOutlined />
                   <span>{activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}</span>
                 </div>
-                {activeProperties?.loai && (
-                  <div>
-                    <span className="text-gray-500">Loại: </span>
-                    <span className="font-semibold">{activeProperties.loai}</span>
-                  </div>
-                )}
-                {activeProperties?.ten_tinh && (
-                  <div>
-                    <span className="text-gray-500">Tỉnh/TP: </span>
-                    <span className="font-semibold">{activeProperties.ten_tinh}</span>
-                  </div>
-                )}
                 {activeProperties?.dtich_km2 !== undefined && (
                   <div>
                     <span className="text-gray-500">Diện tích: </span>

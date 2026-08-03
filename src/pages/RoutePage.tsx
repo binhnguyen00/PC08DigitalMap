@@ -1,18 +1,10 @@
 import React from "react";
 import { useMany } from "@refinedev/core";
-import {
-  ForkOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  SearchOutlined,
-  CompassOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
-import { Input, Spin, Badge, Button, Tooltip } from "antd";
+import { Input, Spin, Badge, Button } from "antd";
 import type * as GeoJSON from "geojson";
 
-import { Map, MapGeoJSON, MapControls, MapPopup, MapRef } from "@/components/map";
-import { ROUTE_FILES } from "@/libs/cdn";
+import { Map, MapGeoJSON, MapControls, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
+import { ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import { IRouteItem } from "@/interfaces";
 import { cn } from "@/libs/tailwind";
 
@@ -120,7 +112,6 @@ export const RoutePage: React.FC = () => {
       >
         <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50/80 rounded-t-lg">
           <div className="flex items-center gap-2">
-            <ForkOutlined className="text-red-600 font-bold" />
             <span className="font-semibold text-gray-800 text-sm">Tuyến đường giao thông</span>
             <Badge
               count={`${items.filter((i: IRouteItem) => i.rawJson).length}/${ROUTE_FILES.length}`}
@@ -130,16 +121,16 @@ export const RoutePage: React.FC = () => {
           <Button
             type="text"
             size="small"
-            icon={<ReloadOutlined />}
             onClick={() => refetch()}
             title="Tải lại dữ liệu"
-          />
+          >
+            Tải lại
+          </Button>
         </div>
 
         <div className="p-3 border-b border-gray-100 flex flex-col gap-2">
           <Input
             placeholder="Tìm kiếm tuyến đường..."
-            prefix={<SearchOutlined className="text-gray-400" />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             allowClear
@@ -187,9 +178,11 @@ export const RoutePage: React.FC = () => {
                     <Button
                       type="text"
                       size="small"
-                      icon={!isHidden ? <EyeOutlined className="text-red-600" /> : <EyeInvisibleOutlined className="text-gray-400" />}
                       onClick={() => toggleVisibility(name)}
-                    />
+                      className={cn("text-xs", !isHidden ? "text-red-600" : "text-gray-400")}
+                    >
+                      {!isHidden ? "Hiện" : "Ẩn"}
+                    </Button>
                   </div>
                 </div>
               );
@@ -200,7 +193,6 @@ export const RoutePage: React.FC = () => {
 
       <Button
         type="default"
-        icon={<ForkOutlined />}
         onClick={() => setSidebarOpen((prev) => !prev)}
         className="absolute top-3 left-3 z-20 shadow-md bg-white border-gray-300"
         style={{ display: sidebarOpen ? "none" : "flex" }}
@@ -215,10 +207,18 @@ export const RoutePage: React.FC = () => {
             center: [106.68, 20.85],
             zoom: 11,
           }}
-          theme="light"
+          styles={{
+            light: SATELLITE_MAP_STYLE as any,
+            dark: SATELLITE_MAP_STYLE as any,
+          }}
           className="w-full h-full"
         >
-          <MapControls position="top-right" />
+          <MapControls position="top-right" showFullscreen />
+          <MapFullscreenTitle />
+          <MapLegend
+            routeColors={ROUTE_COLORS}
+            hiddenRoutes={hiddenItems}
+          />
 
           {items.map((item: IRouteItem) => {
             if (!item.rawJson || hiddenItems[item.id]) return null;

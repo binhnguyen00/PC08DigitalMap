@@ -17,8 +17,6 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
-
 import { cn } from "@/libs/utils";
 
 const defaultStyles = {
@@ -139,6 +137,9 @@ type MapContextValue = {
   map: MapLibreGL.Map | null;
   isLoaded: boolean;
   resolvedTheme: Theme;
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const MapContext = createContext<MapContextValue | null>(null);
@@ -293,6 +294,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       attributionControl: {
         compact: true,
       },
+      center: [106.6827833, 20.85861468],
+      zoom: 12,
       ...props,
       ...viewport,
     });
@@ -379,20 +382,45 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     mapInstance.setStyle(pendingStyle, { diff: false });
   }, [mapInstance, pendingStyle]);
 
-  // Sync projection when the prop changes after mount.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   useEffect(() => {
-    if (!mapInstance || !isStyleLoaded || !projection) return;
-    if (styleSwapInFlightRef.current) return;
-    mapInstance.setProjection(projection);
-  }, [mapInstance, isStyleLoaded, projection]);
+    const handleFullscreenChange = () => {
+      if (containerRef.current) {
+        setIsFullscreen(document.fullscreenElement === containerRef.current);
+      } else {
+        setIsFullscreen(!!document.fullscreenElement);
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      container.requestFullscreen().catch(() => {});
+    }
+  }, []);
 
   const contextValue = useMemo(
     () => ({
       map: mapInstance,
       isLoaded: isLoaded && isStyleLoaded,
       resolvedTheme,
+      isFullscreen,
+      toggleFullscreen,
+      containerRef,
     }),
-    [mapInstance, isLoaded, isStyleLoaded, resolvedTheme],
+    [mapInstance, isLoaded, isStyleLoaded, resolvedTheme, isFullscreen, toggleFullscreen],
   );
 
   return (
@@ -610,9 +638,9 @@ function PopupCloseButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="Close popup"
-      className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+      className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
-      <X className="size-3.5" />
+      ✕
     </button>
   );
 }
@@ -857,11 +885,11 @@ function MapControls({
   showZoom = true,
   showCompass = false,
   showLocate = false,
-  showFullscreen = false,
+  showFullscreen = true,
   className,
   onLocate,
 }: MapControlsProps) {
-  const { map } = useMap();
+  const { map, isFullscreen, toggleFullscreen } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
 
   const handleZoomIn = useCallback(() => {
@@ -904,36 +932,39 @@ function MapControls({
   }, [map, onLocate]);
 
   const handleFullscreen = useCallback(() => {
-    const container = map?.getContainer();
-    if (!container) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      container.requestFullscreen();
+    toggleFullscreen();
+  }, [toggleFullscreen]);
+
+  const posClass = useMemo(() => {
+    if (position === "top-right" && isFullscreen) {
+      return "top-4 right-4";
     }
-  }, [map]);
+    return positionClasses[position];
+  }, [position, isFullscreen]);
 
   return (
     <div
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
-        positionClasses[position],
+        posClass,
         className,
       )}
     >
       {showZoom && (
         <ControlGroup>
           <ControlButton onClick={handleZoomIn} label="Zoom in">
-            <Plus className="size-4" />
+            <span className="font-bold text-base">+</span>
           </ControlButton>
           <ControlButton onClick={handleZoomOut} label="Zoom out">
-            <Minus className="size-4" />
+            <span className="font-bold text-base">−</span>
           </ControlButton>
         </ControlGroup>
       )}
       {showCompass && (
         <ControlGroup>
-          <CompassButton onClick={handleResetBearing} />
+          <ControlButton onClick={handleResetBearing} label="Reset bearing to north">
+            <span className="text-xs font-semibold">Bắc</span>
+          </ControlButton>
         </ControlGroup>
       )}
       {showLocate && (
@@ -943,64 +974,20 @@ function MapControls({
             label="Find my location"
             disabled={waitingForLocation}
           >
-            {waitingForLocation ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Locate className="size-4" />
-            )}
+            <span className="text-[10px] font-medium">{waitingForLocation ? "..." : "Vị trí"}</span>
           </ControlButton>
         </ControlGroup>
       )}
       {showFullscreen && (
         <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
-            <Maximize className="size-4" />
+          <ControlButton onClick={handleFullscreen} label={isFullscreen ? "Exit fullscreen" : "Toggle fullscreen"}>
+            <span className="text-[10px] font-medium leading-none px-1 text-center">
+              {isFullscreen ? "Thu nhỏ" : "Toàn màn"}
+            </span>
           </ControlButton>
         </ControlGroup>
       )}
     </div>
-  );
-}
-
-function CompassButton({ onClick }: { onClick: () => void }) {
-  const { map } = useMap();
-  const compassRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    if (!map || !compassRef.current) return;
-
-    const compass = compassRef.current;
-
-    const updateRotation = () => {
-      const bearing = map.getBearing();
-      const pitch = map.getPitch();
-      compass.style.transform = `rotateX(${pitch}deg) rotateZ(${-bearing}deg)`;
-    };
-
-    map.on("rotate", updateRotation);
-    map.on("pitch", updateRotation);
-    updateRotation();
-
-    return () => {
-      map.off("rotate", updateRotation);
-      map.off("pitch", updateRotation);
-    };
-  }, [map]);
-
-  return (
-    <ControlButton onClick={onClick} label="Reset bearing to north">
-      <svg
-        ref={compassRef}
-        viewBox="0 0 24 24"
-        className="size-5"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <path d="M12 2L16 12H12V2Z" className="fill-red-500" />
-        <path d="M12 2L8 12H12V2Z" className="fill-red-300" />
-        <path d="M12 22L16 12H12V22Z" className="fill-muted-foreground/60" />
-        <path d="M12 22L8 12H12V22Z" className="fill-muted-foreground/30" />
-      </svg>
-    </ControlButton>
   );
 }
 
@@ -1246,6 +1233,8 @@ type MapGeoJSONData<
 
 type MapFillPaint = NonNullable<MapLibreGL.FillLayerSpecification["paint"]>;
 type MapLinePaint = NonNullable<MapLibreGL.LineLayerSpecification["paint"]>;
+type MapSymbolLayout = NonNullable<MapLibreGL.SymbolLayerSpecification["layout"]>;
+type MapSymbolPaint = NonNullable<MapLibreGL.SymbolLayerSpecification["paint"]>;
 
 /** A rendered feature with strongly-typed `properties`. */
 type MapGeoJSONFeature<
@@ -1296,6 +1285,12 @@ type MapGeoJSONProps<
    * as a `case` expression keyed on hover feature-state. Requires `promoteId`.
    */
   fillHoverPaint?: MapFillPaint;
+  /** Property key to display text label on features (e.g. "ten_xa" or "name") */
+  labelProperty?: string;
+  /** Layout for feature text label symbol layer. */
+  symbolLayout?: MapSymbolLayout;
+  /** Paint for feature text label symbol layer. */
+  symbolPaint?: MapSymbolPaint;
   /** Callback when a feature is clicked. */
   onClick?: (e: MapGeoJSONEvent<P>) => void;
   /** Callback fired when the hovered feature changes; `null` when the cursor leaves. */
@@ -1330,6 +1325,9 @@ function MapGeoJSON<
   fillPaint,
   linePaint,
   fillHoverPaint,
+  labelProperty,
+  symbolLayout,
+  symbolPaint,
   onClick,
   onHover,
   interactive = false,
@@ -1341,11 +1339,13 @@ function MapGeoJSON<
   const sourceId = `geojson-source-${id}`;
   const fillLayerId = `geojson-fill-${id}`;
   const lineLayerId = `geojson-line-${id}`;
+  const symbolLayerId = `geojson-symbol-${id}`;
 
   const defaults = GEOJSON_DEFAULT_COLORS[resolvedTheme];
 
   const showFill = fillPaint !== false;
   const showLine = linePaint !== false;
+  const showSymbol = Boolean(labelProperty || symbolLayout || symbolPaint);
 
   const mergedFillPaint = useMemo(
     () =>
@@ -1363,6 +1363,30 @@ function MapGeoJSON<
     }),
     [defaults.line, linePaint],
   );
+
+  const mergedSymbolLayout = useMemo<MapSymbolLayout>(
+    () => ({
+      "text-field": labelProperty
+        ? ["coalesce", ["get", labelProperty], ["get", "name"], ""]
+        : "",
+      "text-size": 12,
+      "text-allow-overlap": true,
+      "text-ignore-placement": false,
+      ...(symbolLayout || {}),
+    }),
+    [labelProperty, symbolLayout],
+  );
+
+  const mergedSymbolPaint = useMemo<MapSymbolPaint>(
+    () => ({
+      "text-color": "#ffffff",
+      "text-halo-color": "#000000",
+      "text-halo-width": 2,
+      ...(symbolPaint || {}),
+    }),
+    [symbolPaint],
+  );
+
   const latestRef = useRef({ onClick, onHover });
   latestRef.current = { onClick, onHover };
 
@@ -1378,6 +1402,7 @@ function MapGeoJSON<
 
     return () => {
       try {
+        if (map.getLayer(symbolLayerId)) map.removeLayer(symbolLayerId);
         if (map.getLayer(lineLayerId)) map.removeLayer(lineLayerId);
         if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
         if (map.getSource(sourceId)) map.removeSource(sourceId);
@@ -1432,6 +1457,21 @@ function MapGeoJSON<
       map.removeLayer(lineLayerId);
     }
 
+    if (showSymbol && !map.getLayer(symbolLayerId)) {
+      map.addLayer(
+        {
+          id: symbolLayerId,
+          type: "symbol",
+          source: sourceId,
+          layout: mergedSymbolLayout,
+          paint: mergedSymbolPaint,
+        },
+        beforeId,
+      );
+    } else if (!showSymbol && map.getLayer(symbolLayerId)) {
+      map.removeLayer(symbolLayerId);
+    }
+
     if (showFill && map.getLayer(fillLayerId)) {
       for (const [key, value] of Object.entries(mergedFillPaint)) {
         map.setPaintProperty(
@@ -1450,16 +1490,36 @@ function MapGeoJSON<
         );
       }
     }
+    if (showSymbol && map.getLayer(symbolLayerId)) {
+      for (const [key, value] of Object.entries(mergedSymbolLayout)) {
+        map.setLayoutProperty(
+          symbolLayerId,
+          key as keyof MapSymbolLayout,
+          value as never,
+        );
+      }
+      for (const [key, value] of Object.entries(mergedSymbolPaint)) {
+        map.setPaintProperty(
+          symbolLayerId,
+          key as keyof MapSymbolPaint,
+          value as never,
+        );
+      }
+    }
   }, [
     isLoaded,
     map,
     sourceId,
     fillLayerId,
     lineLayerId,
+    symbolLayerId,
     showFill,
     showLine,
+    showSymbol,
     mergedFillPaint,
     mergedLinePaint,
+    mergedSymbolLayout,
+    mergedSymbolPaint,
     beforeId,
   ]);
 
@@ -2179,10 +2239,151 @@ function MapClusterLayer<
     unclusteredLayerId,
     sourceId,
     onClusterClick,
-    onPointClick,
   ]);
 
   return null;
+}
+
+type MapFullscreenTitleProps = {
+  title?: string;
+  subtitle?: string;
+  className?: string;
+};
+
+function MapFullscreenTitle({
+  title = "PHÒNG CSGT THÀNH PHỐ HẢI PHÒNG",
+  subtitle = "BẢN ĐỒ SỐ ĐỊA BÀN VÀ TUYẾN ĐƯỜNG",
+  className,
+}: MapFullscreenTitleProps) {
+  const { isFullscreen } = useMap();
+
+  if (!isFullscreen) return null;
+
+  return (
+    <div
+      className={cn(
+        "absolute top-4 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none transition-all duration-300 bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-xl border border-white/15 shadow-2xl max-w-xl shrink-0 whitespace-nowrap",
+        className
+      )}
+    >
+      <div className="text-xs sm:text-sm font-bold text-white tracking-wider uppercase drop-shadow-md text-center">
+        {title}
+      </div>
+      <div className="text-lg sm:text-xl font-black text-white tracking-wide uppercase mt-0.5 drop-shadow-md text-center">
+        {subtitle}
+      </div>
+    </div>
+  );
+}
+
+const DISTRICT_NAMES: Record<string, string> = {
+  AnBien: "An Biên",
+  AnDuong: "An Dương",
+  AnHai: "An Hải",
+  AnPhong: "An Phong",
+  AnThanh: "An Thạnh",
+  GiaVien: "Gia Viên",
+  HongAn: "Hồng An",
+  HongBang: "Hồng Bàng",
+  HungDao: "Hưng Đạo",
+  KienAn: "Kiến An",
+  KimThanh: "Kim Thành",
+  LeChan: "Lê Chân",
+  NgoQuyen: "Ngô Quyền",
+  PhuLien: "Phù Liễn",
+  PhuThai: "Phú Thái",
+};
+
+const ROUTE_NAMES: Record<string, string> = {
+  QL17B: "QL17B",
+  QL5: "QL5",
+  ĐT355: "ĐT355",
+};
+
+type MapLegendProps = {
+  districtColors?: Record<string, string>;
+  routeColors?: Record<string, string>;
+  hiddenAreas?: Record<string, boolean>;
+  hiddenRoutes?: Record<string, boolean>;
+  title?: string;
+  className?: string;
+  alwaysShow?: boolean;
+};
+
+function MapLegend({
+  districtColors,
+  routeColors,
+  hiddenAreas = {},
+  hiddenRoutes = {},
+  title = "CHÚ GIẢI",
+  className,
+  alwaysShow = false,
+}: MapLegendProps) {
+  const { isFullscreen } = useMap();
+
+  if (!isFullscreen && !alwaysShow) return null;
+
+  const activeDistricts = districtColors
+    ? Object.entries(districtColors).filter(([id]) => !hiddenAreas[id])
+    : [];
+
+  const activeRoutes = routeColors
+    ? Object.entries(routeColors).filter(([id]) => !hiddenRoutes[id])
+    : [];
+
+  if (activeDistricts.length === 0 && activeRoutes.length === 0) return null;
+
+  return (
+    <div
+      className={cn(
+        "absolute bottom-4 right-4 z-20 bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-3 text-xs w-72 h-auto font-sans leading-relaxed select-none transition-all duration-300",
+        className
+      )}
+    >
+      <div className="font-bold text-xs uppercase tracking-wider text-white border-b border-white/20 pb-1.5 mb-2 flex items-center gap-1.5">
+        <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+        {title}
+      </div>
+
+      {activeDistricts.length > 0 && (
+        <div className="mb-2.5">
+          <div className="text-[11px] font-semibold text-slate-200 mb-1">Địa bàn:</div>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+            {activeDistricts.map(([id, color]) => (
+              <div key={`legend-district-${id}`} className="flex items-center gap-1.5 truncate">
+                <span
+                  className="w-3 h-3 rounded-xs border border-white/40 shrink-0 shadow-sm"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="truncate text-[11px] font-medium text-slate-100" title={DISTRICT_NAMES[id] || id}>
+                  {DISTRICT_NAMES[id] || id}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeRoutes.length > 0 && (
+        <div>
+          <div className="text-[11px] font-semibold text-slate-200 mb-1">Tuyến đường:</div>
+          <div className="flex flex-col gap-1">
+            {activeRoutes.map(([id, color]) => (
+              <div key={`legend-route-${id}`} className="flex items-center gap-2">
+                <span
+                  className="w-4 h-1 rounded-full shrink-0 shadow-sm"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-[11px] font-medium text-slate-100" title={ROUTE_NAMES[id] || id}>
+                  {ROUTE_NAMES[id] || id}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export {
@@ -2199,6 +2400,8 @@ export {
   MapArc,
   MapGeoJSON,
   MapClusterLayer,
+  MapFullscreenTitle,
+  MapLegend,
 };
 
 export type {
@@ -2222,4 +2425,6 @@ export type {
   MapArcProps,
   MapGeoJSONProps,
   MapClusterLayerProps,
+  MapFullscreenTitleProps,
+  MapLegendProps,
 };

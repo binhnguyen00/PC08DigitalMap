@@ -2,6 +2,30 @@ import { IAreaItem, IRouteItem } from "@/interfaces";
 
 export const CDN_BASE_URL = "https://cdn.jsdelivr.net/gh/binhnguyen00/PC08DigitalMap@main/data";
 
+export const SATELLITE_MAP_STYLE = {
+  version: 8,
+  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  sources: {
+    satellite: {
+      type: "raster",
+      tiles: [
+        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+      ],
+      tileSize: 256,
+    },
+  },
+  layers: [
+    {
+      id: "satellite-tiles",
+      type: "raster",
+      source: "satellite",
+      minzoom: 0,
+      maxzoom: 19,
+    },
+  ],
+} as const;
+
+
 export const AREA_FILES = [
   "AnBien",
   "AnDuong",

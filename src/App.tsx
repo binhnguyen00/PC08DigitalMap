@@ -7,7 +7,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { ErrorComponent, RefineThemes } from "@refinedev/antd";
 
 import { AppLayout } from "./components/AppLayout";
-import { AreaPage, RoutePage } from "./pages";
+import { AreaPage, OverviewPage, RoutePage } from "./pages";
 import { dataProvider } from "./providers/dataProvider";
 import { i18nProvider } from "./providers/i18nProvider";
 
@@ -30,6 +30,13 @@ export default function App() {
       mutationMode: "pessimistic",
     },
     resources: [
+      {
+        name: "overview",
+        list: "/overview",
+        meta: {
+          label: "Bản đồ",
+        },
+      },
       {
         name: "areas",
         list: "/areas",
@@ -63,7 +70,8 @@ export default function App() {
                     </AppLayout>
                   }
                 >
-                  <Route index element={<Navigate to="/areas" replace />} />
+                  <Route index element={<Navigate to="/overview" replace />} />
+                  <Route path="/overview" element={<OverviewPage />} />
                   <Route path="/areas" element={<AreaPage />} />
                   <Route path="/routes" element={<RoutePage />} />
                   <Route path="*" element={<ErrorComponent />} />
