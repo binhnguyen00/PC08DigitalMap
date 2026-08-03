@@ -64,6 +64,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "react-router": "$react-router"
+    }
   }
 }

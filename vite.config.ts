@@ -10,21 +10,10 @@ export default defineConfig(({ mode }) => {
     alias: {
       "@": "/src",
     },
+    dedupe: ["react", "react-dom", "react-router", "react-router-dom"],
   },
   server: {
     port: 3000,
-    proxy: {
-      "/web": {
-        target: env.VITE_ODOO_URL || "http://localhost:8069",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/mbf": {
-        target: env.VITE_ODOO_URL || "http://localhost:8069",
-        changeOrigin: true,
-        secure: false,
-      }
-    },
   },
   build: {
     rollupOptions: {
