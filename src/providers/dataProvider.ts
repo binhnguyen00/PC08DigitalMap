@@ -3,11 +3,13 @@ import {
   DataProvider,
   GetListParams,
   GetListResponse,
+  GetManyParams,
+  GetManyResponse,
   GetOneParams,
   GetOneResponse,
 } from "@refinedev/core";
 
-import { CDN_BASE_URL, fetchGeoJson, getDiaBanList, getTuyenDuongList } from "@/libs/cdn";
+import { CDN_BASE_URL, fetchGeoJson, getAreaList, getRouteList } from "@/libs/cdn";
 
 export const dataProvider: DataProvider = {
   getApiUrl: () => CDN_BASE_URL,
@@ -18,10 +20,10 @@ export const dataProvider: DataProvider = {
     const { resource, filters } = params;
 
     let items: any[] = [];
-    if (resource === "diaban") {
-      items = getDiaBanList();
-    } else if (resource === "tuyenduong") {
-      items = getTuyenDuongList();
+    if (resource === "areas" || resource === "diaban") {
+      items = getAreaList();
+    } else if (resource === "routes" || resource === "tuyenduong") {
+      items = getRouteList();
     }
 
     if (filters && filters.length > 0) {
@@ -45,7 +47,7 @@ export const dataProvider: DataProvider = {
     const { id, resource } = params;
     const itemName = String(id);
 
-    const folder = resource === "diaban" ? "DiaBan" : "TuyenDuong";
+    const folder = resource === "areas" || resource === "diaban" ? "DiaBan" : "TuyenDuong";
     const rawJson = await fetchGeoJson(folder, itemName);
 
     const featureCount = rawJson?.features?.length || 0;
@@ -56,7 +58,7 @@ export const dataProvider: DataProvider = {
       name: itemName,
       filename: `${itemName}.geojson`,
       cdnUrl: `${CDN_BASE_URL}/${folder}/${itemName}.geojson`,
-      type: folder,
+      type: folder === "DiaBan" ? "Area" : "Route",
       featureCount,
       geometryType,
       rawJson,
@@ -64,6 +66,20 @@ export const dataProvider: DataProvider = {
 
     return {
       data: record as TData,
+    };
+  },
+
+  getMany: async <TData extends BaseRecord = BaseRecord>(
+    params: GetManyParams
+  ): Promise<GetManyResponse<TData>> => {
+    const { ids, resource } = params;
+    const results = await Promise.all(
+      ids.map((id) =>
+        dataProvider.getOne<TData>({ resource, id })
+      )
+    );
+    return {
+      data: results.map((res) => res.data),
     };
   },
 

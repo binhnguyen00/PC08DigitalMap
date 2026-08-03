@@ -1,24 +1,28 @@
-export interface IDiaBanItem {
+export interface IAreaItem {
   id: string;
   name: string;
   filename: string;
   cdnUrl: string;
-  type: "DiaBan";
+  type: "Area" | "DiaBan";
   featureCount?: number;
   geometryType?: string;
   rawJson?: any;
 }
 
-export interface ITuyenDuongItem {
+export type IDiaBanItem = IAreaItem;
+
+export interface IRouteItem {
   id: string;
   name: string;
   filename: string;
   cdnUrl: string;
-  type: "TuyenDuong";
+  type: "Route" | "TuyenDuong";
   featureCount?: number;
   geometryType?: string;
   rawJson?: any;
 }
+
+export type ITuyenDuongItem = IRouteItem;
 
 export interface IGeoJsonFeature {
   type: "Feature";

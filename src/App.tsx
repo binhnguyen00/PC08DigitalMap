@@ -7,6 +7,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { ErrorComponent, RefineThemes } from "@refinedev/antd";
 
 import { AppLayout } from "./components/AppLayout";
+import { AreaPage, RoutePage } from "./pages";
 import { dataProvider } from "./providers/dataProvider";
 import { i18nProvider } from "./providers/i18nProvider";
 
@@ -30,19 +31,19 @@ export default function App() {
     },
     resources: [
       {
-        name: "diaban",
-        list: "/diaban",
-        show: "/diaban/show/:id",
+        name: "areas",
+        list: "/areas",
+        show: "/areas/show/:id",
         meta: {
-          label: "Địa bàn",
+          label: "Areas",
         },
       },
       {
-        name: "tuyenduong",
-        list: "/tuyenduong",
-        show: "/tuyenduong/show/:id",
+        name: "routes",
+        list: "/routes",
+        show: "/routes/show/:id",
         meta: {
-          label: "Tuyến đường",
+          label: "Routes",
         },
       },
     ],
@@ -62,12 +63,17 @@ export default function App() {
                     </AppLayout>
                   }
                 >
+                  <Route index element={<Navigate to="/areas" replace />} />
+                  <Route path="/areas" element={<AreaPage />} />
+                  <Route path="/routes" element={<RoutePage />} />
+                  <Route path="/diaban" element={<Navigate to="/areas" replace />} />
+                  <Route path="/tuyenduong" element={<Navigate to="/routes" replace />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>
             </React.Suspense>
 
-            <DocumentTitleHandler handler={() => "PC08 GIS"} />
+            <DocumentTitleHandler handler={() => "PC08 Digital Map"} />
           </Refine>
         </AntDesignApp>
       </ConfigProvider>

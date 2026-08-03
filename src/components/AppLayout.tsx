@@ -24,37 +24,37 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
             </div>
             <div className="flex flex-col justify-center leading-tight shrink-0">
               <span className="font-semibold text-sm whitespace-nowrap">PC08 Digital Map</span>
-              <span className="text-[11px] text-gray-500 hidden sm:inline whitespace-nowrap">Bản đồ Số CSGT Hải Phòng</span>
+              <span className="text-[11px] text-gray-500 hidden sm:inline whitespace-nowrap">Traffic Police GIS</span>
             </div>
           </div>
 
           <div className="flex h-full items-center gap-1 sm:gap-2 shrink-0">
             <Link
-              to="/diaban"
-              title="Địa bàn"
+              to="/areas"
+              title="Areas"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center gap-2 shrink-0 transition-colors",
-                location.pathname.startsWith("/diaban")
+                location.pathname.startsWith("/areas") || location.pathname.startsWith("/diaban")
                   ? "bg-red-600! text-white!"
                   : "text-red-600! hover:bg-red-50!"
               )}
             >
               <EnvironmentOutlined />
-              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Địa bàn</span>
+              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Areas</span>
             </Link>
 
             <Link
-              to="/tuyenduong"
-              title="Tuyến đường"
+              to="/routes"
+              title="Routes"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center gap-2 shrink-0 transition-colors",
-                location.pathname.startsWith("/tuyenduong")
+                location.pathname.startsWith("/routes") || location.pathname.startsWith("/tuyenduong")
                   ? "bg-red-600! text-white!"
                   : "text-red-600! hover:bg-red-50!"
               )}
             >
               <ForkOutlined />
-              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Tuyến đường</span>
+              <span className="font-medium text-sm hidden md:inline whitespace-nowrap">Routes</span>
             </Link>
           </div>
         </div>

@@ -1,8 +1,8 @@
-import { IDiaBanItem, ITuyenDuongItem } from "@/interfaces";
+import { IAreaItem, IRouteItem } from "@/interfaces";
 
 export const CDN_BASE_URL = "https://cdn.jsdelivr.net/gh/binhnguyen00/PC08DigitalMap@main/data";
 
-export const DIA_BAN_FILES = [
+export const AREA_FILES = [
   "AnBien",
   "AnDuong",
   "AnHai",
@@ -20,11 +20,15 @@ export const DIA_BAN_FILES = [
   "PhuThai",
 ];
 
-export const TUYEN_DUONG_FILES = [
+export const DIA_BAN_FILES = AREA_FILES;
+
+export const ROUTE_FILES = [
   "QL17B",
   "QL5",
   "ĐT355",
 ];
+
+export const TUYEN_DUONG_FILES = ROUTE_FILES;
 
 export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string): Promise<any> {
   const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson`;
@@ -46,22 +50,26 @@ export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string
   return await localRes.json();
 }
 
-export function getDiaBanList(): IDiaBanItem[] {
-  return DIA_BAN_FILES.map((name) => ({
+export function getAreaList(): IAreaItem[] {
+  return AREA_FILES.map((name) => ({
     id: name,
     name: name,
     filename: `${name}.geojson`,
     cdnUrl: `${CDN_BASE_URL}/DiaBan/${name}.geojson`,
-    type: "DiaBan",
+    type: "Area",
   }));
 }
 
-export function getTuyenDuongList(): ITuyenDuongItem[] {
-  return TUYEN_DUONG_FILES.map((name) => ({
+export const getDiaBanList = getAreaList;
+
+export function getRouteList(): IRouteItem[] {
+  return ROUTE_FILES.map((name) => ({
     id: name,
     name: name,
     filename: `${name}.geojson`,
     cdnUrl: `${CDN_BASE_URL}/TuyenDuong/${name}.geojson`,
-    type: "TuyenDuong",
+    type: "Route",
   }));
 }
+
+export const getTuyenDuongList = getRouteList;
