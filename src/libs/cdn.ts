@@ -9,7 +9,7 @@ export const SATELLITE_MAP_STYLE = {
     satellite: {
       type: "raster",
       tiles: [
-        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        "https://mt1.google.com/vt/lyrs=y&apistyle=s.t:2|p.v:off&x={x}&y={y}&z={z}",
       ],
       tileSize: 256,
     },

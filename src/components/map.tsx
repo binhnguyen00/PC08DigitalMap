@@ -300,11 +300,54 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       ...viewport,
     });
 
+    const hideNonRoadLayers = (m: MapLibreGL.Map) => {
+      try {
+        const style = m.getStyle();
+        if (!style || !style.layers) return;
+
+        const hideRegex =
+          /(poi|building|transit|airport|station|bus|rail|hospital|school|park|amenity|landmark|house|lodging|restaurant|store|shop|attraction|aeroway)/i;
+
+        for (const layer of style.layers) {
+          const layerId = layer.id;
+          const sourceLayer = (layer as any)["source-layer"] || "";
+
+          // Explicitly keep road, street, highway, and route label layers visible
+          if (
+            /(road|street|highway|route|way|path|track|motorway|primary|secondary|tertiary)/i.test(
+              layerId,
+            ) ||
+            /(road|street|highway|route|way)/i.test(sourceLayer)
+          ) {
+            if (m.getLayer(layerId)) {
+              m.setLayoutProperty(layerId, "visibility", "visible");
+            }
+            continue;
+          }
+
+          if (hideRegex.test(layerId) || hideRegex.test(sourceLayer)) {
+            if (m.getLayer(layerId)) {
+              m.setLayoutProperty(layerId, "visibility", "none");
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Error hiding map layers:", e);
+      }
+    };
+
     const styleLoadHandler = () => {
+      hideNonRoadLayers(map);
       styleSwapInFlightRef.current = false;
       setIsStyleLoaded(true);
     };
-    const loadHandler = () => setIsLoaded(true);
+    const loadHandler = () => {
+      hideNonRoadLayers(map);
+      setIsLoaded(true);
+    };
+    const styleDataHandler = () => {
+      hideNonRoadLayers(map);
+    };
 
     // Viewport change handler - skip if triggered by internal update
     const handleMove = () => {
@@ -314,12 +357,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
     map.on("load", loadHandler);
     map.on("style.load", styleLoadHandler);
+    map.on("styledata", styleDataHandler);
     map.on("move", handleMove);
     setMapInstance(map);
 
     return () => {
       map.off("load", loadHandler);
       map.off("style.load", styleLoadHandler);
+      map.off("styledata", styleDataHandler);
       map.off("move", handleMove);
       map.remove();
       setIsLoaded(false);
@@ -1280,6 +1325,8 @@ type MapGeoJSONProps<
    * `false` to omit the layer.
    */
   linePaint?: MapLinePaint | false;
+  /** Optional paint for an outer casing / glow line layer rendered underneath the main line layer. */
+  lineCasingPaint?: MapLinePaint;
   /**
    * Paint merged onto the fill layer for the feature under the cursor, applied
    * as a `case` expression keyed on hover feature-state. Requires `promoteId`.
@@ -1324,6 +1371,7 @@ function MapGeoJSON<
   promoteId,
   fillPaint,
   linePaint,
+  lineCasingPaint,
   fillHoverPaint,
   labelProperty,
   symbolLayout,
@@ -1338,6 +1386,7 @@ function MapGeoJSON<
   const id = propId ?? autoId;
   const sourceId = `geojson-source-${id}`;
   const fillLayerId = `geojson-fill-${id}`;
+  const casingLayerId = `geojson-casing-${id}`;
   const lineLayerId = `geojson-line-${id}`;
   const symbolLayerId = `geojson-symbol-${id}`;
 
@@ -1345,6 +1394,7 @@ function MapGeoJSON<
 
   const showFill = fillPaint !== false;
   const showLine = linePaint !== false;
+  const showCasing = Boolean(lineCasingPaint);
   const showSymbol = Boolean(labelProperty || symbolLayout || symbolPaint);
 
   const mergedFillPaint = useMemo(
@@ -1362,6 +1412,15 @@ function MapGeoJSON<
       ...(linePaint || {}),
     }),
     [defaults.line, linePaint],
+  );
+  const mergedCasingPaint = useMemo(
+    () => ({
+      "line-color": "#0284c7",
+      "line-width": 10,
+      "line-opacity": 0.8,
+      ...(lineCasingPaint || {}),
+    }),
+    [lineCasingPaint],
   );
 
   const mergedSymbolLayout = useMemo<MapSymbolLayout>(
@@ -1404,6 +1463,7 @@ function MapGeoJSON<
       try {
         if (map.getLayer(symbolLayerId)) map.removeLayer(symbolLayerId);
         if (map.getLayer(lineLayerId)) map.removeLayer(lineLayerId);
+        if (map.getLayer(casingLayerId)) map.removeLayer(casingLayerId);
         if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
         if (map.getSource(sourceId)) map.removeSource(sourceId);
       } catch {
@@ -1441,6 +1501,20 @@ function MapGeoJSON<
       );
     } else if (!showFill && map.getLayer(fillLayerId)) {
       map.removeLayer(fillLayerId);
+    }
+
+    if (showCasing && !map.getLayer(casingLayerId)) {
+      map.addLayer(
+        {
+          id: casingLayerId,
+          type: "line",
+          source: sourceId,
+          paint: mergedCasingPaint,
+        },
+        showLine && map.getLayer(lineLayerId) ? lineLayerId : beforeId,
+      );
+    } else if (!showCasing && map.getLayer(casingLayerId)) {
+      map.removeLayer(casingLayerId);
     }
 
     if (showLine && !map.getLayer(lineLayerId)) {
@@ -1481,6 +1555,15 @@ function MapGeoJSON<
         );
       }
     }
+    if (showCasing && map.getLayer(casingLayerId)) {
+      for (const [key, value] of Object.entries(mergedCasingPaint)) {
+        map.setPaintProperty(
+          casingLayerId,
+          key as keyof MapLinePaint,
+          value as never,
+        );
+      }
+    }
     if (showLine && map.getLayer(lineLayerId)) {
       for (const [key, value] of Object.entries(mergedLinePaint)) {
         map.setPaintProperty(
@@ -1511,21 +1594,26 @@ function MapGeoJSON<
     map,
     sourceId,
     fillLayerId,
+    casingLayerId,
     lineLayerId,
     symbolLayerId,
     showFill,
+    showCasing,
     showLine,
     showSymbol,
     mergedFillPaint,
+    mergedCasingPaint,
     mergedLinePaint,
     mergedSymbolLayout,
     mergedSymbolPaint,
     beforeId,
   ]);
 
-  // Interaction handlers (bound to the fill layer).
+  // Interaction handlers (bound to fill or line layer).
+  const targetLayerId = showFill ? fillLayerId : showLine ? lineLayerId : null;
+
   useEffect(() => {
-    if (!isLoaded || !map || !interactive || !showFill) return;
+    if (!isLoaded || !map || !interactive || !targetLayerId) return;
 
     let hoveredId: string | number | null = null;
 
@@ -1577,18 +1665,18 @@ function MapGeoJSON<
       });
     };
 
-    map.on("mousemove", fillLayerId, handleMouseMove);
-    map.on("mouseleave", fillLayerId, handleMouseLeave);
-    map.on("click", fillLayerId, handleClick);
+    map.on("mousemove", targetLayerId, handleMouseMove);
+    map.on("mouseleave", targetLayerId, handleMouseLeave);
+    map.on("click", targetLayerId, handleClick);
 
     return () => {
-      map.off("mousemove", fillLayerId, handleMouseMove);
-      map.off("mouseleave", fillLayerId, handleMouseLeave);
-      map.off("click", fillLayerId, handleClick);
+      map.off("mousemove", targetLayerId, handleMouseMove);
+      map.off("mouseleave", targetLayerId, handleMouseLeave);
+      map.off("click", targetLayerId, handleClick);
       setHover(null);
       map.getCanvas().style.cursor = "";
     };
-  }, [isLoaded, map, fillLayerId, sourceId, interactive, showFill]);
+  }, [isLoaded, map, targetLayerId, sourceId, interactive]);
 
   return null;
 }

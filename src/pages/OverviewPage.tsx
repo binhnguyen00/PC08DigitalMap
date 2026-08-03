@@ -34,9 +34,9 @@ const DISTRICT_COLORS: Record<string, string> = {
 };
 
 const ROUTE_COLORS: Record<string, string> = {
-  QL17B: "#dc2626",
-  QL5: "#2563eb",
-  ĐT355: "#16a34a",
+  QL17B: "#2563eb",
+  QL5: "#00d2ff",
+  ĐT355: "#38bdf8",
 };
 
 export const OverviewPage: React.FC = () => {
@@ -480,19 +480,51 @@ export const OverviewPage: React.FC = () => {
           {routeItems.map((item: IRouteItem) => {
             if (!item.rawJson || hiddenRoutes[item.id]) return null;
 
-            const color = ROUTE_COLORS[item.id] || "#2563eb";
+            const color = ROUTE_COLORS[item.id] || "#00d2ff";
+
+            const formattedGeoJSON = {
+              ...item.rawJson,
+              features: item.rawJson.features?.map((f: any) => ({
+                ...f,
+                properties: {
+                  ...f.properties,
+                  ten_tuyen: f.properties?.ten_tuyen || f.properties?.name || item.id,
+                },
+              })),
+            };
 
             return (
               <MapGeoJSON
                 key={`route-${item.id}`}
                 id={`route-${item.id}`}
-                data={item.rawJson}
+                data={formattedGeoJSON}
                 interactive
                 fillPaint={false}
+                lineCasingPaint={{
+                  "line-color": "#032b53",
+                  "line-width": 12,
+                  "line-opacity": 0.85,
+                  "line-blur": 1.5,
+                }}
                 linePaint={{
                   "line-color": color,
-                  "line-width": 4.5,
-                  "line-opacity": 0.95,
+                  "line-width": 6,
+                  "line-opacity": 1,
+                }}
+                labelProperty="ten_tuyen"
+                symbolLayout={{
+                  "symbol-placement": "line",
+                  "text-size": 14,
+                  "text-allow-overlap": true,
+                  "text-ignore-placement": true,
+                  "text-keep-upright": true,
+                  "text-max-angle": 30,
+                  "symbol-spacing": 250,
+                }}
+                symbolPaint={{
+                  "text-color": "#ffffff",
+                  "text-halo-color": "#032b53",
+                  "text-halo-width": 3,
                 }}
                 onHover={(e: any) => {
                   if (e) {
