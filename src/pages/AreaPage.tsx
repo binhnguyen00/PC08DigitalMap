@@ -3,7 +3,7 @@ import { Badge, Button, Input, Spin } from "antd";
 import type * as GeoJSON from "geojson";
 import React from "react";
 
-import { Map, MapControls, MapGeoJSON, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
+import { Map, MapControls, MapGeoJSON, MapMarker, MarkerContent, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
 import { IAreaItem } from "@/interfaces";
 import { AREA_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import { cn } from "@/libs/tailwind";
@@ -50,6 +50,44 @@ export const AreaPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   const items = React.useMemo<IAreaItem[]>(() => query?.data?.data || [], [query?.data]);
+
+  const headquartersList = React.useMemo(() => {
+    const list: Array<{
+      id: string;
+      ten_xa: string;
+      latitude: number;
+      longitude: number;
+      feature: GeoJSON.Feature;
+    }> = [];
+
+    for (const item of items) {
+      if (!item.rawJson || hiddenItems[item.id]) continue;
+      const features = item.rawJson.features || [];
+      for (let idx = 0; idx < features.length; idx++) {
+        const feat = features[idx];
+        const truSo = feat.properties?.tru_so;
+        if (Array.isArray(truSo) && truSo.length === 2) {
+          let lat = Number(truSo[0]);
+          let lng = Number(truSo[1]);
+          if (lat > 90) {
+            const temp = lat;
+            lat = lng;
+            lng = temp;
+          }
+          if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+            list.push({
+              id: `${item.id}-${feat.properties?.ma_xa || idx}`,
+              ten_xa: feat.properties?.ten_xa || feat.properties?.name || item.id,
+              latitude: lat,
+              longitude: lng,
+              feature: feat,
+            });
+          }
+        }
+      }
+    }
+    return list;
+  }, [items, hiddenItems]);
 
   const toggleVisibility = React.useCallback((id: string) => {
     setHiddenItems((prev) => ({
@@ -317,6 +355,40 @@ export const AreaPage: React.FC = () => {
               />
             );
           })}
+          {/* Headquarters Point Markers (yellow star + ward name) */}
+          {headquartersList.map((hq) => (
+            <MapMarker
+              key={`hq-${hq.id}`}
+              longitude={hq.longitude}
+              latitude={hq.latitude}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedFeature({
+                  feature: hq.feature,
+                  longitude: hq.longitude,
+                  latitude: hq.latitude,
+                });
+              }}
+            >
+              <MarkerContent className="z-10">
+                <div className="flex flex-col items-center justify-center cursor-pointer group">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="#facc15"
+                    stroke="#78350f"
+                    strokeWidth="1.5"
+                    className="w-4 h-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-125"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <span className="mt-0.5 text-[11px] font-bold text-yellow-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/65 px-1.5 py-0.5 rounded border border-yellow-500/30 group-hover:bg-black/85">
+                    {hq.ten_xa}
+                  </span>
+                </div>
+              </MarkerContent>
+            </MapMarker>
+          ))}
 
           {activePopupInfo && (
             <MapPopup

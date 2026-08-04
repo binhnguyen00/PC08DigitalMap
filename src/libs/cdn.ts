@@ -52,6 +52,7 @@ export const ROUTE_FILES = [
   "QL17B",
   "ĐT351",
   "ĐT354",
+  "ĐT353",
   "ĐT355",
   "ĐT360",
 ];

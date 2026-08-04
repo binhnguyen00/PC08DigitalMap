@@ -2340,7 +2340,7 @@ type MapFullscreenTitleProps = {
 
 function MapFullscreenTitle({
   title = "PHÒNG CSGT THÀNH PHỐ HẢI PHÒNG",
-  subtitle = "BẢN ĐỒ SỐ ĐỊA BÀN VÀ TUYẾN ĐƯỜNG",
+  subtitle = "BẢN ĐỒ ĐỊA BÀN VÀ TUYẾN ĐƯỜNG",
   className,
 }: MapFullscreenTitleProps) {
   const { isFullscreen } = useMap();

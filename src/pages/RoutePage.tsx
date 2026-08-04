@@ -221,10 +221,6 @@ export const RoutePage: React.FC = () => {
         >
           <MapControls position="top-right" showFullscreen />
           <MapFullscreenTitle />
-          <MapLegend
-            routeColors={ROUTE_COLORS}
-            hiddenRoutes={hiddenItems}
-          />
 
           {items.map((item: IRouteItem) => {
             if (!item.rawJson || hiddenItems[item.id]) return null;
@@ -251,19 +247,19 @@ export const RoutePage: React.FC = () => {
                 fillPaint={false}
                 lineCasingPaint={{
                   "line-color": "#18181b",
-                  "line-width": 10,
+                  "line-width": 6.5,
                   "line-opacity": 0.75,
                   "line-blur": 1,
                 }}
                 linePaint={{
                   "line-color": color,
-                  "line-width": 6,
+                  "line-width": 3.5,
                   "line-opacity": 1,
                 }}
                 labelProperty="ten_tuyen"
                 symbolLayout={{
                   "symbol-placement": "line",
-                  "text-size": 13,
+                  "text-size": 10,
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                   "text-keep-upright": true,
@@ -273,7 +269,7 @@ export const RoutePage: React.FC = () => {
                 symbolPaint={{
                   "text-color": "#ffffff",
                   "text-halo-color": "#000000",
-                  "text-halo-width": 3,
+                  "text-halo-width": 2,
                 }}
                 onHover={(e) => {
                   if (e) {

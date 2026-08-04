@@ -3,7 +3,7 @@ import { Badge, Button, Input, Spin, Tabs } from "antd";
 import type * as GeoJSON from "geojson";
 import React from "react";
 
-import { Map, MapControls, MapGeoJSON, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
+import { Map, MapControls, MapGeoJSON, MapMarker, MarkerContent, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
 import { AREA_FILES, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import { cn } from "@/libs/tailwind";
@@ -71,6 +71,44 @@ export const OverviewPage: React.FC = () => {
 
   const areaItems = React.useMemo<IAreaItem[]>(() => areaQuery?.data?.data || [], [areaQuery?.data]);
   const routeItems = React.useMemo<IRouteItem[]>(() => routeQuery?.data?.data || [], [routeQuery?.data]);
+
+  const headquartersList = React.useMemo(() => {
+    const list: Array<{
+      id: string;
+      ten_xa: string;
+      latitude: number;
+      longitude: number;
+      feature: GeoJSON.Feature;
+    }> = [];
+
+    for (const item of areaItems) {
+      if (!item.rawJson || hiddenAreas[item.id]) continue;
+      const features = item.rawJson.features || [];
+      for (let idx = 0; idx < features.length; idx++) {
+        const feat = features[idx];
+        const truSo = feat.properties?.tru_so;
+        if (Array.isArray(truSo) && truSo.length === 2) {
+          let lat = Number(truSo[0]);
+          let lng = Number(truSo[1]);
+          if (lat > 90) {
+            const temp = lat;
+            lat = lng;
+            lng = temp;
+          }
+          if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+            list.push({
+              id: `${item.id}-${feat.properties?.ma_xa || idx}`,
+              ten_xa: feat.properties?.ten_xa || feat.properties?.name || item.id,
+              latitude: lat,
+              longitude: lng,
+              feature: feat,
+            });
+          }
+        }
+      }
+    }
+    return list;
+  }, [areaItems, hiddenAreas]);
 
   const toggleAreaVisibility = React.useCallback((id: string) => {
     setHiddenAreas((prev) => ({
@@ -427,9 +465,7 @@ export const OverviewPage: React.FC = () => {
           <MapFullscreenTitle />
           <MapLegend
             districtColors={DISTRICT_COLORS}
-            routeColors={ROUTE_COLORS}
             hiddenAreas={hiddenAreas}
-            hiddenRoutes={hiddenRoutes}
           />
 
           {/* Area polygon layers */}
@@ -444,7 +480,6 @@ export const OverviewPage: React.FC = () => {
                 id={`area-${item.id}`}
                 data={item.rawJson}
                 promoteId="ma_xa"
-                labelProperty="ten_xa"
                 interactive
                 fillPaint={{
                   "fill-color": ["coalesce", ["get", "mau_sac"], color],
@@ -508,19 +543,19 @@ export const OverviewPage: React.FC = () => {
                 fillPaint={false}
                 lineCasingPaint={{
                   "line-color": "#18181b",
-                  "line-width": 10,
+                  "line-width": 6.5,
                   "line-opacity": 0.75,
                   "line-blur": 1,
                 }}
                 linePaint={{
                   "line-color": color,
-                  "line-width": 6,
+                  "line-width": 3.5,
                   "line-opacity": 1,
                 }}
                 labelProperty="ten_tuyen"
                 symbolLayout={{
                   "symbol-placement": "line",
-                  "text-size": 13,
+                  "text-size": 10,
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                   "text-keep-upright": true,
@@ -530,7 +565,7 @@ export const OverviewPage: React.FC = () => {
                 symbolPaint={{
                   "text-color": "#ffffff",
                   "text-halo-color": "#000000",
-                  "text-halo-width": 3,
+                  "text-halo-width": 1,
                 }}
                 onHover={(e: any) => {
                   if (e) {
@@ -555,6 +590,68 @@ export const OverviewPage: React.FC = () => {
               />
             );
           })}
+
+          {/* Area label symbol layers */}
+          {areaItems.map((item: IAreaItem) => {
+            if (!item.rawJson || hiddenAreas[item.id]) return null;
+
+            return (
+              <MapGeoJSON
+                key={`area-label-${item.id}`}
+                id={`area-label-${item.id}`}
+                data={item.rawJson}
+                fillPaint={false}
+                linePaint={false}
+                labelProperty="ten_xa"
+                symbolLayout={{
+                  "text-size": 11,
+                  "text-allow-overlap": true,
+                  "text-ignore-placement": true,
+                }}
+                symbolPaint={{
+                  "text-color": "#ffffff",
+                  "text-halo-color": "#000000",
+                  "text-halo-width": 2,
+                }}
+              />
+            );
+          })}
+
+          {/* Headquarters Point Markers (yellow star + name) */}
+          {headquartersList.map((hq) => (
+            <MapMarker
+              key={`hq-${hq.id}`}
+              longitude={hq.longitude}
+              latitude={hq.latitude}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedFeature({
+                  type: "area",
+                  feature: hq.feature,
+                  longitude: hq.longitude,
+                  latitude: hq.latitude,
+                });
+              }}
+            >
+              <MarkerContent className="z-10">
+                <div className="flex flex-col items-center justify-center cursor-pointer group">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="#facc15"
+                    stroke="#78350f"
+                    strokeWidth="1.5"
+                    className="w-4 h-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-125"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <span className="mt-0.5 text-[11px] font-bold text-yellow-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/65 px-1.5 py-0.5 rounded border border-yellow-500/30 group-hover:bg-black/85">
+                    {hq.ten_xa}
+                  </span>
+                </div>
+              </MarkerContent>
+            </MapMarker>
+          ))}
 
           {activePopupInfo && (
             <MapPopup
