@@ -9,12 +9,12 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
   const { token } = theme.useToken();
 
   return (
-    <Layout style={{ background: token.colorBgLayout }} className="h-screen font-sans flex flex-col overflow-hidden">
-      <Header style={{ background: token.colorBgContainer }} className="border-b border-gray-200 px-3 sm:px-6 flex items-center justify-between h-16 shrink-0 gap-2 sm:gap-4">
+    <Layout className="h-screen font-sans flex flex-col overflow-hidden bg-slate-950">
+      <Header className="bg-black/60 text-white backdrop-blur-md border-b border-white/10 px-3 sm:px-6 flex items-center justify-between h-16 shrink-0 gap-2 sm:gap-4 z-10">
         <div className="flex items-center gap-3 sm:gap-6 h-full min-w-0">
           <div className="flex items-center gap-2 h-full shrink-0">
             <div className="flex flex-col justify-center leading-tight shrink-0">
-              <span className="font-bold text-base text-red-600 whitespace-nowrap">PC08 GIS</span>
+              <span className="font-bold text-base text-red-500 whitespace-nowrap">PC08 GIS</span>
             </div>
           </div>
 
@@ -23,10 +23,10 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               to="/overview"
               title="Bản đồ"
               className={cn(
-                "px-3 py-2 rounded-md flex items-center shrink-0 transition-colors",
+                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
                 location.pathname === "/overview" || location.pathname === "/"
-                  ? "bg-red-600! text-white!"
-                  : "text-red-600! hover:bg-red-50!"
+                  ? "bg-white/15 text-white! border border-white/10"
+                  : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
               <span className="font-medium text-sm whitespace-nowrap">Bản đồ</span>
@@ -36,10 +36,10 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               to="/areas"
               title="Địa bàn"
               className={cn(
-                "px-3 py-2 rounded-md flex items-center shrink-0 transition-colors",
+                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
                 location.pathname.startsWith("/areas") || location.pathname.startsWith("/diaban")
-                  ? "bg-red-600! text-white!"
-                  : "text-red-600! hover:bg-red-50!"
+                  ? "bg-white/15 text-white! border border-white/10"
+                  : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
               <span className="font-medium text-sm whitespace-nowrap">Địa bàn</span>
@@ -49,10 +49,10 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               to="/routes"
               title="Tuyến đường"
               className={cn(
-                "px-3 py-2 rounded-md flex items-center shrink-0 transition-colors",
+                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
                 location.pathname.startsWith("/routes") || location.pathname.startsWith("/tuyenduong")
-                  ? "bg-red-600! text-white!"
-                  : "text-red-600! hover:bg-red-50!"
+                  ? "bg-white/15 text-white! border border-white/10"
+                  : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
               <span className="font-medium text-sm whitespace-nowrap">Tuyến đường</span>
@@ -61,7 +61,7 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
         </div>
       </Header>
 
-      <Content className="flex flex-col flex-1 bg-[#f8f9fa] overflow-y-auto">
+      <Content className="flex flex-col flex-1 bg-slate-900 overflow-hidden relative">
         {children}
       </Content>
     </Layout>

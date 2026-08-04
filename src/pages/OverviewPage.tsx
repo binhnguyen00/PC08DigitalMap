@@ -333,11 +333,11 @@ export const OverviewPage: React.FC = () => {
     <div className="relative w-full h-[calc(100vh-64px)] flex overflow-hidden">
       <div
         className={cn(
-          "absolute top-3 left-3 z-10 w-80 max-h-[calc(100vh-90px)] bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-gray-200 flex flex-col transition-all duration-300",
+          "absolute top-3 left-3 z-10 w-80 max-h-[calc(100vh-90px)] bg-black/60 text-white backdrop-blur-md rounded-lg shadow-2xl border border-white/15 flex flex-col transition-all duration-300",
           !sidebarOpen && "-translate-x-85"
         )}
       >
-        <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50/80 rounded-t-lg">
+        <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-lg">
           <div className="flex items-center gap-2">
             <Badge
               count={`${areaItems.filter((i) => i.rawJson).length + routeItems.filter((i) => i.rawJson).length}/${AREA_FILES.length + ROUTE_FILES.length}`}
@@ -349,25 +349,27 @@ export const OverviewPage: React.FC = () => {
             size="small"
             onClick={handleRefetch}
             title="Tải lại dữ liệu"
+            className="text-slate-300! hover:text-white! hover:bg-white/10!"
           >
             Tải lại
           </Button>
         </div>
 
-        <div className="p-3 border-b border-gray-100 flex flex-col gap-2">
+        <div className="p-3 border-b border-white/10 flex flex-col gap-2">
           <Input
             placeholder="Tìm kiếm địa bàn, xã phường, tuyến đường..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             allowClear
             size="small"
+            className="bg-black/30! border-white/15! text-white! placeholder-slate-400! hover:border-white/30! focus:border-white/30! focus:ring-0!"
           />
-          <div className="flex items-center justify-between text-xs text-gray-500 px-1">
+          <div className="flex items-center justify-between text-xs text-slate-400 px-1">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => toggleAllVisibility(true)}
-                className="text-red-600 hover:underline font-medium cursor-pointer"
+                className="text-red-400 hover:text-red-300 hover:underline font-medium cursor-pointer"
               >
                 Hiện tất cả
               </button>
@@ -375,30 +377,43 @@ export const OverviewPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleAllVisibility(false)}
-                className="text-gray-600 hover:underline cursor-pointer"
+                className="text-slate-400 hover:text-slate-300 hover:underline cursor-pointer"
               >
                 Ẩn tất cả
               </button>
             </div>
           </div>
 
-          <Tabs
-            activeKey={activeTab}
-            onChange={(key) => setActiveTab(key as any)}
-            size="small"
-            className="mt-1"
-            items={[
-              { key: "all", label: "Tất cả" },
-              { key: "areas", label: `Địa bàn (${filteredAreaNames.length})` },
-              { key: "routes", label: `Tuyến đường (${filteredRouteNames.length})` },
-            ]}
-          />
+          <div className="flex gap-1 p-0.5 bg-black/30 rounded-lg border border-white/10 mt-1">
+            {(["all", "areas", "routes"] as const).map((key) => {
+              const labels = {
+                all: "Tất cả",
+                areas: `Địa bàn (${filteredAreaNames.length})`,
+                routes: `Tuyến đường (${filteredRouteNames.length})`,
+              };
+              const isActive = activeTab === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={cn(
+                    "flex-1 py-1 text-center rounded-md text-[11px] font-medium transition-all cursor-pointer",
+                    isActive
+                      ? "bg-white/15 text-white shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  )}
+                >
+                  {labels[key]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2 space-y-3 max-h-[45vh]">
           {(activeTab === "all" || activeTab === "areas") && (
             <div className="space-y-1">
-              <div className="flex items-center gap-1 px-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center gap-1 px-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 <span>Địa bàn ({filteredAreaNames.length})</span>
               </div>
               {isAreasLoading && areaItems.length === 0 ? (
@@ -416,7 +431,7 @@ export const OverviewPage: React.FC = () => {
                     <div
                       key={`area-${name}`}
                       className={cn(
-                        "flex items-center justify-between p-2 rounded-md transition-colors text-xs hover:bg-gray-100 group",
+                        "flex items-center justify-between p-2 rounded-md transition-colors text-xs hover:bg-white/5 group",
                         isHidden && "opacity-50"
                       )}
                     >
@@ -428,11 +443,11 @@ export const OverviewPage: React.FC = () => {
                           className="w-3 h-3 rounded-full shrink-0 border border-black/10"
                           style={{ backgroundColor: color }}
                         />
-                        <span className="font-medium text-gray-800 truncate">{name}</span>
+                        <span className="font-medium text-slate-200 truncate">{name}</span>
                         {!item ? (
-                          <Spin size="small" className="ml-1" />
+                          <Spin size="small" className="ml-1 text-white!" />
                         ) : (
-                          <span className="text-[10px] text-gray-400">({wardCount})</span>
+                          <span className="text-[10px] text-slate-400">({wardCount})</span>
                         )}
                       </div>
 
@@ -440,7 +455,7 @@ export const OverviewPage: React.FC = () => {
                         type="text"
                         size="small"
                         onClick={() => toggleAreaVisibility(name)}
-                        className={cn("text-xs", !isHidden ? "text-red-600" : "text-gray-400")}
+                        className={cn("text-xs! hover:bg-white/10!", !isHidden ? "text-red-400! hover:text-red-300!" : "text-slate-400! hover:text-slate-300!")}
                       >
                         {!isHidden ? "Hiện" : "Ẩn"}
                       </Button>
@@ -453,7 +468,7 @@ export const OverviewPage: React.FC = () => {
 
           {(activeTab === "all" || activeTab === "routes") && (
             <div className="space-y-1">
-              <div className="flex items-center gap-1 px-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center gap-1 px-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 <span>Tuyến đường ({filteredRouteNames.length})</span>
               </div>
               {isRoutesLoading && routeItems.length === 0 ? (
@@ -471,7 +486,7 @@ export const OverviewPage: React.FC = () => {
                     <div
                       key={`route-${name}`}
                       className={cn(
-                        "flex items-center justify-between p-2 rounded-md transition-colors text-xs hover:bg-gray-100 group",
+                        "flex items-center justify-between p-2 rounded-md transition-colors text-xs hover:bg-white/5 group",
                         isHidden && "opacity-50"
                       )}
                     >
@@ -483,11 +498,11 @@ export const OverviewPage: React.FC = () => {
                           className="w-3.5 h-1.5 rounded-full shrink-0"
                           style={{ backgroundColor: color }}
                         />
-                        <span className="font-medium text-gray-800 truncate">{name}</span>
+                        <span className="font-medium text-slate-200 truncate">{name}</span>
                         {!item ? (
-                          <Spin size="small" className="ml-1" />
+                          <Spin size="small" className="ml-1 text-white!" />
                         ) : (
-                          <span className="text-[10px] text-gray-400">({segmentCount} đoạn)</span>
+                          <span className="text-[10px] text-slate-400">({segmentCount} đoạn)</span>
                         )}
                       </div>
 
@@ -495,7 +510,7 @@ export const OverviewPage: React.FC = () => {
                         type="text"
                         size="small"
                         onClick={() => toggleRouteVisibility(name)}
-                        className={cn("text-xs", !isHidden ? "text-red-600" : "text-gray-400")}
+                        className={cn("text-xs! hover:bg-white/10!", !isHidden ? "text-red-400! hover:text-red-300!" : "text-slate-400! hover:text-slate-300!")}
                       >
                         {!isHidden ? "Hiện" : "Ẩn"}
                       </Button>
@@ -511,7 +526,7 @@ export const OverviewPage: React.FC = () => {
       <Button
         type="default"
         onClick={() => setSidebarOpen((prev) => !prev)}
-        className="absolute top-3 left-3 z-20 shadow-md bg-white border-gray-300"
+        className="absolute top-3 left-3 z-20 shadow-2xl bg-black/60 text-white border-white/15 backdrop-blur-md hover:bg-black/85 hover:text-white! hover:border-white/30!"
         style={{ display: sidebarOpen ? "none" : "flex" }}
       >
         Danh sách dữ liệu
