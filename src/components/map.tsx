@@ -1118,7 +1118,7 @@ function MapPopup({
     <div
       className={cn(
         "bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-3 relative max-w-72",
-        "animate-in fade-in-0 zoom-in-95 duration-200 ease-out",
+        "animate-popup",
         className,
       )}
     >

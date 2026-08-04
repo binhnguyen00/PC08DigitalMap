@@ -743,8 +743,8 @@ export const OverviewPage: React.FC = () => {
 
           {activePopupInfo && (
             <MapPopup
-              longitude={activePopupInfo.longitude}
-              latitude={activePopupInfo.latitude}
+              longitude={selectedHqCoords ? selectedHqCoords.longitude : activePopupInfo.longitude}
+              latitude={selectedHqCoords ? selectedHqCoords.latitude : activePopupInfo.latitude}
               onClose={() => {
                 setSelectedFeature(null);
                 setHoverInfo(null);
@@ -752,6 +752,7 @@ export const OverviewPage: React.FC = () => {
               closeButton
               closeOnClick={false}
               className="z-30 min-w-55"
+              offset={32}
             >
               <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
                 {activePopupInfo.type === "area" ? (
