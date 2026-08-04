@@ -2383,9 +2383,13 @@ const DISTRICT_NAMES: Record<string, string> = {
 };
 
 const ROUTE_NAMES: Record<string, string> = {
-  QL17B: "QL17B",
   QL5: "QL5",
+  QL10: "QL10",
+  QL17B: "QL17B",
+  ĐT351: "ĐT351",
+  ĐT354: "ĐT354",
   ĐT355: "ĐT355",
+  ĐT360: "ĐT360",
 };
 
 type MapLegendProps = {

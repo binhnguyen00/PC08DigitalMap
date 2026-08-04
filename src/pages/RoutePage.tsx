@@ -14,10 +14,16 @@ interface IHoverInfo {
   latitude: number;
 }
 
+const STRAVA_ORANGE = "#FC4C02";
+
 const ROUTE_COLORS: Record<string, string> = {
-  QL17B: "#2563eb",
-  QL5: "#00d2ff",
-  ĐT355: "#38bdf8",
+  QL5: STRAVA_ORANGE,
+  QL10: STRAVA_ORANGE,
+  QL17B: STRAVA_ORANGE,
+  ĐT351: STRAVA_ORANGE,
+  ĐT354: STRAVA_ORANGE,
+  ĐT355: STRAVA_ORANGE,
+  ĐT360: STRAVA_ORANGE,
 };
 
 export const RoutePage: React.FC = () => {
@@ -223,7 +229,7 @@ export const RoutePage: React.FC = () => {
           {items.map((item: IRouteItem) => {
             if (!item.rawJson || hiddenItems[item.id]) return null;
 
-            const color = ROUTE_COLORS[item.id] || "#00d2ff";
+            const color = ROUTE_COLORS[item.id] || STRAVA_ORANGE;
 
             const formattedGeoJSON = {
               ...item.rawJson,
@@ -244,10 +250,10 @@ export const RoutePage: React.FC = () => {
                 interactive
                 fillPaint={false}
                 lineCasingPaint={{
-                  "line-color": "#032b53",
-                  "line-width": 12,
-                  "line-opacity": 0.85,
-                  "line-blur": 1.5,
+                  "line-color": "#18181b",
+                  "line-width": 10,
+                  "line-opacity": 0.75,
+                  "line-blur": 1,
                 }}
                 linePaint={{
                   "line-color": color,
@@ -257,16 +263,16 @@ export const RoutePage: React.FC = () => {
                 labelProperty="ten_tuyen"
                 symbolLayout={{
                   "symbol-placement": "line",
-                  "text-size": 14,
+                  "text-size": 13,
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                   "text-keep-upright": true,
-                  "text-max-angle": 30,
-                  "symbol-spacing": 250,
+                  "text-max-angle": 45,
+                  "symbol-spacing": 150,
                 }}
                 symbolPaint={{
                   "text-color": "#ffffff",
-                  "text-halo-color": "#032b53",
+                  "text-halo-color": "#000000",
                   "text-halo-width": 3,
                 }}
                 onHover={(e) => {

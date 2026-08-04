@@ -47,9 +47,13 @@ export const AREA_FILES = [
 export const DIA_BAN_FILES = AREA_FILES;
 
 export const ROUTE_FILES = [
-  "QL17B",
   "QL5",
+  "QL10",
+  "QL17B",
+  "ĐT351",
+  "ĐT354",
   "ĐT355",
+  "ĐT360",
 ];
 
 export const TUYEN_DUONG_FILES = ROUTE_FILES;
