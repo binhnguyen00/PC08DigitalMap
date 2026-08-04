@@ -60,11 +60,11 @@ export const ROUTE_FILES = [
 export const TUYEN_DUONG_FILES = ROUTE_FILES;
 
 export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string): Promise<any> {
-  const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson`;
-  const localUrl = `/data/${folder}/${name}.geojson`;
+  const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson?t=${Date.now()}`;
+  const localUrl = `/data/${folder}/${name}.geojson?t=${Date.now()}`;
 
   try {
-    const res = await fetch(cdnUrl);
+    const res = await fetch(cdnUrl, { cache: "no-cache" });
     if (res.ok) {
       return await res.json();
     }
@@ -72,7 +72,7 @@ export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string
     console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
   }
 
-  const localRes = await fetch(localUrl);
+  const localRes = await fetch(localUrl, { cache: "no-cache" });
   if (!localRes.ok) {
     throw new Error(`Failed to fetch GeoJSON for ${folder}/${name}`);
   }

@@ -51,7 +51,8 @@ const renderTruSoLink = (truSo: any) => {
       }
     }
   } else if (typeof truSo === "string") {
-    const parts = truSo.split(",").map((s) => s.trim());
+    const cleanStr = truSo.replace(/[\[\]]/g, "").trim();
+    const parts = cleanStr.split(",").map((s) => s.trim());
     if (parts.length === 2) {
       let n1 = Number(parts[0]);
       let n2 = Number(parts[1]);
@@ -106,44 +107,6 @@ export const AreaPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   const items = React.useMemo<IAreaItem[]>(() => query?.data?.data || [], [query?.data]);
-
-  const headquartersList = React.useMemo(() => {
-    const list: Array<{
-      id: string;
-      ten_xa: string;
-      latitude: number;
-      longitude: number;
-      feature: GeoJSON.Feature;
-    }> = [];
-
-    for (const item of items) {
-      if (!item.rawJson || hiddenItems[item.id]) continue;
-      const features = item.rawJson.features || [];
-      for (let idx = 0; idx < features.length; idx++) {
-        const feat = features[idx];
-        const truSo = feat.properties?.tru_so;
-        if (Array.isArray(truSo) && truSo.length === 2) {
-          let lat = Number(truSo[0]);
-          let lng = Number(truSo[1]);
-          if (lat > 90) {
-            const temp = lat;
-            lat = lng;
-            lng = temp;
-          }
-          if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-            list.push({
-              id: `${item.id}-${feat.properties?.ma_xa || idx}`,
-              ten_xa: feat.properties?.ten_xa || feat.properties?.name || item.id,
-              latitude: lat,
-              longitude: lng,
-              feature: feat,
-            });
-          }
-        }
-      }
-    }
-    return list;
-  }, [items, hiddenItems]);
 
   const toggleVisibility = React.useCallback((id: string) => {
     setHiddenItems((prev) => ({
@@ -229,28 +192,54 @@ export const AreaPage: React.FC = () => {
   const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
 
-  const activeHqCoords = React.useMemo(() => {
-    const feat = selectedFeature?.feature || hoverInfo?.feature;
+  const selectedHqCoords = React.useMemo(() => {
+    const feat = selectedFeature?.feature;
     if (!feat?.properties) return null;
-    const truSo = feat.properties.tru_so;
+    const props = feat.properties;
+    const truSo = props.tru_so;
+    
+    let lat: number | null = null;
+    let lng: number | null = null;
+
     if (Array.isArray(truSo) && truSo.length === 2) {
-      let lat = Number(truSo[0]);
-      let lng = Number(truSo[1]);
-      if (lat > 90) {
-        const temp = lat;
-        lat = lng;
-        lng = temp;
+      let n1 = Number(truSo[0]);
+      let n2 = Number(truSo[1]);
+      if (!isNaN(n1) && !isNaN(n2)) {
+        if (n1 > 90) {
+          lat = n2;
+          lng = n1;
+        } else {
+          lat = n1;
+          lng = n2;
+        }
       }
-      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-        return {
-          ten_xa: feat.properties.ten_xa || feat.properties.name || "",
-          latitude: lat,
-          longitude: lng,
-        };
+    } else if (typeof truSo === "string") {
+      const cleanStr = truSo.replace(/[\[\]]/g, "").trim();
+      const parts = cleanStr.split(",").map((s) => s.trim());
+      if (parts.length === 2) {
+        let n1 = Number(parts[0]);
+        let n2 = Number(parts[1]);
+        if (!isNaN(n1) && !isNaN(n2)) {
+          if (n1 > 90) {
+            lat = n2;
+            lng = n1;
+          } else {
+            lat = n1;
+            lng = n2;
+          }
+        }
       }
     }
+
+    if (lat !== null && lng !== null && lat !== 0 && lng !== 0) {
+      return {
+        ten_xa: props.ten_xa || props.name || "",
+        latitude: lat,
+        longitude: lng,
+      };
+    }
     return null;
-  }, [selectedFeature, hoverInfo]);
+  }, [selectedFeature]);
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] flex overflow-hidden">
@@ -434,67 +423,46 @@ export const AreaPage: React.FC = () => {
               />
             );
           })}
-          {/* Active Headquarters Coordinates Badge on Map (on hover or click) */}
-          {activeHqCoords && (
+          {/* Selected Headquarters Star Marker (only shown on click, clicking star has NO popup) */}
+          {selectedHqCoords && (
             <MapMarker
-              key={`active-hq-${activeHqCoords.latitude}-${activeHqCoords.longitude}`}
-              longitude={activeHqCoords.longitude}
-              latitude={activeHqCoords.latitude}
-            >
-              <MarkerContent className="z-40 pointer-events-auto">
-                <div className="flex flex-col items-center">
-                  <div className="bg-slate-900/95 text-white text-[11px] px-2.5 py-1 rounded-md shadow-2xl border border-yellow-400/90 flex items-center gap-1.5 backdrop-blur-sm">
-                    <span className="text-yellow-400 font-bold">📍 Trụ sở {activeHqCoords.ten_xa}:</span>
-                    <a
-                      href={`https://www.google.com/maps?q=${activeHqCoords.latitude},${activeHqCoords.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-300 hover:text-blue-100 underline font-mono"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {activeHqCoords.latitude}, {activeHqCoords.longitude}
-                    </a>
-                  </div>
-                  <div className="w-2.5 h-2.5 bg-slate-900/95 rotate-45 -mt-1 border-r border-b border-yellow-400/90" />
-                </div>
-              </MarkerContent>
-            </MapMarker>
-          )}
-
-          {/* Headquarters Point Markers (yellow star + ward name) */}
-          {headquartersList.map((hq) => (
-            <MapMarker
-              key={`hq-${hq.id}`}
-              longitude={hq.longitude}
-              latitude={hq.latitude}
+              key={`selected-hq-${selectedHqCoords.latitude}-${selectedHqCoords.longitude}`}
+              longitude={selectedHqCoords.longitude}
+              latitude={selectedHqCoords.latitude}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedFeature({
-                  feature: hq.feature,
-                  longitude: hq.longitude,
-                  latitude: hq.latitude,
-                });
               }}
             >
-              <MarkerContent className="z-10">
-                <div className="flex flex-col items-center justify-center cursor-pointer group">
+              <MarkerContent className="z-40 pointer-events-auto">
+                <div
+                  className="flex flex-col items-center justify-center cursor-pointer group"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(
+                      `https://www.google.com/maps?q=${selectedHqCoords.latitude},${selectedHqCoords.longitude}`,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                  title="Mở Google Maps"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="#facc15"
                     stroke="#78350f"
                     strokeWidth="1.5"
-                    className="w-4 h-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-125"
+                    className="w-5 h-5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-125"
                   >
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
-                  <span className="mt-0.5 text-[11px] font-bold text-yellow-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/65 px-1.5 py-0.5 rounded border border-yellow-500/30 group-hover:bg-black/85">
-                    {hq.ten_xa}
+                  <span className="mt-0.5 text-[11px] font-bold text-yellow-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/80 px-2 py-0.5 rounded border border-yellow-500/40 group-hover:bg-black/95">
+                    Trụ sở {selectedHqCoords.ten_xa}
                   </span>
                 </div>
               </MarkerContent>
             </MapMarker>
-          ))}
+          )}
 
           {activePopupInfo && (
             <MapPopup
