@@ -243,119 +243,6 @@ export const AreaPage: React.FC = () => {
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] flex overflow-hidden">
-      <div
-        className={cn(
-          "absolute top-3 left-3 z-10 w-80 max-h-[calc(100vh-90px)] bg-black/60 text-white backdrop-blur-md rounded-lg shadow-xl border border-white/15 flex flex-col transition-all duration-300",
-          !sidebarOpen && "-translate-x-85"
-        )}
-      >
-        <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-100 text-sm">Địa giới hành chính</span>
-          </div>
-          <Button
-            type="text"
-            size="small"
-            onClick={() => refetch()}
-            title="Tải lại dữ liệu"
-            className="text-slate-300! hover:text-white! hover:bg-white/10!"
-          >
-            Tải lại
-          </Button>
-        </div>
-
-        <div className="p-3 border-b border-white/10 flex flex-col gap-2">
-          <Input
-            placeholder="Tìm kiếm địa bàn / xã phường..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            allowClear
-            size="small"
-            className="bg-black/30! border-white/15! text-white! placeholder-slate-400! hover:border-white/30! focus:border-white/30! focus:ring-0!"
-          />
-          <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => toggleAllVisibility(true)}
-                className="text-red-400 hover:text-red-300 hover:underline font-medium cursor-pointer"
-              >
-                Hiện tất cả
-              </button>
-              <span>|</span>
-              <button
-                type="button"
-                onClick={() => toggleAllVisibility(false)}
-                className="text-slate-400 hover:text-slate-300 hover:underline cursor-pointer"
-              >
-                Ẩn tất cả
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 max-h-[50vh]">
-          {isLoading && items.length === 0 ? (
-            <div className="flex justify-center p-4">
-              <Spin size="small" />
-            </div>
-          ) : (
-            filteredNames.map((name: string) => {
-              const item = items.find((i: IAreaItem) => i.id === name);
-              const color = DISTRICT_COLORS[name] || "#3b82f6";
-              const isHidden = hiddenItems[name];
-              const wardCount = item?.featureCount || item?.rawJson?.features?.length || 0;
-
-              return (
-                <div
-                  key={name}
-                  className={cn(
-                    "flex items-center justify-between p-2 rounded-md transition-colors text-xs hover:bg-white/5 group",
-                    isHidden && "opacity-50"
-                  )}
-                >
-                  <div
-                    className="flex items-center gap-2 cursor-pointer flex-1 min-w-0"
-                    onClick={() => flyToArea(name)}
-                  >
-                    <span
-                      className="w-3 h-3 rounded-full shrink-0 border border-black/10"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="font-medium text-slate-200 truncate">{name}</span>
-                    {!item ? (
-                      <Spin size="small" className="ml-1 text-white!" />
-                    ) : (
-                      <span className="text-[10px] text-slate-400">({wardCount})</span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="text"
-                      size="small"
-                      onClick={() => toggleVisibility(name)}
-                      className={cn("text-xs! hover:bg-white/10!", !isHidden ? "text-red-400! hover:text-red-300!" : "text-slate-400! hover:text-slate-300!")}
-                    >
-                      {!isHidden ? "Hiện" : "Ẩn"}
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      <Button
-        type="default"
-        onClick={() => setSidebarOpen((prev) => !prev)}
-        className="absolute top-3 left-3 z-20 shadow-2xl bg-black/60 text-white border-white/15 backdrop-blur-md hover:bg-black/85 hover:text-white! hover:border-white/30!"
-        style={{ display: sidebarOpen ? "none" : "flex" }}
-      >
-        Danh sách địa bàn
-      </Button>
-
       <div className="flex-1 w-full h-full">
         <Map
           ref={mapRef}
@@ -373,6 +260,7 @@ export const AreaPage: React.FC = () => {
           <MapLegend
             districtColors={DISTRICT_COLORS}
             hiddenAreas={hiddenItems}
+            alwaysShow
           />
 
           {items.map((item: IAreaItem) => {
