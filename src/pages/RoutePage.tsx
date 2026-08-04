@@ -305,13 +305,13 @@ export const RoutePage: React.FC = () => {
               closeOnClick={false}
               className="z-30 min-w-50"
             >
-              <div className="p-2 text-xs flex flex-col gap-1">
-                <div className="font-bold text-sm text-red-600 border-b pb-1">
+              <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
+                <div className="font-bold text-sm text-red-400 border-b border-white/15 pb-1">
                   <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}</span>
                 </div>
                 {activeProperties?.chieu_dai && (
                   <div>
-                    <span className="text-gray-500">Chiều dài: </span>
+                    <span className="text-slate-300">Chiều dài: </span>
                     <span className="font-semibold">{activeProperties.chieu_dai} km</span>
                   </div>
                 )}

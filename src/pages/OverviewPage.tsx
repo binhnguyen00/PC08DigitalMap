@@ -88,7 +88,7 @@ const renderTruSoLink = (truSo: any) => {
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-600 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+        className="text-blue-400 hover:text-blue-300 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
         onClick={(e) => e.stopPropagation()}
       >
         <span>{`${lat}, ${lng}`}</span>
@@ -718,7 +718,7 @@ export const OverviewPage: React.FC = () => {
                   >
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
-                  <span className="mt-0.5 text-[11px] font-bold text-yellow-300 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/80 px-2 py-0.5 rounded border border-yellow-500/40 group-hover:bg-black/95">
+                  <span className="mt-0.5 text-[11px] font-bold text-slate-100 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.95)] whitespace-nowrap bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded border border-white/15 transition-colors group-hover:bg-black/75">
                     Trụ sở {selectedHqCoords.ten_xa}
                   </span>
                 </div>
@@ -738,39 +738,39 @@ export const OverviewPage: React.FC = () => {
               closeOnClick={false}
               className="z-30 min-w-55"
             >
-              <div className="p-2 text-xs flex flex-col gap-1">
+              <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
                 {activePopupInfo.type === "area" ? (
                   <>
-                    <div className="font-bold text-sm text-red-600 border-b pb-1 flex items-center gap-1.5">
+                    <div className="font-bold text-sm text-red-400 border-b border-white/15 pb-1 flex items-center gap-1.5">
                       <span>{activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}</span>
                     </div>
                     {activeProperties?.dtich_km2 !== undefined && (
                       <div>
-                        <span className="text-gray-500">Diện tích: </span>
+                        <span className="text-slate-300">Diện tích: </span>
                         <span className="font-semibold">{activeProperties.dtich_km2} km²</span>
                       </div>
                     )}
                     {activeProperties?.dan_so !== undefined && (
                       <div>
-                        <span className="text-gray-500">Dân số: </span>
+                        <span className="text-slate-300">Dân số: </span>
                         <span className="font-semibold">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
                       </div>
                     )}
                     {activeProperties?.tru_so && (
                       <div>
-                        <span className="text-gray-500">Trụ sở: </span>
+                        <span className="text-slate-300">Trụ sở: </span>
                         {renderTruSoLink(activeProperties.tru_so)}
                       </div>
                     )}
                   </>
                 ) : (
                   <>
-                    <div className="font-bold text-sm text-blue-600 border-b pb-1 flex items-center gap-1.5">
+                    <div className="font-bold text-sm text-blue-400 border-b border-white/15 pb-1 flex items-center gap-1.5">
                       <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}</span>
                     </div>
                     {activeProperties?.chieu_dai && (
                       <div>
-                        <span className="text-gray-500">Chiều dài: </span>
+                        <span className="text-slate-300">Chiều dài: </span>
                         <span className="font-semibold">{activeProperties.chieu_dai} km</span>
                       </div>
                     )}
