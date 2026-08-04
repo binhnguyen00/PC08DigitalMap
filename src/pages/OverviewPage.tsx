@@ -339,10 +339,7 @@ export const OverviewPage: React.FC = () => {
       >
         <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-lg">
           <div className="flex items-center gap-2">
-            <Badge
-              count={`${areaItems.filter((i) => i.rawJson).length + routeItems.filter((i) => i.rawJson).length}/${AREA_FILES.length + ROUTE_FILES.length}`}
-              style={{ backgroundColor: "#52c41a" }}
-            />
+            <span className="font-semibold text-slate-100 text-sm">Dữ liệu bản đồ</span>
           </div>
           <Button
             type="text"

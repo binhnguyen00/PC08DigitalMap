@@ -119,10 +119,6 @@ export const RoutePage: React.FC = () => {
         <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-lg">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-100 text-sm">Tuyến đường giao thông</span>
-            <Badge
-              count={`${items.filter((i: IRouteItem) => i.rawJson).length}/${ROUTE_FILES.length}`}
-              style={{ backgroundColor: items.length === ROUTE_FILES.length ? "#52c41a" : "#1890ff" }}
-            />
           </div>
           <Button
             type="text"
