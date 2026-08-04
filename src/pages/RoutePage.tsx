@@ -105,7 +105,7 @@ export const RoutePage: React.FC = () => {
     return ROUTE_FILES.filter((name: string) => name.toLowerCase().includes(queryStr));
   }, [searchQuery]);
 
-  const activePopupInfo = selectedFeature || hoverInfo;
+  const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
 
   return (

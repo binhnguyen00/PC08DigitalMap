@@ -45,6 +45,62 @@ const ROUTE_COLORS: Record<string, string> = {
   ĐT360: STRAVA_ORANGE,
 };
 
+const renderTruSoLink = (truSo: any) => {
+  if (!truSo) return null;
+
+  let lat: number | null = null;
+  let lng: number | null = null;
+
+  if (Array.isArray(truSo) && truSo.length === 2) {
+    let n1 = Number(truSo[0]);
+    let n2 = Number(truSo[1]);
+    if (!isNaN(n1) && !isNaN(n2)) {
+      if (n1 > 90) {
+        lat = n2;
+        lng = n1;
+      } else {
+        lat = n1;
+        lng = n2;
+      }
+    }
+  } else if (typeof truSo === "string") {
+    const parts = truSo.split(",").map((s) => s.trim());
+    if (parts.length === 2) {
+      let n1 = Number(parts[0]);
+      let n2 = Number(parts[1]);
+      if (!isNaN(n1) && !isNaN(n2)) {
+        if (n1 > 90) {
+          lat = n2;
+          lng = n1;
+        } else {
+          lat = n1;
+          lng = n2;
+        }
+      }
+    }
+  }
+
+  if (lat !== null && lng !== null && lat !== 0 && lng !== 0) {
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    return (
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span>{`${lat}, ${lng}`}</span>
+        <svg className="w-3 h-3 shrink-0 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    );
+  }
+
+  return <span className="font-semibold">{String(truSo)}</span>;
+};
+
 export const OverviewPage: React.FC = () => {
   const mapRef = React.useRef<MapRef>(null);
 
@@ -253,8 +309,31 @@ export const OverviewPage: React.FC = () => {
     return ROUTE_FILES.filter((name: string) => name.toLowerCase().includes(q));
   }, [searchQuery]);
 
-  const activePopupInfo = selectedFeature || hoverInfo;
+  const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
+
+  const activeHqCoords = React.useMemo(() => {
+    const feat = selectedFeature?.feature || hoverInfo?.feature;
+    if (!feat?.properties) return null;
+    const truSo = feat.properties.tru_so;
+    if (Array.isArray(truSo) && truSo.length === 2) {
+      let lat = Number(truSo[0]);
+      let lng = Number(truSo[1]);
+      if (lat > 90) {
+        const temp = lat;
+        lat = lng;
+        lng = temp;
+      }
+      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+        return {
+          ten_xa: feat.properties.ten_xa || feat.properties.name || "",
+          latitude: lat,
+          longitude: lng,
+        };
+      }
+    }
+    return null;
+  }, [selectedFeature, hoverInfo]);
 
   const handleRefetch = () => {
     areaQuery.refetch();
@@ -617,6 +696,33 @@ export const OverviewPage: React.FC = () => {
             );
           })}
 
+          {/* Active Headquarters Coordinates Badge on Map (on hover or click) */}
+          {activeHqCoords && (
+            <MapMarker
+              key={`active-hq-${activeHqCoords.latitude}-${activeHqCoords.longitude}`}
+              longitude={activeHqCoords.longitude}
+              latitude={activeHqCoords.latitude}
+            >
+              <MarkerContent className="z-40 pointer-events-auto">
+                <div className="flex flex-col items-center">
+                  <div className="bg-slate-900/95 text-white text-[11px] px-2.5 py-1 rounded-md shadow-2xl border border-yellow-400/90 flex items-center gap-1.5 backdrop-blur-sm">
+                    <span className="text-yellow-400 font-bold">📍 Trụ sở {activeHqCoords.ten_xa}:</span>
+                    <a
+                      href={`https://www.google.com/maps?q=${activeHqCoords.latitude},${activeHqCoords.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-300 hover:text-blue-100 underline font-mono"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {activeHqCoords.latitude}, {activeHqCoords.longitude}
+                    </a>
+                  </div>
+                  <div className="w-2.5 h-2.5 bg-slate-900/95 rotate-45 -mt-1 border-r border-b border-yellow-400/90" />
+                </div>
+              </MarkerContent>
+            </MapMarker>
+          )}
+
           {/* Headquarters Point Markers (yellow star + name) */}
           {headquartersList.map((hq) => (
             <MapMarker
@@ -686,7 +792,7 @@ export const OverviewPage: React.FC = () => {
                     {activeProperties?.tru_so && (
                       <div>
                         <span className="text-gray-500">Trụ sở: </span>
-                        <span className="font-semibold">{activeProperties.tru_so}</span>
+                        {renderTruSoLink(activeProperties.tru_so)}
                       </div>
                     )}
                   </>
