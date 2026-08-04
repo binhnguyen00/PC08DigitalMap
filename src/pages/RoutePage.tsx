@@ -207,18 +207,23 @@ export const RoutePage: React.FC = () => {
               }}
               closeButton
               closeOnClick={false}
-              className="z-30 min-w-50"
+              className="z-30 w-48"
+              offset={24}
             >
-              <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
-                <div className="font-bold text-sm text-red-400 border-b border-white/15 pb-1">
-                  <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}</span>
+              <div className="text-zinc-100 w-full flex flex-col gap-1.5">
+                <div className="font-bold border-b border-white/10 pb-1.5 pr-4 flex items-center gap-1.5">
+                  <span className="text-[12px] truncate" title={activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}>
+                    {activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}
+                  </span>
                 </div>
-                {activeProperties?.chieu_dai && (
-                  <div>
-                    <span className="text-slate-300">Chiều dài: </span>
-                    <span className="font-semibold">{activeProperties.chieu_dai} km</span>
-                  </div>
-                )}
+                <div className="flex flex-col gap-1 text-[11px]">
+                  {activeProperties?.chieu_dai && (
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-zinc-400">Chiều dài</span>
+                      <span className="font-medium text-zinc-100">{activeProperties.chieu_dai} km</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </MapPopup>
           )}

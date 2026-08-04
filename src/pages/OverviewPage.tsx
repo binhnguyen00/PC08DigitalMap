@@ -1,18 +1,19 @@
 import { useMany } from "@refinedev/core";
-import { Badge, Button, Input, Spin, Tabs } from "antd";
+import { Badge, FloatButton, Space, Spin, Typography } from "antd";
 import type * as GeoJSON from "geojson";
 import React from "react";
 
-import { Map, MapControls, MapGeoJSON, MapMarker, MarkerContent, MapPopup, MapRef, MapFullscreenTitle, MapLegend } from "@/components/map";
+import { CompassOutlined, ExportOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
+import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapLegend, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
 import { AREA_FILES, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
-import { cn } from "@/libs/tailwind";
 
 interface IHoverInfo {
   type: "area" | "route";
   feature: GeoJSON.Feature;
   longitude: number;
   latitude: number;
+  color?: string;
 }
 
 const DISTRICT_COLORS: Record<string, string> = {
@@ -84,22 +85,22 @@ const renderTruSoLink = (truSo: any) => {
   if (lat !== null && lng !== null && lat !== 0 && lng !== 0) {
     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
     return (
-      <a
+      <Typography.Link
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-400 hover:text-blue-300 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+        className="text-blue-400! hover:text-blue-300! font-semibold inline-flex items-center gap-1 cursor-pointer text-[11px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <span>{`${lat}, ${lng}`}</span>
-        <svg className="w-3 h-3 shrink-0 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        <svg className="w-3 h-3 shrink-0 fill-[#EA4335]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" />
         </svg>
-      </a>
+        <span className="text-xs">Google Maps</span>
+      </Typography.Link>
     );
   }
 
-  return <span className="font-semibold">{String(truSo)}</span>;
+  return <Typography.Text className="font-semibold text-white!">{String(truSo)}</Typography.Text>;
 };
 
 export const OverviewPage: React.FC = () => {
@@ -115,162 +116,10 @@ export const OverviewPage: React.FC = () => {
     ids: ROUTE_FILES,
   });
 
-  const isAreasLoading = areaQuery.isLoading;
-  const isRoutesLoading = routeQuery.isLoading;
-
-  const [hiddenAreas, setHiddenAreas] = React.useState<Record<string, boolean>>({});
-  const [hiddenRoutes, setHiddenRoutes] = React.useState<Record<string, boolean>>({});
-  const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedFeature, setSelectedFeature] = React.useState<IHoverInfo | null>(null);
-  const [hoverInfo, setHoverInfo] = React.useState<IHoverInfo | null>(null);
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [activeTab, setActiveTab] = React.useState<"all" | "areas" | "routes">("all");
 
   const areaItems = React.useMemo<IAreaItem[]>(() => areaQuery?.data?.data || [], [areaQuery?.data]);
   const routeItems = React.useMemo<IRouteItem[]>(() => routeQuery?.data?.data || [], [routeQuery?.data]);
-
-  const toggleAreaVisibility = React.useCallback((id: string) => {
-    setHiddenAreas((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }, []);
-
-  const toggleRouteVisibility = React.useCallback((id: string) => {
-    setHiddenRoutes((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }, []);
-
-  const toggleAllVisibility = React.useCallback((show: boolean) => {
-    setHiddenAreas(() => {
-      const next: Record<string, boolean> = {};
-      if (!show) {
-        for (const name of AREA_FILES) next[name] = true;
-      }
-      return next;
-    });
-    setHiddenRoutes(() => {
-      const next: Record<string, boolean> = {};
-      if (!show) {
-        for (const name of ROUTE_FILES) next[name] = true;
-      }
-      return next;
-    });
-  }, []);
-
-  const flyToArea = React.useCallback((name: string) => {
-    const item = areaItems.find((i: IAreaItem) => i.id === name);
-    if (!item?.rawJson || !mapRef.current) return;
-
-    try {
-      const coords: [number, number][] = [];
-      const extractCoords = (geometry: any) => {
-        if (!geometry?.coordinates) return;
-        if (geometry.type === "Polygon") {
-          geometry.coordinates[0]?.forEach((pt: [number, number]) => coords.push(pt));
-        } else if (geometry.type === "MultiPolygon") {
-          geometry.coordinates.forEach((poly: any) => {
-            poly[0]?.forEach((pt: [number, number]) => coords.push(pt));
-          });
-        }
-      };
-
-      for (const feat of item.rawJson.features || []) {
-        extractCoords(feat.geometry);
-      }
-
-      if (coords.length > 0) {
-        let minLng = coords[0][0];
-        let maxLng = coords[0][0];
-        let minLat = coords[0][1];
-        let maxLat = coords[0][1];
-
-        for (const [lng, lat] of coords) {
-          if (lng < minLng) minLng = lng;
-          if (lng > maxLng) maxLng = lng;
-          if (lat < minLat) minLat = lat;
-          if (lat > maxLat) maxLat = lat;
-        }
-
-        mapRef.current.fitBounds(
-          [
-            [minLng, minLat],
-            [maxLng, maxLat],
-          ],
-          { padding: 60, duration: 1200 }
-        );
-      }
-    } catch (e) {
-      console.warn("Could not calculate bounds for flyTo", e);
-    }
-  }, [areaItems]);
-
-  const flyToRoute = React.useCallback((name: string) => {
-    const item = routeItems.find((i: IRouteItem) => i.id === name);
-    if (!item?.rawJson || !mapRef.current) return;
-
-    try {
-      const coords: [number, number][] = [];
-      const extractCoords = (geometry: any) => {
-        if (!geometry?.coordinates) return;
-        if (geometry.type === "LineString") {
-          geometry.coordinates.forEach((pt: [number, number]) => coords.push(pt));
-        } else if (geometry.type === "MultiLineString") {
-          geometry.coordinates.forEach((line: any) => {
-            line.forEach((pt: [number, number]) => coords.push(pt));
-          });
-        }
-      };
-
-      for (const feat of item.rawJson.features || []) {
-        extractCoords(feat.geometry);
-      }
-
-      if (coords.length > 0) {
-        let minLng = coords[0][0];
-        let maxLng = coords[0][0];
-        let minLat = coords[0][1];
-        let maxLat = coords[0][1];
-
-        for (const [lng, lat] of coords) {
-          if (lng < minLng) minLng = lng;
-          if (lng > maxLng) maxLng = lng;
-          if (lat < minLat) minLat = lat;
-          if (lat > maxLat) maxLat = lat;
-        }
-
-        mapRef.current.fitBounds(
-          [
-            [minLng, minLat],
-            [maxLng, maxLat],
-          ],
-          { padding: 60, duration: 1200 }
-        );
-      }
-    } catch (e) {
-      console.warn("Could not calculate bounds for flyToRoute", e);
-    }
-  }, [routeItems]);
-
-  const filteredAreaNames = React.useMemo(() => {
-    if (!searchQuery.trim()) return AREA_FILES;
-    const q = searchQuery.toLowerCase();
-    return AREA_FILES.filter((name: string) => {
-      if (name.toLowerCase().includes(q)) return true;
-      const item = areaItems.find((i: IAreaItem) => i.id === name);
-      return item?.rawJson?.features?.some((f: any) =>
-        String(f.properties?.ten_xa || "").toLowerCase().includes(q)
-      );
-    });
-  }, [searchQuery, areaItems]);
-
-  const filteredRouteNames = React.useMemo(() => {
-    if (!searchQuery.trim()) return ROUTE_FILES;
-    const q = searchQuery.toLowerCase();
-    return ROUTE_FILES.filter((name: string) => name.toLowerCase().includes(q));
-  }, [searchQuery]);
 
   const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
@@ -331,13 +180,23 @@ export const OverviewPage: React.FC = () => {
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] flex overflow-hidden">
-      <div className="flex-1 w-full h-full">
+      <div className="flex-1 w-full h-full relative">
+        {(areaQuery.isLoading || routeQuery.isLoading) && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
+            <Spin
+              size="large"
+              tip={<span className="text-white font-medium mt-2 block">Đang tải dữ liệu bản đồ...</span>}
+            />
+          </div>
+        )}
         <Map
           ref={mapRef}
           viewport={{
             center: [106.61860442940119, 20.848955740022355],
             zoom: 11,
           }}
+          minZoom={1}
+          maxZoom={16}
           styles={{
             light: SATELLITE_MAP_STYLE as any,
             dark: SATELLITE_MAP_STYLE as any,
@@ -345,15 +204,11 @@ export const OverviewPage: React.FC = () => {
         >
           <MapControls position="top-right" showFullscreen />
           <MapFullscreenTitle />
-          <MapLegend
-            districtColors={DISTRICT_COLORS}
-            hiddenAreas={hiddenAreas}
-            alwaysShow
-          />
+          <MapLegend districtColors={DISTRICT_COLORS} alwaysShow/>
 
           {/* Area polygon layers */}
           {areaItems.map((item: IAreaItem) => {
-            if (!item.rawJson || hiddenAreas[item.id]) return null;
+            if (!item.rawJson) return null;
 
             const color = DISTRICT_COLORS[item.id] || "#3b82f6";
 
@@ -376,24 +231,13 @@ export const OverviewPage: React.FC = () => {
                   "line-width": 1.8,
                   "line-opacity": 0.9,
                 }}
-                onHover={(e: any) => {
-                  if (e) {
-                    setHoverInfo({
-                      type: "area",
-                      feature: e.feature as any,
-                      longitude: e.longitude,
-                      latitude: e.latitude,
-                    });
-                  } else {
-                    setHoverInfo(null);
-                  }
-                }}
                 onClick={(e: any) => {
                   setSelectedFeature({
                     type: "area",
                     feature: e.feature as any,
                     longitude: e.longitude,
                     latitude: e.latitude,
+                    color: e.feature?.properties?.mau_sac || color,
                   });
                 }}
               />
@@ -402,7 +246,7 @@ export const OverviewPage: React.FC = () => {
 
           {/* Route line layers */}
           {routeItems.map((item: IRouteItem) => {
-            if (!item.rawJson || hiddenRoutes[item.id]) return null;
+            if (!item.rawJson) return null;
 
             const color = ROUTE_COLORS[item.id] || STRAVA_ORANGE;
 
@@ -450,24 +294,13 @@ export const OverviewPage: React.FC = () => {
                   "text-halo-color": "#000000",
                   "text-halo-width": 1,
                 }}
-                onHover={(e: any) => {
-                  if (e) {
-                    setHoverInfo({
-                      type: "route",
-                      feature: e.feature as any,
-                      longitude: e.longitude,
-                      latitude: e.latitude,
-                    });
-                  } else {
-                    setHoverInfo(null);
-                  }
-                }}
                 onClick={(e: any) => {
                   setSelectedFeature({
                     type: "route",
                     feature: e.feature as any,
                     longitude: e.longitude,
                     latitude: e.latitude,
+                    color: color,
                   });
                 }}
               />
@@ -476,7 +309,7 @@ export const OverviewPage: React.FC = () => {
 
           {/* Area label symbol layers */}
           {areaItems.map((item: IAreaItem) => {
-            if (!item.rawJson || hiddenAreas[item.id]) return null;
+            if (!item.rawJson) return null;
 
             return (
               <MapGeoJSON
@@ -545,57 +378,104 @@ export const OverviewPage: React.FC = () => {
             <MapPopup
               longitude={selectedHqCoords ? selectedHqCoords.longitude : activePopupInfo.longitude}
               latitude={selectedHqCoords ? selectedHqCoords.latitude : activePopupInfo.latitude}
-              onClose={() => {
-                setSelectedFeature(null);
-                setHoverInfo(null);
-              }}
+              onClose={() => setSelectedFeature(null)}
               closeButton
               closeOnClick={false}
-              className="z-30 min-w-55"
-              offset={32}
+              className="z-30 w-48"
+              offset={24}
             >
-              <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
+              <div className="text-zinc-100 w-full flex flex-col gap-1.5">
                 {activePopupInfo.type === "area" ? (
                   <>
-                    <div className="font-bold text-sm text-red-400 border-b border-white/15 pb-1 flex items-center gap-1.5">
-                      <span>{activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}</span>
+                    <div className="font-bold border-b border-white/10 pb-1.5 pr-4 flex items-center gap-1.5">
+                      {activePopupInfo.color && (
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0 border border-white/20"
+                          style={{
+                            backgroundColor: activePopupInfo.color,
+                            boxShadow: `0 0 6px ${activePopupInfo.color}80`,
+                          }}
+                        />
+                      )}
+                      <span className="text-[12px] truncate" title={activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}>
+                        {activeProperties?.ten_xa || activeProperties?.name || "Thông tin"}
+                      </span>
                     </div>
-                    {activeProperties?.dtich_km2 !== undefined && (
-                      <div>
-                        <span className="text-slate-300">Diện tích: </span>
-                        <span className="font-semibold">{activeProperties.dtich_km2} km²</span>
-                      </div>
-                    )}
-                    {activeProperties?.dan_so !== undefined && (
-                      <div>
-                        <span className="text-slate-300">Dân số: </span>
-                        <span className="font-semibold">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
-                      </div>
-                    )}
-                    {activeProperties?.tru_so && (
-                      <div>
-                        <span className="text-slate-300">Trụ sở: </span>
-                        {renderTruSoLink(activeProperties.tru_so)}
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-1 text-[11px]">
+                      {activeProperties?.dtich_km2 !== undefined && (
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-zinc-400">Diện tích</span>
+                          <span className="font-medium text-zinc-100">{activeProperties.dtich_km2} km²</span>
+                        </div>
+                      )}
+                      {activeProperties?.dan_so !== undefined && (
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-zinc-400">Dân số</span>
+                          <span className="font-medium text-zinc-100">
+                            {Number(activeProperties.dan_so).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                      )}
+                      {activeProperties?.tru_so && (
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-zinc-400">Trụ sở</span>
+                          {renderTruSoLink(activeProperties.tru_so)}
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <>
-                    <div className="font-bold text-sm text-blue-400 border-b border-white/15 pb-1 flex items-center gap-1.5">
-                      <span>{activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}</span>
+                    <div className="font-bold border-b border-white/10 pb-1.5 pr-4 flex items-center gap-1.5">
+                      {activePopupInfo.color && (
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0 border border-white/20"
+                          style={{
+                            backgroundColor: activePopupInfo.color,
+                            boxShadow: `0 0 6px ${activePopupInfo.color}80`,
+                          }}
+                        />
+                      )}
+                      <span className="text-[12px] truncate" title={activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}>
+                        {activeProperties?.ten_tuyen || activeProperties?.name || "Tuyến đường"}
+                      </span>
                     </div>
-                    {activeProperties?.chieu_dai && (
-                      <div>
-                        <span className="text-slate-300">Chiều dài: </span>
-                        <span className="font-semibold">{activeProperties.chieu_dai} km</span>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-1 text-[11px]">
+                      {activeProperties?.chieu_dai && (
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-zinc-400">Chiều dài</span>
+                          <span className="font-medium text-zinc-100">{activeProperties.chieu_dai} km</span>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
             </MapPopup>
           )}
         </Map>
+
+        <FloatButton.Group
+          shape="circle"
+          style={{ right: 24, bottom: 24 }}
+        >
+          <FloatButton
+            icon={<CompassOutlined />}
+            tooltip="Xem toàn cảnh"
+            onClick={() => {
+              mapRef.current?.flyTo({
+                center: [106.61860442940119, 20.848955740022355],
+                zoom: 11,
+                duration: 1000,
+              });
+            }}
+          />
+          <FloatButton
+            icon={(areaQuery.isFetching || routeQuery.isFetching) ? <LoadingOutlined /> : <ReloadOutlined />}
+            tooltip="Tải lại dữ liệu"
+            onClick={handleRefetch}
+          />
+        </FloatButton.Group>
       </div>
     </div>
   );

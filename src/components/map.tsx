@@ -683,7 +683,7 @@ function PopupCloseButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="Close popup"
-      className="focus-visible:ring-ring hover:bg-white/10 text-white/70 hover:text-white absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+      className="focus-visible:ring-ring hover:bg-white/10 text-white/60 hover:text-white absolute top-1.5 right-1.5 z-10 inline-flex size-4 cursor-pointer items-center justify-center rounded-sm text-[9px] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
       ✕
     </button>
@@ -1117,7 +1117,7 @@ function MapPopup({
   return createPortal(
     <div
       className={cn(
-        "bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-3 relative max-w-72",
+        "bg-zinc-900/90 text-zinc-100 backdrop-blur-md border border-white/10 shadow-xl rounded-lg p-2.5 relative max-w-60",
         "animate-popup",
         className,
       )}

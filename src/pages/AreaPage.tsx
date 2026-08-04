@@ -75,13 +75,13 @@ const renderTruSoLink = (truSo: any) => {
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-400 hover:text-blue-300 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+        className="text-blue-400 hover:text-blue-300 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer text-[11px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <span>{`${lat}, ${lng}`}</span>
-        <svg className="w-3 h-3 shrink-0 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        <svg className="w-3 h-3 shrink-0 fill-[#EA4335]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" />
         </svg>
+        <span>Google Maps</span>
       </a>
     );
   }
@@ -360,31 +360,37 @@ export const AreaPage: React.FC = () => {
               }}
               closeButton
               closeOnClick={false}
-              className="z-30 min-w-55"
-              offset={32}
+              className="z-30 w-48"
+              offset={24}
             >
-              <div className="p-2 text-xs flex flex-col gap-1.5 text-white">
-                <div className="font-bold text-sm text-red-400 border-b border-white/15 pb-1 flex items-center gap-1.5">
-                  <span>{activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}</span>
+              <div className="text-zinc-100 w-full flex flex-col gap-1.5">
+                <div className="font-bold border-b border-white/10 pb-1.5 pr-4 flex items-center gap-1.5">
+                  <span className="text-[12px] truncate" title={activeProperties?.ten_xa || activeProperties?.name || "Thông tin địa bàn"}>
+                    {activeProperties?.ten_xa || activeProperties?.name || "Thông tin"}
+                  </span>
                 </div>
-                {activeProperties?.dtich_km2 !== undefined && (
-                  <div>
-                    <span className="text-slate-300">Diện tích: </span>
-                    <span className="font-semibold">{activeProperties.dtich_km2} km²</span>
-                  </div>
-                )}
-                {activeProperties?.dan_so !== undefined && (
-                  <div>
-                    <span className="text-slate-300">Dân số: </span>
-                    <span className="font-semibold">{Number(activeProperties.dan_so).toLocaleString("vi-VN")}</span>
-                  </div>
-                )}
-                {activeProperties?.tru_so && (
-                  <div>
-                    <span className="text-slate-300">Trụ sở: </span>
-                    {renderTruSoLink(activeProperties.tru_so)}
-                  </div>
-                )}
+                <div className="flex flex-col gap-1 text-[11px]">
+                  {activeProperties?.dtich_km2 !== undefined && (
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-zinc-400">Diện tích</span>
+                      <span className="font-medium text-zinc-100">{activeProperties.dtich_km2} km²</span>
+                    </div>
+                  )}
+                  {activeProperties?.dan_so !== undefined && (
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-zinc-400">Dân số</span>
+                      <span className="font-medium text-zinc-100">
+                        {Number(activeProperties.dan_so).toLocaleString("vi-VN")}
+                      </span>
+                    </div>
+                  )}
+                  {activeProperties?.tru_so && (
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-zinc-400">Trụ sở</span>
+                      {renderTruSoLink(activeProperties.tru_so)}
+                    </div>
+                  )}
+                </div>
               </div>
             </MapPopup>
           )}
