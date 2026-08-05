@@ -1,13 +1,6 @@
-import { Badge, FloatButton, Input, Spin, Typography } from "antd";
+import { Badge, Input, Spin, Typography } from "antd";
 import React from "react";
 
-import {
-  CompassOutlined,
-  EnvironmentOutlined,
-  LoadingOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
 import {
   Map,
   MapControls,
@@ -19,7 +12,10 @@ import {
   useMap,
 } from "@/components/map";
 import { fetchCamerasGeoJson, SATELLITE_MAP_STYLE } from "@/libs/cdn";
-import { cn } from "@/libs/tailwind";
+import {
+  EnvironmentOutlined,
+  SearchOutlined
+} from "@ant-design/icons";
 
 const TYPE_COLORS: Record<string, string> = {
   "tốc độ": "#ef4444",
@@ -36,9 +32,10 @@ function CameraMapLayers({
   geojson: any;
   onCameraClick: (camera: any) => void;
 }) {
-  const { map } = useMap();
+  const { map, isLoaded } = useMap();
 
   React.useEffect(() => {
+    if (!isLoaded) return;
     if (!map) return;
     if (!geojson) return;
 
@@ -61,7 +58,7 @@ function CameraMapLayers({
         type: "circle",
         source: sourceId,
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 3, 15, 4],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 15, 4],
           "circle-color": [
             "match",
             ["get", "type"],
@@ -102,13 +99,17 @@ function CameraMapLayers({
     map.on("mouseleave", layerId, mouseLeaveHandler);
 
     return () => {
-      if (map.getLayer(layerId)) {
-        map.off("click", layerId, clickHandler);
-        map.off("mouseenter", layerId, mouseEnterHandler);
-        map.off("mouseleave", layerId, mouseLeaveHandler);
+      try {
+        if (map && map.getStyle() && map.getLayer(layerId)) {
+          map.off("click", layerId, clickHandler);
+          map.off("mouseenter", layerId, mouseEnterHandler);
+          map.off("mouseleave", layerId, mouseLeaveHandler);
+        }
+      } catch (error) {
+        // Ignore errors if map or style is already removed
       }
     };
-  }, [map, geojson, onCameraClick]);
+  }, [map, isLoaded, geojson, onCameraClick]);
 
   return null;
 }
@@ -236,7 +237,7 @@ export function CameraMapPage() {
           }}
         >
           <MapControls position="top-right" showFullscreen />
-          <MapFullscreenTitle subtitle="BẢN ĐỒ HỆ THỐNG CAMERA GIÁM SÁT" />
+          <MapFullscreenTitle subtitle="BẢN ĐỒ CAMERA" />
 
           <CameraMapLayers
             geojson={filteredGeojson}
@@ -374,111 +375,109 @@ export function CameraMapPage() {
               </div>
             </MapPopup>
           )}
-        </Map>
 
-        <div className="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
-          <div className="bg-black/50 backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-2.5 relative">
-            <Input
-              allowClear
-              value={searchVal}
-              onChange={(e) => {
-                setSearchVal(e.target.value);
-              }}
-              className="bg-black/40! border-white/10! hover:border-white/20! focus:border-blue-500! text-white! placeholder-slate-400! text-xs py-1.5 px-3 rounded-lg"
-              prefix={<SearchOutlined className="text-slate-400 mr-1 text-[13px]" />}
-            />
-
-            {searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-black/75 backdrop-blur-lg border border-white/15 shadow-2xl rounded-xl overflow-hidden z-20 flex flex-col max-h-60 overflow-y-auto">
-                {searchResults.map((camera: any) => (
-                  <div
-                    key={`search-res-${camera.properties.id}`}
-                    onClick={() => {
-                      handleCameraSelect(camera);
-                      setSearchVal("");
-                    }}
-                    className="px-3.5 py-2 hover:bg-white/10 cursor-pointer flex flex-col gap-0.5 border-b border-white/5 last:border-0 transition-colors"
-                  >
-                    <div className="text-slate-100 font-medium text-xs truncate">
-                      {camera.properties.name}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: TYPE_COLORS[camera.properties.type] || DEFAULT_COLOR }}
-                      />
-                      <span className="text-slate-400 text-[10px] uppercase font-semibold">
-                        {camera.properties.type}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Legend Panel at bottom-right */}
-        <div className="absolute bottom-4 right-4 z-20 bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-4 text-xs font-sans leading-relaxed w-72">
-          <div className="font-bold text-xs uppercase tracking-wider text-white border-b border-white/20 pb-1.5 mb-2.5 flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            CHÚ GIẢI
-          </div>
-          <div className="flex flex-col gap-2">
-            {stats.map(([type, count]) => {
-              const color = TYPE_COLORS[type] || DEFAULT_COLOR;
-              return (
-                <div key={type} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 truncate">
-                    <div
-                      className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-[11px] font-medium text-slate-100 truncate">{type}</span>
-                  </div>
-                  <Badge
-                    count={count}
-                    overflowCount={99999}
-                    style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.15)",
-                      color: "#f1f5f9",
-                      boxShadow: "none",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      fontSize: "10px",
-                      height: "18px",
-                      lineHeight: "16px",
-                      minWidth: "24px",
-                    }}
-                  />
-                </div>
-              );
-            })}
-
-            <div className="flex items-center justify-between border-t border-white/10 pt-2 mt-1">
-              <div className="flex items-center gap-2 truncate">
-                <div className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm bg-white/25" />
-                <span className="text-[11px] font-bold text-slate-100 truncate">Tổng số</span>
-              </div>
-              <Badge
-                count={data?.features?.length || 0}
-                overflowCount={99999}
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.25)",
-                  color: "#ffffff",
-                  boxShadow: "none",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  height: "18px",
-                  lineHeight: "16px",
-                  minWidth: "24px",
+          <div className="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
+            <div className="bg-black/50 backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-2.5 relative">
+              <Input
+                allowClear
+                value={searchVal}
+                onChange={(e) => {
+                  setSearchVal(e.target.value);
                 }}
+                className="bg-black/40! border-white/10! hover:border-white/20! focus:border-blue-500! text-white! placeholder-slate-400! text-xs py-1.5 px-3 rounded-lg"
+                prefix={<SearchOutlined className="text-slate-400 mr-1 text-[13px]" />}
               />
+
+              {searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-black/75 backdrop-blur-lg border border-white/15 shadow-2xl rounded-xl overflow-hidden z-20 flex flex-col max-h-60 overflow-y-auto">
+                  {searchResults.map((camera: any) => (
+                    <div
+                      key={`search-res-${camera.properties.id}`}
+                      onClick={() => {
+                        handleCameraSelect(camera);
+                        setSearchVal("");
+                      }}
+                      className="px-3.5 py-2 hover:bg-white/10 cursor-pointer flex flex-col gap-0.5 border-b border-white/5 last:border-0 transition-colors"
+                    >
+                      <div className="text-slate-100 font-medium text-xs truncate">
+                        {camera.properties.name}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: TYPE_COLORS[camera.properties.type] || DEFAULT_COLOR }}
+                        />
+                        <span className="text-slate-400 text-[10px] uppercase font-semibold">
+                          {camera.properties.type}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
+          {/* Legend Panel at bottom-right */}
+          <div className="absolute bottom-4 right-4 z-20 bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-4 text-xs font-sans leading-relaxed w-72">
+            <div className="font-bold text-xs uppercase tracking-wider text-white border-b border-white/20 pb-1.5 mb-2.5 flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              CHÚ GIẢI
+            </div>
+            <div className="flex flex-col gap-2">
+              {stats.map(([type, count]) => {
+                const color = TYPE_COLORS[type] || DEFAULT_COLOR;
+                return (
+                  <div key={type} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <div
+                        className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-[11px] font-medium text-slate-100 truncate">{type}</span>
+                    </div>
+                    <Badge
+                      count={count}
+                      overflowCount={99999}
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.15)",
+                        color: "#f1f5f9",
+                        boxShadow: "none",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        fontSize: "10px",
+                        height: "18px",
+                        lineHeight: "16px",
+                        minWidth: "24px",
+                      }}
+                    />
+                  </div>
+                );
+              })}
 
+              <div className="flex items-center justify-between border-t border-white/10 pt-2 mt-1">
+                <div className="flex items-center gap-2 truncate">
+                  <div className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm bg-white/25" />
+                  <span className="text-[11px] font-bold text-slate-100 truncate">Tổng số</span>
+                </div>
+                <Badge
+                  count={data?.features?.length || 0}
+                  overflowCount={99999}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.25)",
+                    color: "#ffffff",
+                    boxShadow: "none",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    height: "18px",
+                    lineHeight: "16px",
+                    minWidth: "24px",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </Map>
       </div>
     </div>
   );
