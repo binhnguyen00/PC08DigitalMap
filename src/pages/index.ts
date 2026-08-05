@@ -1,4 +1,3 @@
-export * from "./AreaPage";
-export * from "./RoutePage";
-export * from "./OverviewPage";
+export * from "./ManagementAreaPage";
+export * from "./CameraMapPage";
 

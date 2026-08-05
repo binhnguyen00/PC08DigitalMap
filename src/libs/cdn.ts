@@ -79,6 +79,26 @@ export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string
   return await localRes.json();
 }
 
+export async function fetchCamerasGeoJson(): Promise<any> {
+  const cdnUrl = `${CDN_BASE_URL}/cameras.geojson?t=${Date.now()}`;
+  const localUrl = `/data/cameras.geojson?t=${Date.now()}`;
+
+  try {
+    const res = await fetch(cdnUrl, { cache: "no-cache" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
+  }
+
+  const localRes = await fetch(localUrl, { cache: "no-cache" });
+  if (!localRes.ok) {
+    throw new Error(`Failed to fetch GeoJSON for cameras`);
+  }
+  return await localRes.json();
+}
+
 export function getAreaList(): IAreaItem[] {
   return AREA_FILES.map((name) => ({
     id: name,

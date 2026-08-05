@@ -7,7 +7,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { ErrorComponent, RefineThemes } from "@refinedev/antd";
 
 import { AppLayout } from "./components/AppLayout";
-import { AreaPage, OverviewPage, RoutePage } from "./pages";
+import { ManagementAreaPage, CameraMapPage } from "./pages";
 import { dataProvider } from "./providers/dataProvider";
 import { i18nProvider } from "./providers/i18nProvider";
 
@@ -31,26 +31,17 @@ export default function App() {
     },
     resources: [
       {
-        name: "overview",
-        list: "/overview",
+        name: "management-area",
+        list: "/management-area",
         meta: {
-          label: "Bản đồ",
+          label: "Địa bàn quản lý",
         },
       },
       {
-        name: "areas",
-        list: "/areas",
-        show: "/areas/show/:id",
+        name: "cameras",
+        list: "/cameras",
         meta: {
-          label: "Địa bàn",
-        },
-      },
-      {
-        name: "routes",
-        list: "/routes",
-        show: "/routes/show/:id",
-        meta: {
-          label: "Tuyến đường",
+          label: "Bản đồ Camera",
         },
       },
     ],
@@ -70,10 +61,9 @@ export default function App() {
                     </AppLayout>
                   }
                 >
-                  <Route index element={<Navigate to="/overview" replace />} />
-                  <Route path="/overview" element={<OverviewPage />} />
-                  <Route path="/areas" element={<AreaPage />} />
-                  <Route path="/routes" element={<RoutePage />} />
+                  <Route index element={<Navigate to="/management-area" replace />} />
+                  <Route path="/management-area" element={<ManagementAreaPage />} />
+                  <Route path="/cameras" element={<CameraMapPage />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>

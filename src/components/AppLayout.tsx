@@ -6,7 +6,6 @@ const { Header, Content } = Layout;
 
 export const AppLayout = ({ children }: React.PropsWithChildren) => {
   const location = useLocation();
-  const { token } = theme.useToken();
 
   return (
     <Layout className="h-screen font-sans flex flex-col overflow-hidden bg-slate-950">
@@ -20,42 +19,29 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
 
           <div className="flex h-full items-center gap-1 sm:gap-2 shrink-0">
             <Link
-              to="/overview"
-              title="Bản đồ"
+              to="/management-area"
+              title="Địa bàn quản lý"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
-                location.pathname === "/overview" || location.pathname === "/"
+                location.pathname.startsWith("/management-area") || location.pathname === "/"
                   ? "bg-white/15 text-white! border border-white/10"
                   : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
-              <span className="font-medium text-sm whitespace-nowrap">Bản đồ</span>
+              <span className="font-medium text-sm whitespace-nowrap">Địa bàn quản lý</span>
             </Link>
 
             <Link
-              to="/areas"
-              title="Địa bàn"
+              to="/cameras"
+              title="Bản đồ Camera"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
-                location.pathname.startsWith("/areas") || location.pathname.startsWith("/diaban")
+                location.pathname.startsWith("/cameras")
                   ? "bg-white/15 text-white! border border-white/10"
                   : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
-              <span className="font-medium text-sm whitespace-nowrap">Địa bàn</span>
-            </Link>
-
-            <Link
-              to="/routes"
-              title="Tuyến đường"
-              className={cn(
-                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
-                location.pathname.startsWith("/routes") || location.pathname.startsWith("/tuyenduong")
-                  ? "bg-white/15 text-white! border border-white/10"
-                  : "text-slate-300 hover:text-white! hover:bg-white/5"
-              )}
-            >
-              <span className="font-medium text-sm whitespace-nowrap">Tuyến đường</span>
+              <span className="font-medium text-sm whitespace-nowrap">Bản đồ Camera</span>
             </Link>
           </div>
         </div>

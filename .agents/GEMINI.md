@@ -1,16 +1,10 @@
 # 0. Bắt buộc — Skills
 
-> **MANDATORY**: Trước khi thực hiện BẤT KỲ tác vụ nào, agent PHẢI đọc và áp dụng đồng thời cả hai skill sau:
-
-| # | Skill | Path | Mục đích |
-|---|---|---|---|
-| 1 | `i-have-adhd` | [SKILL.md](.agents/skills/i-have-adhd/SKILL.md) | Cấu trúc output, focus, tránh lan man |
-| 2 | `caveman` | [SKILL.md](.agents/skills/caveman/SKILL.md) | Nén token, trả lời súc tích |
+> **MANDATORY**: Trước khi thực hiện bất kỳ tác vụ nào, agent phải đọc và áp dụng skill sau:
 
 **Quy trình bắt buộc:**
-1. Đọc `.agents/skills/i-have-adhd/SKILL.md` bằng `view_file`.
-2. Đọc `.agents/skills/caveman/SKILL.md` bằng `view_file`.
-3. Áp dụng cả hai trong suốt phiên làm việc.
+1. Đọc `.agents/skills/caveman/SKILL.md` bằng `view_file`.
+2. Áp dụng trong suốt phiên làm việc.
 
 Không được bỏ qua bước này dù yêu cầu đơn giản.
 

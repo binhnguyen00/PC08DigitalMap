@@ -103,7 +103,7 @@ const renderTruSoLink = (truSo: any) => {
   return <Typography.Text className="font-semibold text-white!">{String(truSo)}</Typography.Text>;
 };
 
-export const OverviewPage: React.FC = () => {
+export const ManagementAreaPage: React.FC = () => {
   const mapRef = React.useRef<MapRef>(null);
 
   const { query: areaQuery } = useMany<IAreaItem>({
