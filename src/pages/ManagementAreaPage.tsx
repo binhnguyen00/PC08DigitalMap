@@ -6,7 +6,7 @@ import React from "react";
 import { CompassOutlined, ExportOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapLegend, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
-import { AREA_FILES, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { AREA_FILES, fetchHaiphongGeoJson, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 
 interface IHoverInfo {
   type: "area" | "route";
@@ -117,6 +117,17 @@ export const ManagementAreaPage: React.FC = () => {
   });
 
   const [selectedFeature, setSelectedFeature] = React.useState<IHoverInfo | null>(null);
+  const [haiphongBoundary, setHaiphongBoundary] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    fetchHaiphongGeoJson()
+      .then((res) => {
+        setHaiphongBoundary(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load Hải Phòng boundary GeoJSON", err);
+      });
+  }, []);
 
   const areaItems = React.useMemo<IAreaItem[]>(() => areaQuery?.data?.data || [], [areaQuery?.data]);
   const routeItems = React.useMemo<IRouteItem[]>(() => routeQuery?.data?.data || [], [routeQuery?.data]);
@@ -205,6 +216,19 @@ export const ManagementAreaPage: React.FC = () => {
           <MapControls position="top-right" showFullscreen />
           <MapFullscreenTitle />
           <MapLegend districtColors={DISTRICT_COLORS} alwaysShow/>
+
+          {haiphongBoundary && (
+            <MapGeoJSON
+              id="haiphong-boundary"
+              data={haiphongBoundary}
+              fillPaint={false}
+              linePaint={{
+                "line-color": "#3b82f6",
+                "line-width": 3,
+                "line-opacity": 1,
+              }}
+            />
+          )}
 
           {/* Area polygon layers */}
           {areaItems.map((item: IAreaItem) => {

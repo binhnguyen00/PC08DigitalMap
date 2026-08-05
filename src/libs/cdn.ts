@@ -99,6 +99,26 @@ export async function fetchCamerasGeoJson(): Promise<any> {
   return await localRes.json();
 }
 
+export async function fetchHaiphongGeoJson(): Promise<any> {
+  const cdnUrl = `${CDN_BASE_URL}/haiphong.geojson?t=${Date.now()}`;
+  const localUrl = `/data/haiphong.geojson?t=${Date.now()}`;
+
+  try {
+    const res = await fetch(cdnUrl, { cache: "no-cache" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
+  }
+
+  const localRes = await fetch(localUrl, { cache: "no-cache" });
+  if (!localRes.ok) {
+    throw new Error(`Failed to fetch GeoJSON for Hải Phòng`);
+  }
+  return await localRes.json();
+}
+
 export function getAreaList(): IAreaItem[] {
   return AREA_FILES.map((name) => ({
     id: name,

@@ -5,13 +5,14 @@ import {
   Map,
   MapControls,
   MapFullscreenTitle,
+  MapGeoJSON,
   MapMarker,
   MapPopup,
   MapRef,
   MarkerContent,
   useMap,
 } from "@/components/map";
-import { fetchCamerasGeoJson, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { fetchCamerasGeoJson, fetchHaiphongGeoJson, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import {
   EnvironmentOutlined,
   SearchOutlined
@@ -117,6 +118,7 @@ function CameraMapLayers({
 export function CameraMapPage() {
   const mapRef = React.useRef<MapRef>(null);
   const [data, setData] = React.useState<any>(null);
+  const [haiphongBoundary, setHaiphongBoundary] = React.useState<any>(null);
   const [searchVal, setSearchVal] = React.useState("");
   const [selectedCamera, setSelectedCamera] = React.useState<any>(null);
   const [isFetching, setIsFetching] = React.useState(false);
@@ -128,6 +130,14 @@ export function CameraMapPage() {
       })
       .catch((err) => {
         console.error("Failed to load cameras GeoJSON", err);
+      });
+
+    fetchHaiphongGeoJson()
+      .then((res) => {
+        setHaiphongBoundary(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load Hải Phòng boundary GeoJSON", err);
       });
   }, []);
 
@@ -232,12 +242,25 @@ export function CameraMapPage() {
           minZoom={1}
           maxZoom={16}
           styles={{
-            light: SATELLITE_MAP_STYLE as any,
+        light: SATELLITE_MAP_STYLE as any,
             dark: SATELLITE_MAP_STYLE as any,
           }}
         >
           <MapControls position="top-right" showFullscreen />
           <MapFullscreenTitle subtitle="BẢN ĐỒ CAMERA" />
+
+          {haiphongBoundary && (
+            <MapGeoJSON
+              id="haiphong-boundary"
+              data={haiphongBoundary}
+              fillPaint={false}
+              linePaint={{
+                "line-color": "#3b82f6",
+                "line-width": 3,
+                "line-opacity": 1,
+              }}
+            />
+          )}
 
           <CameraMapLayers
             geojson={filteredGeojson}
