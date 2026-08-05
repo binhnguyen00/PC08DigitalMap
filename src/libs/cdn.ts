@@ -60,63 +60,78 @@ export const ROUTE_FILES = [
 export const TUYEN_DUONG_FILES = ROUTE_FILES;
 
 export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string): Promise<any> {
-  const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson?t=${Date.now()}`;
   const localUrl = `/data/${folder}/${name}.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson?t=${Date.now()}`;
 
   try {
-    const res = await fetch(cdnUrl, { cache: "no-cache" });
+    const res = await fetch(localUrl, { cache: "no-cache" });
     if (res.ok) {
       return await res.json();
     }
   } catch (err) {
-    console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
+    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
   }
 
-  const localRes = await fetch(localUrl, { cache: "no-cache" });
-  if (!localRes.ok) {
-    throw new Error(`Failed to fetch GeoJSON for ${folder}/${name}`);
+  try {
+    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
+    if (cdnRes.ok) {
+      return await cdnRes.json();
+    }
+  } catch (err) {
+    console.error(`CDN fetch failed for ${cdnUrl}`, err);
   }
-  return await localRes.json();
+
+  throw new Error(`Failed to fetch GeoJSON for ${folder}/${name}`);
 }
 
 export async function fetchCamerasGeoJson(): Promise<any> {
-  const cdnUrl = `${CDN_BASE_URL}/cameras.geojson?t=${Date.now()}`;
   const localUrl = `/data/cameras.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/cameras.geojson?t=${Date.now()}`;
 
   try {
-    const res = await fetch(cdnUrl, { cache: "no-cache" });
+    const res = await fetch(localUrl, { cache: "no-cache" });
     if (res.ok) {
       return await res.json();
     }
   } catch (err) {
-    console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
+    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
   }
 
-  const localRes = await fetch(localUrl, { cache: "no-cache" });
-  if (!localRes.ok) {
-    throw new Error(`Failed to fetch GeoJSON for cameras`);
+  try {
+    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
+    if (cdnRes.ok) {
+      return await cdnRes.json();
+    }
+  } catch (err) {
+    console.error(`CDN fetch failed for ${cdnUrl}`, err);
   }
-  return await localRes.json();
+
+  throw new Error(`Failed to fetch GeoJSON for cameras`);
 }
 
 export async function fetchHaiphongGeoJson(): Promise<any> {
-  const cdnUrl = `${CDN_BASE_URL}/haiphong.geojson?t=${Date.now()}`;
   const localUrl = `/data/haiphong.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/haiphong.geojson?t=${Date.now()}`;
 
   try {
-    const res = await fetch(cdnUrl, { cache: "no-cache" });
+    const res = await fetch(localUrl, { cache: "no-cache" });
     if (res.ok) {
       return await res.json();
     }
   } catch (err) {
-    console.warn(`CDN fetch failed for ${cdnUrl}, falling back to local`, err);
+    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
   }
 
-  const localRes = await fetch(localUrl, { cache: "no-cache" });
-  if (!localRes.ok) {
-    throw new Error(`Failed to fetch GeoJSON for Hải Phòng`);
+  try {
+    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
+    if (cdnRes.ok) {
+      return await cdnRes.json();
+    }
+  } catch (err) {
+    console.error(`CDN fetch failed for ${cdnUrl}`, err);
   }
-  return await localRes.json();
+
+  throw new Error(`Failed to fetch GeoJSON for Hải Phòng`);
 }
 
 export function getAreaList(): IAreaItem[] {
