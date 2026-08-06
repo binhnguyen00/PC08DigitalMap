@@ -134,6 +134,38 @@ export async function fetchHaiphongGeoJson(): Promise<any> {
   throw new Error(`Failed to fetch GeoJSON for Hải Phòng`);
 }
 
+export interface IHeadquarter {
+  id: number;
+  name: string;
+  lng: number;
+  lat: number;
+}
+
+export async function fetchHeadquarters(): Promise<IHeadquarter[]> {
+  const localUrl = `/data/headquarters.json?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/headquarters.json?t=${Date.now()}`;
+
+  try {
+    const res = await fetch(localUrl, { cache: "no-cache" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
+  }
+
+  try {
+    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
+    if (cdnRes.ok) {
+      return await cdnRes.json();
+    }
+  } catch (err) {
+    console.error(`CDN fetch failed for ${cdnUrl}`, err);
+  }
+
+  throw new Error(`Failed to fetch headquarters data`);
+}
+
 export function getAreaList(): IAreaItem[] {
   return AREA_FILES.map((name) => ({
     id: name,

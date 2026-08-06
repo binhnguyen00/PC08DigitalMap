@@ -1,4 +1,4 @@
-import { Badge, Input, Spin, Typography } from "antd";
+import { Badge, Input, Spin, Switch, Typography } from "antd";
 import React from "react";
 
 import {
@@ -12,7 +12,8 @@ import {
   MarkerContent,
   useMap,
 } from "@/components/map";
-import { fetchCamerasGeoJson, fetchHaiphongGeoJson, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { fetchCamerasGeoJson, fetchHeadquarters, fetchHaiphongGeoJson, IHeadquarter, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+
 import {
   EnvironmentOutlined,
   SearchOutlined
@@ -25,6 +26,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const DEFAULT_COLOR = "#f59e0b";
+const HQ_COLOR = "#a855f7";
 
 function CameraMapLayers({
   geojson,
@@ -122,6 +124,10 @@ export function CameraMapPage() {
   const [searchVal, setSearchVal] = React.useState("");
   const [selectedCamera, setSelectedCamera] = React.useState<any>(null);
   const [isFetching, setIsFetching] = React.useState(false);
+  const [showHeadquarters, setShowHeadquarters] = React.useState(true);
+  const [selectedHQ, setSelectedHQ] = React.useState<IHeadquarter | null>(null);
+  const [headquarters, setHeadquarters] = React.useState<IHeadquarter[]>([]);
+  const [hiddenTypes, setHiddenTypes] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     fetchCamerasGeoJson()
@@ -138,6 +144,14 @@ export function CameraMapPage() {
       })
       .catch((err) => {
         console.error("Failed to load Hải Phòng boundary GeoJSON", err);
+      });
+
+    fetchHeadquarters()
+      .then((res) => {
+        setHeadquarters(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load headquarters", err);
       });
   }, []);
 
@@ -168,25 +182,32 @@ export function CameraMapPage() {
 
   const filteredGeojson = React.useMemo(() => {
     if (!data) return null;
-    if (!searchVal.trim()) return data;
 
-    const lowerSearch = searchVal.toLowerCase();
-    const filteredFeatures = data.features.filter((f: any) => {
-      const name = f.properties.name || "";
-      const note = f.properties.note || "";
-      const description = f.properties.description || "";
-      return (
-        name.toLowerCase().includes(lowerSearch) ||
-        note.toLowerCase().includes(lowerSearch) ||
-        description.toLowerCase().includes(lowerSearch)
-      );
-    });
+    let features = data.features;
 
-    return {
-      ...data,
-      features: filteredFeatures,
-    };
-  }, [data, searchVal]);
+    if (hiddenTypes.size > 0) {
+      features = features.filter((f: any) => {
+        const type = f.properties.type || "Khác";
+        return !hiddenTypes.has(type);
+      });
+    }
+
+    if (searchVal.trim()) {
+      const lowerSearch = searchVal.toLowerCase();
+      features = features.filter((f: any) => {
+        const name = f.properties.name || "";
+        const note = f.properties.note || "";
+        const description = f.properties.description || "";
+        return (
+          name.toLowerCase().includes(lowerSearch) ||
+          note.toLowerCase().includes(lowerSearch) ||
+          description.toLowerCase().includes(lowerSearch)
+        );
+      });
+    }
+
+    return { ...data, features };
+  }, [data, searchVal, hiddenTypes]);
 
   const searchResults = React.useMemo(() => {
     if (!data || !searchVal.trim()) return [];
@@ -266,6 +287,83 @@ export function CameraMapPage() {
             geojson={filteredGeojson}
             onCameraClick={handleCameraSelect}
           />
+
+          {showHeadquarters && headquarters.map((hq) => (
+            <MapMarker
+              key={`hq-${hq.id}`}
+              longitude={hq.lng}
+              latitude={hq.lat}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedHQ(hq);
+                setSelectedCamera(null);
+              }}
+            >
+              <MarkerContent className="z-30 pointer-events-auto">
+                <div className="flex flex-col items-center justify-center cursor-pointer group">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 transition-transform group-hover:scale-125">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#facc15" stroke="#78350f" strokeWidth="1.2" strokeLinejoin="round" />
+                  </svg>
+                  <span
+                    className="mt-0.5 text-[9px] font-bold text-white whitespace-nowrap max-w-20 truncate"
+                    style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+                  >
+                    {hq.name}
+                  </span>
+                </div>
+              </MarkerContent>
+            </MapMarker>
+          ))}
+
+          {selectedHQ && (
+            <MapPopup
+              longitude={selectedHQ.lng}
+              latitude={selectedHQ.lat}
+              onClose={() => setSelectedHQ(null)}
+              closeButton
+              closeOnClick={false}
+              className="z-30 w-64 h-fit max-w-[90vw]"
+              offset={16}
+            >
+              <div className="text-zinc-100 w-full flex flex-col gap-2">
+                <div className="font-bold border-b border-white/10 pb-1.5 pr-4 flex items-center gap-1.5">
+                  <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#facc15" stroke="#f59e0b" strokeWidth="0.5" />
+                  </svg>
+                  <span className="text-xs sm:text-sm font-semibold truncate" title={selectedHQ.name}>
+                    {selectedHQ.name}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1.5 text-xs">
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-zinc-400">Loại</span>
+                    <span className="font-semibold text-purple-300">Trụ sở</span>
+                  </div>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-zinc-400">Toạ độ</span>
+                    <span className="font-medium text-zinc-200 text-right text-[10px]">
+                      {selectedHQ.lat.toFixed(6)}, {selectedHQ.lng.toFixed(6)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center gap-2 pt-1.5 border-t border-white/10 mt-1">
+                    <span className="text-zinc-400">Bản đồ</span>
+                    <Typography.Link
+                      href={`https://www.google.com/maps?q=${selectedHQ.lat},${selectedHQ.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400! hover:text-blue-300! font-semibold inline-flex items-center gap-1 cursor-pointer text-xs"
+                      onClick={(e) => { e.stopPropagation(); }}
+                    >
+                      <svg className="w-3.5 h-3.5 shrink-0 fill-[#EA4335]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" />
+                      </svg>
+                      <span className="text-xs">Google Maps</span>
+                    </Typography.Link>
+                  </div>
+                </div>
+              </div>
+            </MapPopup>
+          )}
 
           {selectedCamera && (
             <MapMarker
@@ -450,32 +548,79 @@ export function CameraMapPage() {
             <div className="flex flex-col gap-2">
               {stats.map(([type, count]) => {
                 const color = TYPE_COLORS[type] || DEFAULT_COLOR;
+                const visible = !hiddenTypes.has(type);
                 return (
-                  <div key={type} className="flex items-center justify-between">
+                  <div key={type} className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 truncate">
                       <div
-                        className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm"
-                        style={{ backgroundColor: color }}
+                        className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm transition-opacity"
+                        style={{ backgroundColor: color, opacity: visible ? 1 : 0.3 }}
                       />
-                      <span className="text-[11px] font-medium text-slate-100 truncate">{type}</span>
+                      <span className={`text-[11px] font-medium truncate transition-opacity ${visible ? "text-slate-100" : "text-slate-400"}`}>{type}</span>
                     </div>
-                    <Badge
-                      count={count}
-                      overflowCount={99999}
-                      style={{
-                        backgroundColor: "rgba(255, 255, 255, 0.15)",
-                        color: "#f1f5f9",
-                        boxShadow: "none",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        fontSize: "10px",
-                        height: "18px",
-                        lineHeight: "16px",
-                        minWidth: "24px",
-                      }}
-                    />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge
+                        count={count}
+                        overflowCount={99999}
+                        style={{
+                          backgroundColor: visible ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
+                          color: visible ? "#f1f5f9" : "#64748b",
+                          boxShadow: "none",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          fontSize: "10px",
+                          height: "18px",
+                          lineHeight: "16px",
+                          minWidth: "24px",
+                        }}
+                      />
+                      <Switch
+                        size="small"
+                        checked={visible}
+                        onChange={(checked) => {
+                          setHiddenTypes((prev) => {
+                            const next = new Set(prev);
+                            if (checked) next.delete(type);
+                            else next.add(type);
+                            return next;
+                          });
+                        }}
+                        style={{ backgroundColor: visible ? color : undefined }}
+                      />
+                    </div>
                   </div>
                 );
               })}
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 truncate">
+                  <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" style={{ opacity: showHeadquarters ? 1 : 0.3 }}>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#facc15" stroke="#f59e0b" strokeWidth="0.5" />
+                  </svg>
+                  <span className={`text-[11px] font-medium truncate transition-opacity ${showHeadquarters ? "text-slate-100" : "text-slate-400"}`}>Trụ sở</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge
+                    count={headquarters.length}
+                    overflowCount={99999}
+                    style={{
+                      backgroundColor: showHeadquarters ? `${HQ_COLOR}33` : "rgba(255,255,255,0.05)",
+                      color: showHeadquarters ? "#d8b4fe" : "#64748b",
+                      boxShadow: "none",
+                      border: `1px solid ${showHeadquarters ? HQ_COLOR + "66" : "rgba(255,255,255,0.1)"}`,
+                      fontSize: "10px",
+                      height: "18px",
+                      lineHeight: "16px",
+                      minWidth: "24px",
+                    }}
+                  />
+                  <Switch
+                    size="small"
+                    checked={showHeadquarters}
+                    onChange={setShowHeadquarters}
+                    style={{ backgroundColor: showHeadquarters ? HQ_COLOR : undefined }}
+                  />
+                </div>
+              </div>
 
               <div className="flex items-center justify-between border-t border-white/10 pt-2 mt-1">
                 <div className="flex items-center gap-2 truncate">
