@@ -306,7 +306,8 @@ export const ManagementAreaPage: React.FC = () => {
                 labelProperty="ten_tuyen"
                 symbolLayout={{
                   "symbol-placement": "line",
-                  "text-size": 10,
+                  "text-size": 13,
+                  "text-font": ["Open Sans Bold"],
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                   "text-keep-upright": true,
@@ -316,7 +317,7 @@ export const ManagementAreaPage: React.FC = () => {
                 symbolPaint={{
                   "text-color": "#ffffff",
                   "text-halo-color": "#000000",
-                  "text-halo-width": 1,
+                  "text-halo-width": 2,
                 }}
                 onClick={(e: any) => {
                   setSelectedFeature({
@@ -344,7 +345,8 @@ export const ManagementAreaPage: React.FC = () => {
                 linePaint={false}
                 labelProperty="ten_xa"
                 symbolLayout={{
-                  "text-size": 11,
+                  "text-size": 12,
+                  "text-font": ["Open Sans Bold"],
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                 }}
