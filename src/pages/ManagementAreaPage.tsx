@@ -213,7 +213,7 @@ export const ManagementAreaPage: React.FC = () => {
             dark: SATELLITE_MAP_STYLE as any,
           }}
         >
-          <MapControls position="top-right" showFullscreen />
+          <MapControls position="top-right" showFullscreen showExport />
           <MapFullscreenTitle />
           <MapLegend districtColors={DISTRICT_COLORS} alwaysShow/>
 
@@ -254,6 +254,10 @@ export const ManagementAreaPage: React.FC = () => {
                   "line-color": "#ffffff",
                   "line-width": 1.8,
                   "line-opacity": 0.9,
+                }}
+                symbolLayout={{
+                  "text-size": 10,
+                  "text-font": ["Open Sans Regular"],
                 }}
                 onClick={(e: any) => {
                   setSelectedFeature({
@@ -306,18 +310,24 @@ export const ManagementAreaPage: React.FC = () => {
                 labelProperty="ten_tuyen"
                 symbolLayout={{
                   "symbol-placement": "line",
-                  "text-size": 13,
-                  "text-font": ["Open Sans Bold"],
+                  "icon-image": "route-shield-blue",
+                  "icon-text-fit": "both",
+                  "icon-text-fit-padding": [0.5, 2, 0.5, 2],
+                  "icon-allow-overlap": true,
+                  "icon-ignore-placement": true,
+                  "text-field": ["coalesce", ["get", "ten_tuyen"], ["get", "name"], ""],
+                  "text-size": 5.5,
+                  "text-font": ["Open Sans Regular"],
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
                   "text-keep-upright": true,
-                  "text-max-angle": 45,
-                  "symbol-spacing": 150,
+                  "text-max-angle": 75,
+                  "symbol-spacing": 120,
                 }}
                 symbolPaint={{
                   "text-color": "#ffffff",
-                  "text-halo-color": "#000000",
-                  "text-halo-width": 2,
+                  "text-halo-width": 0,
+                  "text-halo-color": "transparent",
                 }}
                 onClick={(e: any) => {
                   setSelectedFeature({
@@ -345,15 +355,25 @@ export const ManagementAreaPage: React.FC = () => {
                 linePaint={false}
                 labelProperty="ten_xa"
                 symbolLayout={{
-                  "text-size": 12,
-                  "text-font": ["Open Sans Bold"],
+                  "icon-image": "star-icon",
+                  "icon-size": 0.45,
+                  "icon-allow-overlap": true,
+                  "icon-ignore-placement": true,
+                  "icon-anchor": "center",
+                  "text-field": ["coalesce", ["get", "ten_xa"], ["get", "name"], ""],
+                  "text-variable-anchor": ["left", "right", "top", "bottom"],
+                  "text-radial-offset": 0.4,
+                  "text-size": 8,
+                  "text-font": ["Open Sans Regular"],
                   "text-allow-overlap": true,
                   "text-ignore-placement": true,
+                  "text-padding": 1,
                 }}
                 symbolPaint={{
                   "text-color": "#ffffff",
-                  "text-halo-color": "#000000",
-                  "text-halo-width": 2,
+                  "text-halo-color": "rgba(15, 23, 42, 0.9)",
+                  "text-halo-width": 1.5,
+                  "text-halo-blur": 0.5,
                 }}
               />
             );

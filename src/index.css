@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@watergis/maplibre-gl-export/dist/maplibre-gl-export.css";
+
 
 @custom-variant dark (&:is(.dark *));
 

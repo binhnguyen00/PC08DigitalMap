@@ -9,9 +9,13 @@ export const SATELLITE_MAP_STYLE = {
     satellite: {
       type: "raster",
       tiles: [
-        "https://mt1.google.com/vt/lyrs=y&apistyle=s.t:2|p.v:off&x={x}&y={y}&z={z}",
+        "https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&scale=4",
+        "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&scale=4",
+        "https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&scale=4",
+        "https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&scale=4",
       ],
       tileSize: 256,
+      maxzoom: 22,
     },
   },
   layers: [
@@ -20,7 +24,7 @@ export const SATELLITE_MAP_STYLE = {
       type: "raster",
       source: "satellite",
       minzoom: 0,
-      maxzoom: 19,
+      maxzoom: 22,
     },
   ],
 } as const;

@@ -267,7 +267,7 @@ export function CameraMapPage() {
             dark: SATELLITE_MAP_STYLE as any,
           }}
         >
-          <MapControls position="top-right" showFullscreen />
+          <MapControls position="top-right" showFullscreen showExport />
           <MapFullscreenTitle subtitle="BẢN ĐỒ CAMERA" />
 
           {haiphongBoundary && (

@@ -17,7 +17,18 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import {
+  DPI,
+  Format,
+  MaplibreExportControl,
+  PageOrientation,
+  Size,
+} from "@watergis/maplibre-gl-export";
+import { CameraOutlined } from "@ant-design/icons";
 import { cn } from "@/libs/utils";
+import { MapExportModal } from "./MapExportModal";
+
+
 
 const defaultStyles = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
@@ -205,6 +216,8 @@ type MapProps = {
   onViewportChange?: (viewport: MapViewport) => void;
   /** Show a loading indicator on the map */
   loading?: boolean;
+  /** Show native Maplibre Export Control widget on the map */
+  showNativeExportControl?: boolean;
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
 function DefaultLoader() {
@@ -240,6 +253,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     viewport,
     onViewportChange,
     loading = false,
+    showNativeExportControl = false,
     ...props
   },
   ref,
@@ -291,6 +305,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       container: containerRef.current,
       style: initialStyle,
       renderWorldCopies: false,
+      canvasContextAttributes: {
+        preserveDrawingBuffer: true,
+      },
       attributionControl: {
         compact: true,
       },
@@ -338,15 +355,21 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
     const styleLoadHandler = () => {
       hideNonRoadLayers(map);
+      registerStarIcon(map);
+      registerRouteShieldIcon(map);
       styleSwapInFlightRef.current = false;
       setIsStyleLoaded(true);
     };
     const loadHandler = () => {
       hideNonRoadLayers(map);
+      registerStarIcon(map);
+      registerRouteShieldIcon(map);
       setIsLoaded(true);
     };
     const styleDataHandler = () => {
       hideNonRoadLayers(map);
+      registerStarIcon(map);
+      registerRouteShieldIcon(map);
     };
 
     // Viewport change handler - skip if triggered by internal update
@@ -355,6 +378,19 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       onViewportChangeRef.current?.(getViewport(map));
     };
 
+    let nativeExportControl: MaplibreExportControl | null = null;
+    if (showNativeExportControl) {
+      nativeExportControl = new MaplibreExportControl({
+        PageSize: Size.A4,
+        PageOrientation: PageOrientation.Landscape,
+        Format: Format.PNG,
+        DPI: DPI[300],
+        Crosshair: true,
+        PrintableArea: true,
+      });
+      map.addControl(nativeExportControl, "top-right");
+    }
+
     map.on("load", loadHandler);
     map.on("style.load", styleLoadHandler);
     map.on("styledata", styleDataHandler);
@@ -362,6 +398,13 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     setMapInstance(map);
 
     return () => {
+      if (nativeExportControl && map) {
+        try {
+          map.removeControl(nativeExportControl);
+        } catch (e) {
+          // ignore
+        }
+      }
       map.off("load", loadHandler);
       map.off("style.load", styleLoadHandler);
       map.off("styledata", styleDataHandler);
@@ -372,7 +415,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       setMapInstance(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showNativeExportControl]);
 
   // Sync controlled viewport to map
   useEffect(() => {
@@ -874,6 +917,8 @@ type MapControlsProps = {
   showLocate?: boolean;
   /** Show fullscreen toggle button (default: false) */
   showFullscreen?: boolean;
+  /** Show map export / capture button (default: false) */
+  showExport?: boolean;
   /** Additional CSS classes for the controls container */
   className?: string;
   /** Callback with user coordinates when located */
@@ -931,11 +976,13 @@ function MapControls({
   showCompass = false,
   showLocate = false,
   showFullscreen = true,
+  showExport = false,
   className,
   onLocate,
 }: MapControlsProps) {
   const { map, isFullscreen, toggleFullscreen } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const handleZoomIn = useCallback(() => {
     map?.zoomTo(map.getZoom() + 1, { duration: 300 });
@@ -988,51 +1035,66 @@ function MapControls({
   }, [position, isFullscreen]);
 
   return (
-    <div
-      className={cn(
-        "absolute z-10 flex flex-col gap-1.5",
-        posClass,
-        className,
-      )}
-    >
-      {showZoom && (
-        <ControlGroup>
-          <ControlButton onClick={handleZoomIn} label="Zoom in">
-            <span className="font-bold text-base">+</span>
-          </ControlButton>
-          <ControlButton onClick={handleZoomOut} label="Zoom out">
-            <span className="font-bold text-base">−</span>
-          </ControlButton>
-        </ControlGroup>
-      )}
-      {showCompass && (
-        <ControlGroup>
-          <ControlButton onClick={handleResetBearing} label="Reset bearing to north">
-            <span className="text-xs font-semibold">Bắc</span>
-          </ControlButton>
-        </ControlGroup>
-      )}
-      {showLocate && (
-        <ControlGroup>
-          <ControlButton
-            onClick={handleLocate}
-            label="Find my location"
-            disabled={waitingForLocation}
-          >
-            <span className="text-[10px] font-medium">{waitingForLocation ? "..." : "Vị trí"}</span>
-          </ControlButton>
-        </ControlGroup>
-      )}
-      {showFullscreen && (
-        <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label={isFullscreen ? "Exit fullscreen" : "Toggle fullscreen"}>
-            <span className="text-[10px] font-medium leading-none px-1 text-center">
-              {isFullscreen ? "Thu nhỏ" : "Toàn màn"}
-            </span>
-          </ControlButton>
-        </ControlGroup>
-      )}
-    </div>
+    <>
+      <div
+        className={cn(
+          "absolute z-10 flex flex-col gap-1.5",
+          posClass,
+          className,
+        )}
+      >
+        {showZoom && (
+          <ControlGroup>
+            <ControlButton onClick={handleZoomIn} label="Zoom in">
+              <span className="font-bold text-base">+</span>
+            </ControlButton>
+            <ControlButton onClick={handleZoomOut} label="Zoom out">
+              <span className="font-bold text-base">−</span>
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showCompass && (
+          <ControlGroup>
+            <ControlButton onClick={handleResetBearing} label="Reset bearing to north">
+              <span className="text-xs font-semibold">Bắc</span>
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showLocate && (
+          <ControlGroup>
+            <ControlButton
+              onClick={handleLocate}
+              label="Find my location"
+              disabled={waitingForLocation}
+            >
+              <span className="text-[10px] font-medium">{waitingForLocation ? "..." : "Vị trí"}</span>
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showExport && (
+          <ControlGroup>
+            <ControlButton onClick={() => setExportModalOpen(true)} label="Xuất ảnh bản đồ">
+              <CameraOutlined className="text-sm" />
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showFullscreen && (
+          <ControlGroup>
+            <ControlButton onClick={handleFullscreen} label={isFullscreen ? "Exit fullscreen" : "Toggle fullscreen"}>
+              <span className="text-[10px] font-medium leading-none px-1 text-center">
+                {isFullscreen ? "Thu nhỏ" : "Toàn màn"}
+              </span>
+            </ControlButton>
+          </ControlGroup>
+        )}
+      </div>
+
+      <MapExportModal
+        open={exportModalOpen}
+        mapInstance={map}
+        onClose={() => setExportModalOpen(false)}
+      />
+    </>
   );
 }
 
@@ -1429,7 +1491,7 @@ function MapGeoJSON<
         ? ["coalesce", ["get", labelProperty], ["get", "name"], ""]
         : "",
       "text-size": 12,
-      "text-allow-overlap": true,
+      "text-allow-overlap": false,
       "text-ignore-placement": false,
       ...(symbolLayout || {}),
     }),
@@ -1452,6 +1514,8 @@ function MapGeoJSON<
   // Add source on mount.
   useEffect(() => {
     if (!isLoaded || !map) return;
+    registerStarIcon(map);
+    registerRouteShieldIcon(map);
 
     map.addSource(sourceId, {
       type: "geojson",
@@ -2476,6 +2540,93 @@ function MapLegend({
       )}
     </div>
   );
+}
+
+export function registerStarIcon(map: MapLibreGL.Map) {
+  if (!map || map.hasImage("star-icon")) return;
+
+  try {
+    const size = 32;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.beginPath();
+    const cx = size / 2;
+    const cy = size / 2;
+    const outerRadius = 13;
+    const innerRadius = 5.5;
+    const numPoints = 5;
+
+    for (let i = 0; i < numPoints * 2; i++) {
+      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+      const angle = (i * Math.PI) / numPoints - Math.PI / 2;
+      const x = cx + Math.cos(angle) * radius;
+      const y = cy + Math.sin(angle) * radius;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#facc15";
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#854d0e";
+    ctx.stroke();
+
+    const imageData = ctx.getImageData(0, 0, size, size);
+    if (!map.hasImage("star-icon")) {
+      map.addImage("star-icon", imageData, { pixelRatio: 2 });
+    }
+  } catch (e) {
+    // Ignore duplicate image errors during map style reloads
+  }
+}
+
+export function registerRouteShieldIcon(map: MapLibreGL.Map) {
+  if (!map || map.hasImage("route-shield-blue")) return;
+
+  try {
+    const width = 36;
+    const height = 20;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const radius = 3.5;
+    const x = 1;
+    const y = 1;
+    const w = width - 2;
+    const h = height - 2;
+
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(x, y, w, h, radius);
+    } else {
+      ctx.rect(x, y, w, h);
+    }
+    ctx.fillStyle = "#1d4ed8";
+    ctx.fill();
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#ffffff";
+    ctx.stroke();
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    if (!map.hasImage("route-shield-blue")) {
+      map.addImage("route-shield-blue", imageData, {
+        pixelRatio: 2,
+        stretchX: [[10, 26]],
+        stretchY: [[6, 14]],
+        content: [4, 2, 32, 18],
+      });
+    }
+  } catch (e) {
+    // Ignore duplicate image errors during map style reloads
+  }
 }
 
 export {
