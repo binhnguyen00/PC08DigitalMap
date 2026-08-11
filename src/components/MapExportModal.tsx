@@ -135,32 +135,6 @@ const DEFAULT_DISTRICT_NAMES: Record<string, string> = {
 const EXPORT_FONT_FAMILY =
   'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
-function drawCanvasStar(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  radius: number,
-) {
-  const innerRadius = radius * 0.45;
-  ctx.save();
-  ctx.beginPath();
-  for (let i = 0; i < 10; i++) {
-    const r = i % 2 === 0 ? radius : innerRadius;
-    const angle = (i * Math.PI) / 5 - Math.PI / 2;
-    const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.closePath();
-  ctx.fillStyle = "#facc15";
-  ctx.fill();
-  ctx.lineWidth = Math.max(1, 1 * (radius / 6));
-  ctx.strokeStyle = "#854d0e";
-  ctx.stroke();
-  ctx.restore();
-}
-
 function drawCanvasTitleOverlay(
   ctx: CanvasRenderingContext2D,
   canvasWidth: number,
@@ -168,8 +142,8 @@ function drawCanvasTitleOverlay(
   titleText = "PHÒNG CẢNH SÁT GIAO THÔNG - CATP HẢI PHÒNG",
   subtitleText = "BẢN ĐỒ ĐỊA BÀN ĐỘI CSGTĐB SỐ 2",
 ) {
-  const fontTitleSize = Math.round(16 * scaleFactor);
-  const fontSubtitleSize = Math.round(24 * scaleFactor);
+  const fontTitleSize = Math.round(30 * scaleFactor);
+  const fontSubtitleSize = Math.round(40 * scaleFactor);
   const lineSpacing = Math.round(14 * 1 * scaleFactor);
 
   ctx.save();
