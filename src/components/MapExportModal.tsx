@@ -32,53 +32,95 @@ interface IAspectRatioOption {
 
 const RATIO_OPTIONS: IAspectRatioOption[] = [
   {
+    key: "8k_16_9",
+    label: "8K Ultra HD (7680 × 4320 px — 16:9)",
+    ratioText: "16:9 8K",
+    widthPx: 7680,
+    heightPx: 4320,
+  },
+  {
+    key: "8k_4_3",
+    label: "8K Tiêu chuẩn (5760 × 4320 px — 4:3)",
+    ratioText: "4:3 8K",
+    widthPx: 5760,
+    heightPx: 4320,
+  },
+  {
+    key: "8k_1_1",
+    label: "8K Vuông (7680 × 7680 px — 1:1)",
+    ratioText: "1:1 8K",
+    widthPx: 7680,
+    heightPx: 7680,
+  },
+  {
+    key: "8k_21_9",
+    label: "8K Ultrawide (7680 × 3290 px — 21:9)",
+    ratioText: "21:9 8K",
+    widthPx: 7680,
+    heightPx: 3290,
+  },
+  {
+    key: "8k_9_16",
+    label: "8K Dọc Story (4320 × 7680 px — 9:16)",
+    ratioText: "9:16 8K",
+    widthPx: 4320,
+    heightPx: 7680,
+  },
+  {
     key: "16_9",
-    label: "16:9 (Màn hình rộng — 3840 × 2160 px)",
-    ratioText: "16:9",
+    label: "4K Ultra HD (3840 × 2160 px — 16:9)",
+    ratioText: "16:9 4K",
     widthPx: 3840,
     heightPx: 2160,
   },
   {
     key: "4_3",
-    label: "4:3 (Tiêu chuẩn — 2880 × 2160 px)",
-    ratioText: "4:3",
+    label: "4K Tiêu chuẩn (2880 × 2160 px — 4:3)",
+    ratioText: "4:3 4K",
     widthPx: 2880,
     heightPx: 2160,
   },
   {
     key: "1_1",
-    label: "1:1 (Vuông — 3840 × 3840 px)",
-    ratioText: "1:1",
+    label: "4K Vuông (3840 × 3840 px — 1:1)",
+    ratioText: "1:1 4K",
     widthPx: 3840,
     heightPx: 3840,
   },
   {
     key: "21_9",
-    label: "21:9 (Ultrawide — 3840 × 1645 px)",
-    ratioText: "21:9",
+    label: "4K Ultrawide (3840 × 1645 px — 21:9)",
+    ratioText: "21:9 4K",
     widthPx: 3840,
     heightPx: 1645,
   },
   {
     key: "9_16",
-    label: "9:16 (Dọc Story — 2160 × 3840 px)",
-    ratioText: "9:16",
+    label: "4K Dọc Story (2160 × 3840 px — 9:16)",
+    ratioText: "9:16 4K",
     widthPx: 2160,
     heightPx: 3840,
   },
   {
-    key: "a4_landscape",
-    label: "A4 Ngang (297 × 210 mm)",
-    ratioText: "A4 Ngang",
-    widthMm: 297,
-    heightMm: 210,
+    key: "a0_landscape",
+    label: "A0 Ngang (1189 × 841 mm — Khổ cực đại)",
+    ratioText: "A0 Ngang",
+    widthMm: 1189,
+    heightMm: 841,
   },
   {
-    key: "a4_portrait",
-    label: "A4 Dọc (210 × 297 mm)",
-    ratioText: "A4 Dọc",
-    widthMm: 210,
-    heightMm: 297,
+    key: "a1_landscape",
+    label: "A1 Ngang (841 × 594 mm — Khổ bản đồ lớn)",
+    ratioText: "A1 Ngang",
+    widthMm: 841,
+    heightMm: 594,
+  },
+  {
+    key: "a2_landscape",
+    label: "A2 Ngang (594 × 420 mm — Khổ trung)",
+    ratioText: "A2 Ngang",
+    widthMm: 594,
+    heightMm: 420,
   },
   {
     key: "a3_landscape",
@@ -93,6 +135,20 @@ const RATIO_OPTIONS: IAspectRatioOption[] = [
     ratioText: "A3 Dọc",
     widthMm: 297,
     heightMm: 420,
+  },
+  {
+    key: "a4_landscape",
+    label: "A4 Ngang (297 × 210 mm)",
+    ratioText: "A4 Ngang",
+    widthMm: 297,
+    heightMm: 210,
+  },
+  {
+    key: "a4_portrait",
+    label: "A4 Dọc (210 × 297 mm)",
+    ratioText: "A4 Dọc",
+    widthMm: 210,
+    heightMm: 297,
   },
 ];
 
@@ -300,7 +356,7 @@ export function MapExportModal({
 }: IMapExportModalProps) {
   const [selectedRatioKey, setSelectedRatioKey] = React.useState<string>("16_9");
   const [format, setFormat] = React.useState<FormatType>(Format.PNG);
-  const [dpi, setDpi] = React.useState<DPIType>(DPI[400]);
+  const [dpi, setDpi] = React.useState<number>(DPI[400]);
   const [exporting, setExporting] = React.useState<boolean>(false);
   const [showPrintableArea, setShowPrintableArea] = React.useState<boolean>(true);
 
@@ -389,7 +445,7 @@ export function MapExportModal({
         format: format,
         size: finalSize,
         unit: finalUnit,
-        dpi: dpi,
+        dpi: dpi as DPIType,
         fileName: autoFileName,
         download: true,
       });
@@ -599,16 +655,26 @@ export function MapExportModal({
 
         <div>
           <Typography.Text className="text-xs font-semibold block mb-1 text-slate-700 dark:text-slate-300">
-            Chất lượng:
+            Độ phân giải (DPI):
           </Typography.Text>
           <Select
             value={dpi}
             onChange={(value) => setDpi(value)}
             className="w-full"
             options={[
-              { label: "Sắc nét", value: DPI[400] },
-              { label: "Tiêu chuẩn", value: DPI[300] },
-              { label: "Trung bình", value: DPI[96] },
+              { label: "2400 DPI", value: 2400 },
+              { label: "1800 DPI", value: 1800 },
+              { label: "1200 DPI", value: 1200 },
+              { label: "960 DPI", value: 960 },
+              { label: "800 DPI", value: 800 },
+              { label: "600 DPI", value: 600 },
+              { label: "500 DPI", value: 500 },
+              { label: "400 DPI", value: 400 },
+              { label: "300 DPI", value: 300 },
+              { label: "200 DPI", value: 200 },
+              { label: "150 DPI", value: 150 },
+              { label: "96 DPI", value: 96 },
+              { label: "72 DPI", value: 72 },
             ]}
           />
         </div>

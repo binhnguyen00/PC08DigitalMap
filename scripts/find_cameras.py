@@ -10,7 +10,7 @@ Count cameras in cameras.xlsx and check if they are within a specific ward bound
 Usage: python count_cameras.py
 """
 
-ZONE = "QL5Zone.geojson"
+ZONE = "Lê Thanh Nghị.geojson"
 
 
 def parse_coords(coords_str):
