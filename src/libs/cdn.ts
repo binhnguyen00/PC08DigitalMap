@@ -36,6 +36,7 @@ export const AREA_FILES = [
   "AnHai",
   "AnPhong",
   "AnThanh",
+  "DongHai",
   "GiaVien",
   "HongAn",
   "HongBang",
@@ -47,6 +48,25 @@ export const AREA_FILES = [
   "PhuLien",
   "PhuThai",
 ];
+
+export const DIA_BAN_NAME_MAP: Record<string, string> = {
+  AnBien: "An Biên",
+  AnDuong: "An Dương",
+  AnHai: "An Hải",
+  AnPhong: "An Phong",
+  AnThanh: "An Thành",
+  DongHai: "Đông Hải",
+  GiaVien: "Gia Viên",
+  HongAn: "Hồng An",
+  HongBang: "Hồng Bàng",
+  HungDao: "Hưng Đạo",
+  KienAn: "Kiến An",
+  KimThanh: "Kim Thành",
+  LeChan: "Lê Chân",
+  NgoQuyen: "Ngô Quyền",
+  PhuLien: "Phù Liễn",
+  PhuThai: "Phú Thái",
+};
 
 export const DIA_BAN_FILES = AREA_FILES;
 
@@ -173,7 +193,7 @@ export async function fetchHeadquarters(): Promise<IHeadquarter[]> {
 export function getAreaList(): IAreaItem[] {
   return AREA_FILES.map((name) => ({
     id: name,
-    name: name,
+    name: DIA_BAN_NAME_MAP[name] || name,
     filename: `${name}.geojson`,
     cdnUrl: `${CDN_BASE_URL}/DiaBan/${name}.geojson`,
     type: "Area",

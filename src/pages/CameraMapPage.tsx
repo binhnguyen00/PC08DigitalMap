@@ -1,4 +1,4 @@
-import { Badge, Input, Spin, Switch, Typography } from "antd";
+import { Badge, ConfigProvider, Input, Select, Spin, Switch, Typography } from "antd";
 import React from "react";
 
 import {
@@ -12,7 +12,16 @@ import {
   MarkerContent,
   useMap,
 } from "@/components/map";
-import { fetchCamerasGeoJson, fetchHeadquarters, fetchHaiphongGeoJson, IHeadquarter, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import {
+  AREA_FILES,
+  DIA_BAN_NAME_MAP,
+  fetchCamerasGeoJson,
+  fetchGeoJson,
+  fetchHaiphongGeoJson,
+  fetchHeadquarters,
+  IHeadquarter,
+  SATELLITE_MAP_STYLE,
+} from "@/libs/cdn";
 
 import {
   EnvironmentOutlined,
@@ -27,6 +36,82 @@ const TYPE_COLORS: Record<string, string> = {
 
 const DEFAULT_COLOR = "#f59e0b";
 const HQ_COLOR = "#a855f7";
+
+function isPointInRing(point: [number, number], ring: [number, number][]): boolean {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function isPointInPolygon(point: [number, number], polygonCoords: [number, number][][]): boolean {
+  if (!polygonCoords || polygonCoords.length === 0) return false;
+  if (!isPointInRing(point, polygonCoords[0])) return false;
+  for (let i = 1; i < polygonCoords.length; i++) {
+    if (isPointInRing(point, polygonCoords[i])) return false;
+  }
+  return true;
+}
+
+function isPointInMultiPolygon(point: [number, number], multiPolygonCoords: [number, number][][][]): boolean {
+  if (!multiPolygonCoords) return false;
+  for (const polygonCoords of multiPolygonCoords) {
+    if (isPointInPolygon(point, polygonCoords)) return true;
+  }
+  return false;
+}
+
+function isPointInGeoJSON(point: [number, number], geojson: any): boolean {
+  if (!geojson || !point) return false;
+  const features = geojson.type === "FeatureCollection" ? geojson.features : [geojson];
+  for (const feature of features) {
+    const geom = feature.geometry;
+    if (!geom) continue;
+    if (geom.type === "Polygon") {
+      if (isPointInPolygon(point, geom.coordinates)) return true;
+    } else if (geom.type === "MultiPolygon") {
+      if (isPointInMultiPolygon(point, geom.coordinates)) return true;
+    }
+  }
+  return false;
+}
+
+function getGeoJSONBounds(geojson: any): [[number, number], [number, number]] | null {
+  if (!geojson) return null;
+  let minLng = Infinity;
+  let minLat = Infinity;
+  let maxLng = -Infinity;
+  let maxLat = -Infinity;
+
+  const traverseCoordinates = (coords: any) => {
+    if (typeof coords[0] === "number" && typeof coords[1] === "number") {
+      const [lng, lat] = coords;
+      if (lng < minLng) minLng = lng;
+      if (maxLng < lng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (maxLat < lat) maxLat = lat;
+    } else if (Array.isArray(coords)) {
+      for (const c of coords) {
+        traverseCoordinates(c);
+      }
+    }
+  };
+
+  const features = geojson.type === "FeatureCollection" ? geojson.features : [geojson];
+  for (const f of features) {
+    if (f.geometry && f.geometry.coordinates) {
+      traverseCoordinates(f.geometry.coordinates);
+    }
+  }
+
+  if (minLng === Infinity || minLat === Infinity) return null;
+  return [[minLng, minLat], [maxLng, maxLat]];
+}
 
 function CameraMapLayers({
   geojson,
@@ -128,6 +213,9 @@ export function CameraMapPage() {
   const [selectedHQ, setSelectedHQ] = React.useState<IHeadquarter | null>(null);
   const [headquarters, setHeadquarters] = React.useState<IHeadquarter[]>([]);
   const [hiddenTypes, setHiddenTypes] = React.useState<Set<string>>(new Set());
+  const [selectedDiaBan, setSelectedDiaBan] = React.useState<string | null>(null);
+  const [diaBanBoundary, setDiaBanBoundary] = React.useState<any>(null);
+  const [isLoadingDiaBan, setIsLoadingDiaBan] = React.useState(false);
 
   React.useEffect(() => {
     fetchCamerasGeoJson()
@@ -155,6 +243,29 @@ export function CameraMapPage() {
       });
   }, []);
 
+  React.useEffect(() => {
+    if (!selectedDiaBan) {
+      setDiaBanBoundary(null);
+      return;
+    }
+
+    setIsLoadingDiaBan(true);
+    fetchGeoJson("DiaBan", selectedDiaBan)
+      .then((res) => {
+        setDiaBanBoundary(res);
+        const bounds = getGeoJSONBounds(res);
+        if (bounds && mapRef.current) {
+          mapRef.current.fitBounds(bounds, { padding: 60, duration: 1000 });
+        }
+      })
+      .catch((err) => {
+        console.error(`Failed to load DiaBan GeoJSON for ${selectedDiaBan}`, err);
+      })
+      .finally(() => {
+        setIsLoadingDiaBan(false);
+      });
+  }, [selectedDiaBan]);
+
   const handleCameraSelect = React.useCallback((camera: any) => {
     setSelectedCamera(camera);
     if (camera && mapRef.current) {
@@ -180,10 +291,22 @@ export function CameraMapPage() {
       });
   }, []);
 
+  const areaFilteredFeatures = React.useMemo(() => {
+    if (!data) return [];
+    let features = data.features;
+    if (selectedDiaBan && diaBanBoundary) {
+      features = features.filter((f: any) => {
+        if (!f.geometry || !f.geometry.coordinates) return false;
+        return isPointInGeoJSON(f.geometry.coordinates as [number, number], diaBanBoundary);
+      });
+    }
+    return features;
+  }, [data, selectedDiaBan, diaBanBoundary]);
+
   const filteredGeojson = React.useMemo(() => {
     if (!data) return null;
 
-    let features = data.features;
+    let features = areaFilteredFeatures;
 
     if (hiddenTypes.size > 0) {
       features = features.filter((f: any) => {
@@ -207,13 +330,13 @@ export function CameraMapPage() {
     }
 
     return { ...data, features };
-  }, [data, searchVal, hiddenTypes]);
+  }, [data, areaFilteredFeatures, searchVal, hiddenTypes]);
 
   const searchResults = React.useMemo(() => {
-    if (!data || !searchVal.trim()) return [];
+    if (!areaFilteredFeatures || !searchVal.trim()) return [];
 
     const lowerSearch = searchVal.toLowerCase();
-    return data.features
+    return areaFilteredFeatures
       .filter((f: any) => {
         const name = f.properties.name || "";
         const note = f.properties.note || "";
@@ -229,18 +352,18 @@ export function CameraMapPage() {
         properties: f.properties,
         coordinates: f.geometry.coordinates,
       }));
-  }, [data, searchVal]);
+  }, [areaFilteredFeatures, searchVal]);
 
   const stats = React.useMemo(() => {
-    if (!data) return [];
+    if (!areaFilteredFeatures) return [];
 
     const counts: Record<string, number> = {};
-    for (const feature of data.features) {
+    for (const feature of areaFilteredFeatures) {
       const type = feature.properties.type || "Khác";
       counts[type] = (counts[type] || 0) + 1;
     }
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [data]);
+  }, [areaFilteredFeatures]);
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] flex overflow-hidden">
@@ -279,6 +402,22 @@ export function CameraMapPage() {
                 "line-color": "#3b82f6",
                 "line-width": 3,
                 "line-opacity": 1,
+              }}
+            />
+          )}
+
+          {diaBanBoundary && (
+            <MapGeoJSON
+              id="selected-diaban-boundary"
+              data={diaBanBoundary}
+              fillPaint={{
+                "fill-color": "#f59e0b",
+                "fill-opacity": 0.18,
+              }}
+              linePaint={{
+                "line-color": "#f59e0b",
+                "line-width": 3,
+                "line-opacity": 0.95,
               }}
             />
           )}
@@ -498,15 +637,53 @@ export function CameraMapPage() {
           )}
 
           <div className="absolute top-4 left-4 z-10 w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-3">
-            <div className="bg-black/50 backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-2.5 relative">
+            <div className="bg-black/50 backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-3 relative flex flex-col gap-2.5">
+              <div className="flex flex-col gap-1">
+                <div className="text-[11px] font-semibold text-slate-300">
+                  ĐỊA BÀN QUẢN LÝ
+                </div>
+                <ConfigProvider
+                  theme={{
+                    token: {
+                      colorText: "#ffffff",
+                      colorTextPlaceholder: "#cbd5e1",
+                      colorIcon: "#cbd5e1",
+                      colorBgElevated: "#0f172a",
+                      colorBgContainer: "transparent",
+                    },
+                  }}
+                >
+                  <div className="w-full bg-black/40! border border-white/10! hover:border-white/20! rounded-lg overflow-hidden flex items-center transition-colors">
+                    <Select
+                      allowClear
+                      variant="borderless"
+                      placeholder="Tất cả địa bàn (Hải Phòng)"
+                      value={selectedDiaBan}
+                      onChange={(val) => setSelectedDiaBan(val || null)}
+                      loading={isLoadingDiaBan}
+                      className="w-full text-xs text-white! [&_.ant-select-selector]:rounded-lg! [&_.ant-select-selection-item]:text-white! [&_.ant-select-selection-placeholder]:text-slate-300! [&_.ant-select-arrow]:text-slate-300! [&_.ant-select-clear]:text-slate-300!"
+                      popupClassName="[&_.ant-select-item]:text-slate-200! [&_.ant-select-item-option-selected]:bg-blue-600/40! [&_.ant-select-item-option-selected]:text-white! [&_.ant-select-item-option-active]:bg-white/10! [&_.ant-select-item-option-active]:text-white! bg-slate-900/95! backdrop-blur-md! border! border-white/15!"
+                      options={[
+                        { value: "", label: "Tất cả địa bàn (Hải Phòng)" },
+                        ...AREA_FILES.map((id) => ({
+                          value: id,
+                          label: DIA_BAN_NAME_MAP[id] || id,
+                        })),
+                      ]}
+                    />
+                  </div>
+                </ConfigProvider>
+              </div>
+
               <Input
                 allowClear
                 value={searchVal}
                 onChange={(e) => {
                   setSearchVal(e.target.value);
                 }}
-                className="bg-black/40! border-white/10! hover:border-white/20! focus:border-blue-500! text-white! placeholder-slate-400! text-xs py-1.5 px-3 rounded-lg"
-                prefix={<SearchOutlined className="text-slate-400 mr-1 text-[13px]" />}
+                placeholder="Tìm kiếm camera..."
+                className="bg-black/40! border-white/10! hover:border-white/20! focus:border-blue-500! text-white! text-xs py-1.5 px-3 rounded-lg [&_input]:text-white! [&_input::placeholder]:text-slate-300! [&_.ant-input-clear-icon]:text-slate-300!"
+                prefix={<SearchOutlined className="text-slate-300 mr-1 text-[13px]" />}
               />
 
               {searchResults.length > 0 && (
@@ -628,7 +805,7 @@ export function CameraMapPage() {
                   <span className="text-[11px] font-bold text-slate-100 truncate">Tổng số</span>
                 </div>
                 <Badge
-                  count={data?.features?.length || 0}
+                  count={areaFilteredFeatures?.length || 0}
                   overflowCount={99999}
                   style={{
                     backgroundColor: "rgba(255, 255, 255, 0.25)",
