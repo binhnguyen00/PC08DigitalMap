@@ -20,7 +20,7 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
           <div className="flex h-full items-center gap-1 sm:gap-2 shrink-0">
             <Link
               to="/management-area"
-              title="Địa bàn quản lý"
+              title="Địa bàn"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
                 location.pathname.startsWith("/management-area") || location.pathname === "/"
@@ -28,7 +28,7 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
                   : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
-              <span className="font-medium text-sm whitespace-nowrap">Địa bàn quản lý</span>
+              <span className="font-medium text-sm whitespace-nowrap">Địa bàn</span>
             </Link>
 
             <Link

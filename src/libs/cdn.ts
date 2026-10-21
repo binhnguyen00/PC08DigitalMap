@@ -30,24 +30,48 @@ export const SATELLITE_MAP_STYLE = {
 } as const;
 
 
-export const AREA_FILES = [
-  "AnBien",
-  "AnDuong",
-  "AnHai",
-  "AnPhong",
-  "AnThanh",
-  "DongHai",
-  "GiaVien",
-  "HongAn",
-  "HongBang",
-  "HungDao",
-  "KienAn",
-  "KimThanh",
-  "LeChan",
-  "NgoQuyen",
-  "PhuLien",
-  "PhuThai",
-];
+const DIA_BAN_MODULES = import.meta.glob("/data/DiaBan/**/*.geojson", {
+  query: "?url",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+const TUYEN_DUONG_MODULES = import.meta.glob("/data/TuyenDuong/**/*.geojson", {
+  query: "?url",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+const discoveredAreaFiles = Array.from(
+  new Set(
+    Object.keys(DIA_BAN_MODULES).map((path) => {
+      const fileName = path.split("/").pop() || "";
+      return fileName.replace(".geojson", "");
+    })
+  )
+).sort((a, b) => a.localeCompare(b, "vi"));
+
+export const AREA_FILES =
+  discoveredAreaFiles.length > 0
+    ? discoveredAreaFiles
+    : [
+        "AnBien",
+        "AnDuong",
+        "AnHai",
+        "AnPhong",
+        "AnThanh",
+        "DongHai",
+        "GiaVien",
+        "HongAn",
+        "HongBang",
+        "HungDao",
+        "KienAn",
+        "KimThanh",
+        "LeChan",
+        "NgoQuyen",
+        "PhuLien",
+        "PhuThai",
+      ];
 
 export const DIA_BAN_NAME_MAP: Record<string, string> = {
   AnBien: "An Biên",
@@ -70,47 +94,89 @@ export const DIA_BAN_NAME_MAP: Record<string, string> = {
 
 export const DIA_BAN_FILES = AREA_FILES;
 
-export const ROUTE_FILES = [
-  "QL5",
-  "QL10",
-  "QL17B",
-  "ĐT351",
-  "ĐT354",
-  "ĐT353",
-  "ĐT355",
-  "ĐT360",
-];
+const discoveredRouteFiles = Array.from(
+  new Set(
+    Object.keys(TUYEN_DUONG_MODULES).map((path) => {
+      const fileName = path.split("/").pop() || "";
+      return fileName.replace(".geojson", "");
+    })
+  )
+).sort((a, b) => a.localeCompare(b, "vi"));
+
+export const ROUTE_FILES =
+  discoveredRouteFiles.length > 0
+    ? discoveredRouteFiles
+    : [
+        "QL5",
+        "QL10",
+        "QL17B",
+        "ĐT351",
+        "ĐT354",
+        "ĐT353",
+        "ĐT355",
+        "ĐT360",
+      ];
 
 export const TUYEN_DUONG_FILES = ROUTE_FILES;
 
 export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string): Promise<any> {
-  const localUrl = `/data/${folder}/${name}.geojson?t=${Date.now()}`;
-  const cdnUrl = `${CDN_BASE_URL}/${folder}/${name}.geojson?t=${Date.now()}`;
+  const modules = folder === "DiaBan" ? DIA_BAN_MODULES : TUYEN_DUONG_MODULES;
 
-  try {
-    const res = await fetch(localUrl, { cache: "no-cache" });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
+  const matchEntry = Object.entries(modules).find(([path]) => {
+    const fileName = path.split("/").pop();
+    return fileName === `${name}.geojson` || path.endsWith(`/${name}.geojson`) || path.endsWith(`/${name}`);
+  });
+
+  const localCandidates: string[] = [];
+  const cdnCandidates: string[] = [];
+
+  if (matchEntry) {
+    const [path, localUrl] = matchEntry;
+    const relativePath = path.replace(/^\/data\//, "");
+    localCandidates.push(localUrl);
+    cdnCandidates.push(`${CDN_BASE_URL}/${relativePath}`);
   }
 
-  try {
-    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
-    if (cdnRes.ok) {
-      return await cdnRes.json();
+  const defaultSubdirs = folder === "DiaBan" ? ["", "Doi1/", "Doi2/", "Doi3/", "Doi4/", "Doi5/"] : [""];
+  for (const sub of defaultSubdirs) {
+    const local = `/data/${folder}/${sub}${name}.geojson`;
+    if (!localCandidates.includes(local)) {
+      localCandidates.push(local);
     }
-  } catch (err) {
-    console.error(`CDN fetch failed for ${cdnUrl}`, err);
+    const cdn = `${CDN_BASE_URL}/${folder}/${sub}${name}.geojson`;
+    if (!cdnCandidates.includes(cdn)) {
+      cdnCandidates.push(cdn);
+    }
+  }
+
+  for (const localUrl of localCandidates) {
+    try {
+      const res = await fetch(`${localUrl}?t=${Date.now()}`, { cache: "no-cache" });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Try next candidate
+    }
+  }
+
+  for (const cdnUrl of cdnCandidates) {
+    try {
+      const cdnRes = await fetch(`${cdnUrl}?t=${Date.now()}`, { cache: "no-cache" });
+      if (cdnRes.ok) {
+        return await cdnRes.json();
+      }
+    } catch {
+      // Try next candidate
+    }
   }
 
   throw new Error(`Failed to fetch GeoJSON for ${folder}/${name}`);
 }
 
 export async function fetchCamerasGeoJson(): Promise<any> {
-  const localUrl = `/data/cameras.geojson?t=${Date.now()}`;
-  const cdnUrl = `${CDN_BASE_URL}/cameras.geojson?t=${Date.now()}`;
+  const localUrl = `/data/Camera/cameras.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/Camera/cameras.geojson?t=${Date.now()}`;
 
   try {
     const res = await fetch(localUrl, { cache: "no-cache" });
@@ -134,8 +200,8 @@ export async function fetchCamerasGeoJson(): Promise<any> {
 }
 
 export async function fetchHaiphongGeoJson(): Promise<any> {
-  const localUrl = `/data/haiphong.geojson?t=${Date.now()}`;
-  const cdnUrl = `${CDN_BASE_URL}/haiphong.geojson?t=${Date.now()}`;
+  const localUrl = `/data/Common/haiphong.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/Common/haiphong.geojson?t=${Date.now()}`;
 
   try {
     const res = await fetch(localUrl, { cache: "no-cache" });
@@ -166,8 +232,8 @@ export interface IHeadquarter {
 }
 
 export async function fetchHeadquarters(): Promise<IHeadquarter[]> {
-  const localUrl = `/data/headquarters.json?t=${Date.now()}`;
-  const cdnUrl = `${CDN_BASE_URL}/headquarters.json?t=${Date.now()}`;
+  const localUrl = `/data/Common/headquarters.json?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/Common/headquarters.json?t=${Date.now()}`;
 
   try {
     const res = await fetch(localUrl, { cache: "no-cache" });
@@ -191,6 +257,21 @@ export async function fetchHeadquarters(): Promise<IHeadquarter[]> {
 }
 
 export function getAreaList(): IAreaItem[] {
+  if (Object.keys(DIA_BAN_MODULES).length > 0) {
+    return Object.entries(DIA_BAN_MODULES).map(([path]) => {
+      const relativePath = path.replace(/^\/data\//, "");
+      const fileName = path.split("/").pop() || "";
+      const id = fileName.replace(".geojson", "");
+      return {
+        id,
+        name: DIA_BAN_NAME_MAP[id] || id,
+        filename: fileName,
+        cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
+        type: "Area",
+      };
+    });
+  }
+
   return AREA_FILES.map((name) => ({
     id: name,
     name: DIA_BAN_NAME_MAP[name] || name,
@@ -203,6 +284,21 @@ export function getAreaList(): IAreaItem[] {
 export const getDiaBanList = getAreaList;
 
 export function getRouteList(): IRouteItem[] {
+  if (Object.keys(TUYEN_DUONG_MODULES).length > 0) {
+    return Object.entries(TUYEN_DUONG_MODULES).map(([path]) => {
+      const relativePath = path.replace(/^\/data\//, "");
+      const fileName = path.split("/").pop() || "";
+      const id = fileName.replace(".geojson", "");
+      return {
+        id,
+        name: id,
+        filename: fileName,
+        cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
+        type: "Route",
+      };
+    });
+  }
+
   return ROUTE_FILES.map((name) => ({
     id: name,
     name: name,

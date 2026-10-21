@@ -53,11 +53,16 @@ export const dataProvider: DataProvider = {
     const featureCount = rawJson?.features?.length || 0;
     const geometryType = rawJson?.features?.[0]?.geometry?.type || "Unknown";
 
+    const itemMeta =
+      folder === "DiaBan"
+        ? getAreaList().find((a) => a.id === itemName)
+        : getRouteList().find((r) => r.id === itemName);
+
     const record: any = {
       id: itemName,
       name: itemName,
       filename: `${itemName}.geojson`,
-      cdnUrl: `${CDN_BASE_URL}/${folder}/${itemName}.geojson`,
+      cdnUrl: itemMeta?.cdnUrl || `${CDN_BASE_URL}/${folder}/${itemName}.geojson`,
       type: folder === "DiaBan" ? "Area" : "Route",
       featureCount,
       geometryType,

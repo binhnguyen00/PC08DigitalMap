@@ -34,7 +34,7 @@ export default function App() {
         name: "management-area",
         list: "/management-area",
         meta: {
-          label: "Địa bàn quản lý",
+          label: "Địa bàn",
         },
       },
       {
