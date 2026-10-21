@@ -1,15 +1,3 @@
-# 0. Bắt buộc — Skills
-
-> **MANDATORY**: Trước khi thực hiện bất kỳ tác vụ nào, agent phải đọc và áp dụng skill sau:
-
-**Quy trình bắt buộc:**
-1. Đọc `.agents/skills/caveman/SKILL.md` bằng `view_file`.
-2. Áp dụng trong suốt phiên làm việc.
-
-Không được bỏ qua bước này dù yêu cầu đơn giản.
-
----
-
 # 1. Vai Trò
 
 - Vai trò: Business Analyst + Senior Developer.

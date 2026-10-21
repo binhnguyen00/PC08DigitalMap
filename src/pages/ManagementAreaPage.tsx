@@ -356,7 +356,7 @@ export const ManagementAreaPage: React.FC = () => {
                 }}
                 linePaint={{
                   "line-color": "#ffffff",
-                  "line-width": 1.8,
+                  "line-width": 1,
                   "line-opacity": 0.9,
                 }}
                 symbolLayout={{
