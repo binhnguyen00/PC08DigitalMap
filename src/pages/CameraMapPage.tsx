@@ -14,7 +14,6 @@ import {
 } from "@/components/map";
 import {
   AREA_FILES,
-  DIA_BAN_NAME_MAP,
   fetchCamerasGeoJson,
   fetchGeoJson,
   fetchHaiphongGeoJson,
@@ -667,7 +666,7 @@ export function CameraMapPage() {
                         { value: "", label: "Tất cả địa bàn (Hải Phòng)" },
                         ...AREA_FILES.map((id) => ({
                           value: id,
-                          label: DIA_BAN_NAME_MAP[id] || id,
+                          label: id,
                         })),
                       ]}
                     />

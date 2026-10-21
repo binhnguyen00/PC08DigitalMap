@@ -51,25 +51,6 @@ export const AREA_FILES = Array.from(
   )
 ).sort((a, b) => a.localeCompare(b, "vi"));
 
-export const DIA_BAN_NAME_MAP: Record<string, string> = {
-  AnBien: "An Biên",
-  AnDuong: "An Dương",
-  AnHai: "An Hải",
-  AnPhong: "An Phong",
-  AnThanh: "An Thành",
-  DongHai: "Đông Hải",
-  GiaVien: "Gia Viên",
-  HongAn: "Hồng An",
-  HongBang: "Hồng Bàng",
-  HungDao: "Hưng Đạo",
-  KienAn: "Kiến An",
-  KimThanh: "Kim Thành",
-  LeChan: "Lê Chân",
-  NgoQuyen: "Ngô Quyền",
-  PhuLien: "Phù Liễn",
-  PhuThai: "Phú Thái",
-};
-
 export const DIA_BAN_FILES = AREA_FILES;
 
 export const AREA_TEAM_MAP: Record<string, string> = Object.fromEntries(
@@ -234,7 +215,7 @@ export function getAreaList(): IAreaItem[] {
     const id = fileName.replace(".geojson", "");
     return {
       id,
-      name: DIA_BAN_NAME_MAP[id] || id,
+      name: id,
       filename: fileName,
       cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
       type: "Area",
