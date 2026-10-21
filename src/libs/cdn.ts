@@ -9,10 +9,10 @@ export const SATELLITE_MAP_STYLE = {
     satellite: {
       type: "raster",
       tiles: [
-        "https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4",
-        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4",
-        "https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4",
-        "https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4",
+        "https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4&apistyle=s.t%3A0%7Cs.e%3Al%7Cp.v%3Aoff%2Cs.t%3A1%7Cp.v%3Aoff%2Cs.t%3A2%7Cp.v%3Aoff%2Cs.t%3A4%7Cp.v%3Aoff%2Cs.t%3A3%7Cs.e%3Al%7Cp.v%3Aon",
+        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4&apistyle=s.t%3A0%7Cs.e%3Al%7Cp.v%3Aoff%2Cs.t%3A1%7Cp.v%3Aoff%2Cs.t%3A2%7Cp.v%3Aoff%2Cs.t%3A4%7Cp.v%3Aoff%2Cs.t%3A3%7Cs.e%3Al%7Cp.v%3Aon",
+        "https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4&apistyle=s.t%3A0%7Cs.e%3Al%7Cp.v%3Aoff%2Cs.t%3A1%7Cp.v%3Aoff%2Cs.t%3A2%7Cp.v%3Aoff%2Cs.t%3A4%7Cp.v%3Aoff%2Cs.t%3A3%7Cs.e%3Al%7Cp.v%3Aon",
+        "https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&scale=4&apistyle=s.t%3A0%7Cs.e%3Al%7Cp.v%3Aoff%2Cs.t%3A1%7Cp.v%3Aoff%2Cs.t%3A2%7Cp.v%3Aoff%2Cs.t%3A4%7Cp.v%3Aoff%2Cs.t%3A3%7Cs.e%3Al%7Cp.v%3Aon",
       ],
       tileSize: 256,
       maxzoom: 22,
@@ -223,8 +223,6 @@ export function getAreaList(): IAreaItem[] {
   });
 }
 
-export const getDiaBanList = getAreaList;
-
 export function getRouteList(): IRouteItem[] {
   return Object.entries(TUYEN_DUONG_MODULES).map(([path]) => {
     const relativePath = path.replace(/^\/data\//, "");
@@ -239,5 +237,3 @@ export function getRouteList(): IRouteItem[] {
     };
   });
 }
-
-export const getTuyenDuongList = getRouteList;
