@@ -42,7 +42,7 @@ const TUYEN_DUONG_MODULES = import.meta.glob("/data/TuyenDuong/**/*.geojson", {
   eager: true,
 }) as Record<string, string>;
 
-const discoveredAreaFiles = Array.from(
+export const AREA_FILES = Array.from(
   new Set(
     Object.keys(DIA_BAN_MODULES).map((path) => {
       const fileName = path.split("/").pop() || "";
@@ -50,28 +50,6 @@ const discoveredAreaFiles = Array.from(
     })
   )
 ).sort((a, b) => a.localeCompare(b, "vi"));
-
-export const AREA_FILES =
-  discoveredAreaFiles.length > 0
-    ? discoveredAreaFiles
-    : [
-        "AnBien",
-        "AnDuong",
-        "AnHai",
-        "AnPhong",
-        "AnThanh",
-        "DongHai",
-        "GiaVien",
-        "HongAn",
-        "HongBang",
-        "HungDao",
-        "KienAn",
-        "KimThanh",
-        "LeChan",
-        "NgoQuyen",
-        "PhuLien",
-        "PhuThai",
-      ];
 
 export const DIA_BAN_NAME_MAP: Record<string, string> = {
   AnBien: "An Biên",
@@ -94,7 +72,7 @@ export const DIA_BAN_NAME_MAP: Record<string, string> = {
 
 export const DIA_BAN_FILES = AREA_FILES;
 
-const discoveredRouteFiles = Array.from(
+export const ROUTE_FILES = Array.from(
   new Set(
     Object.keys(TUYEN_DUONG_MODULES).map((path) => {
       const fileName = path.split("/").pop() || "";
@@ -102,22 +80,6 @@ const discoveredRouteFiles = Array.from(
     })
   )
 ).sort((a, b) => a.localeCompare(b, "vi"));
-
-export const ROUTE_FILES =
-  discoveredRouteFiles.length > 0
-    ? discoveredRouteFiles
-    : [
-        "QL5",
-        "QL10",
-        "QL17B",
-        "ĐT351",
-        "ĐT354",
-        "ĐT353",
-        "ĐT355",
-        "ĐT360",
-      ];
-
-export const TUYEN_DUONG_FILES = ROUTE_FILES;
 
 export async function fetchGeoJson(folder: "DiaBan" | "TuyenDuong", name: string): Promise<any> {
   const modules = folder === "DiaBan" ? DIA_BAN_MODULES : TUYEN_DUONG_MODULES;
@@ -257,55 +219,35 @@ export async function fetchHeadquarters(): Promise<IHeadquarter[]> {
 }
 
 export function getAreaList(): IAreaItem[] {
-  if (Object.keys(DIA_BAN_MODULES).length > 0) {
-    return Object.entries(DIA_BAN_MODULES).map(([path]) => {
-      const relativePath = path.replace(/^\/data\//, "");
-      const fileName = path.split("/").pop() || "";
-      const id = fileName.replace(".geojson", "");
-      return {
-        id,
-        name: DIA_BAN_NAME_MAP[id] || id,
-        filename: fileName,
-        cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
-        type: "Area",
-      };
-    });
-  }
-
-  return AREA_FILES.map((name) => ({
-    id: name,
-    name: DIA_BAN_NAME_MAP[name] || name,
-    filename: `${name}.geojson`,
-    cdnUrl: `${CDN_BASE_URL}/DiaBan/${name}.geojson`,
-    type: "Area",
-  }));
+  return Object.entries(DIA_BAN_MODULES).map(([path]) => {
+    const relativePath = path.replace(/^\/data\//, "");
+    const fileName = path.split("/").pop() || "";
+    const id = fileName.replace(".geojson", "");
+    return {
+      id,
+      name: DIA_BAN_NAME_MAP[id] || id,
+      filename: fileName,
+      cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
+      type: "Area",
+    };
+  });
 }
 
 export const getDiaBanList = getAreaList;
 
 export function getRouteList(): IRouteItem[] {
-  if (Object.keys(TUYEN_DUONG_MODULES).length > 0) {
-    return Object.entries(TUYEN_DUONG_MODULES).map(([path]) => {
-      const relativePath = path.replace(/^\/data\//, "");
-      const fileName = path.split("/").pop() || "";
-      const id = fileName.replace(".geojson", "");
-      return {
-        id,
-        name: id,
-        filename: fileName,
-        cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
-        type: "Route",
-      };
-    });
-  }
-
-  return ROUTE_FILES.map((name) => ({
-    id: name,
-    name: name,
-    filename: `${name}.geojson`,
-    cdnUrl: `${CDN_BASE_URL}/TuyenDuong/${name}.geojson`,
-    type: "Route",
-  }));
+  return Object.entries(TUYEN_DUONG_MODULES).map(([path]) => {
+    const relativePath = path.replace(/^\/data\//, "");
+    const fileName = path.split("/").pop() || "";
+    const id = fileName.replace(".geojson", "");
+    return {
+      id,
+      name: id,
+      filename: fileName,
+      cdnUrl: `${CDN_BASE_URL}/${relativePath}`,
+      type: "Route",
+    };
+  });
 }
 
 export const getTuyenDuongList = getRouteList;
