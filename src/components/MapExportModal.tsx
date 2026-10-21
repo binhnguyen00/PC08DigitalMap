@@ -543,7 +543,7 @@ export function MapExportModal({
                   renderMap.setLayoutProperty(layer.id, "text-ignore-placement", !avoidOverlap);
                   renderMap.setLayoutProperty(layer.id, "icon-allow-overlap", !avoidOverlap);
                   renderMap.setLayoutProperty(layer.id, "icon-ignore-placement", !avoidOverlap);
-                  renderMap.setLayoutProperty(layer.id, "symbol-spacing", 150);
+                  renderMap.setLayoutProperty(layer.id, "symbol-spacing", 220);
                 }
               }
             }

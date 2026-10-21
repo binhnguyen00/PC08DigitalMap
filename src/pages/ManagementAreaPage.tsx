@@ -401,14 +401,41 @@ export const ManagementAreaPage: React.FC = () => {
                 interactive
                 fillPaint={false}
                 lineCasingPaint={{
-                  "line-color": "#18181b",
-                  "line-width": 6.5,
-                  "line-opacity": 0.75,
-                  "line-blur": 1,
+                  "line-color": "#0f172a",
+                  "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    8,
+                    2.0,
+                    10,
+                    3.4,
+                    12,
+                    4.2,
+                    14,
+                    5.2,
+                    16,
+                    6.5,
+                  ],
+                  "line-opacity": 1,
                 }}
                 linePaint={{
                   "line-color": color,
-                  "line-width": 3.5,
+                  "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    8,
+                    1.2,
+                    10,
+                    2.2,
+                    12,
+                    2.8,
+                    14,
+                    3.6,
+                    16,
+                    4.6,
+                  ],
                   "line-opacity": 1,
                 }}
                 labelProperty="ten_tuyen"
@@ -426,7 +453,7 @@ export const ManagementAreaPage: React.FC = () => {
                   "text-ignore-placement": false,
                   "text-keep-upright": true,
                   "text-max-angle": 75,
-                  "symbol-spacing": 150,
+                  "symbol-spacing": 220,
                 }}
                 symbolPaint={{
                   "text-color": "#ffffff",
