@@ -1,12 +1,12 @@
 import { useMany } from "@refinedev/core";
-import { Badge, FloatButton, Space, Spin, Typography } from "antd";
+import { FloatButton, Spin, Typography } from "antd";
 import type * as GeoJSON from "geojson";
 import React from "react";
 
-import { CompassOutlined, ExportOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapLegend, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
+import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
-import { AREA_FILES, fetchHaiphongGeoJson, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { AREA_FILES, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { CompassOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
 
 interface IHoverInfo {
   type: "area" | "route";
@@ -103,6 +103,70 @@ const renderTruSoLink = (truSo: any) => {
   return <Typography.Text className="font-semibold text-white!">{String(truSo)}</Typography.Text>;
 };
 
+function getGeometryCenter(geometry: any): [number, number] | null {
+  if (!geometry) return null;
+
+  const getRingArea = (ring: number[][]): number => {
+    let area = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      area += (xj + xi) * (yj - yi);
+    }
+    return Math.abs(area / 2);
+  };
+
+  const getRingCentroid = (ring: number[][]): [number, number] => {
+    let cx = 0;
+    let cy = 0;
+    let signedArea = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      const a = xi * yj - xj * yi;
+      signedArea += a;
+      cx += (xi + xj) * a;
+      cy += (yi + yj) * a;
+    }
+    signedArea *= 0.5;
+    if (Math.abs(signedArea) > 1e-9) {
+      return [cx / (6 * signedArea), cy / (6 * signedArea)];
+    }
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const [x, y] of ring) {
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    return [(minX + maxX) / 2, (minY + maxY) / 2];
+  };
+
+  if (geometry.type === "Polygon" && geometry.coordinates?.[0]) {
+    return getRingCentroid(geometry.coordinates[0]);
+  }
+
+  if (geometry.type === "MultiPolygon" && Array.isArray(geometry.coordinates)) {
+    let maxArea = -1;
+    let bestCentroid: [number, number] | null = null;
+    for (const poly of geometry.coordinates) {
+      if (poly?.[0]) {
+        const area = getRingArea(poly[0]);
+        if (area > maxArea) {
+          maxArea = area;
+          bestCentroid = getRingCentroid(poly[0]);
+        }
+      }
+    }
+    return bestCentroid;
+  }
+
+  return null;
+}
+
 export const ManagementAreaPage: React.FC = () => {
   const mapRef = React.useRef<MapRef>(null);
 
@@ -117,20 +181,45 @@ export const ManagementAreaPage: React.FC = () => {
   });
 
   const [selectedFeature, setSelectedFeature] = React.useState<IHoverInfo | null>(null);
-  const [haiphongBoundary, setHaiphongBoundary] = React.useState<any>(null);
-
-  React.useEffect(() => {
-    fetchHaiphongGeoJson()
-      .then((res) => {
-        setHaiphongBoundary(res);
-      })
-      .catch((err) => {
-        console.error("Failed to load Hải Phòng boundary GeoJSON", err);
-      });
-  }, []);
 
   const areaItems = React.useMemo<IAreaItem[]>(() => areaQuery?.data?.data || [], [areaQuery?.data]);
   const routeItems = React.useMemo<IRouteItem[]>(() => routeQuery?.data?.data || [], [routeQuery?.data]);
+
+  const areaCentersGeoJson = React.useMemo(() => {
+    const features: any[] = [];
+
+    for (const item of areaItems) {
+      if (!item.rawJson) continue;
+
+      const rawFeatures =
+        item.rawJson.features ||
+        (item.rawJson.type === "Feature" ? [item.rawJson] : []);
+
+      for (const feat of rawFeatures) {
+        const center = getGeometryCenter(feat.geometry);
+        if (center) {
+          features.push({
+            type: "Feature",
+            id: feat.id || item.id,
+            properties: {
+              ...feat.properties,
+              ten_xa: feat.properties?.ten_xa || feat.properties?.name || item.name || item.id,
+            },
+            geometry: {
+              type: "Point",
+              coordinates: center,
+            },
+          });
+          break;
+        }
+      }
+    }
+
+    return {
+      type: "FeatureCollection" as const,
+      features,
+    };
+  }, [areaItems]);
 
   const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
@@ -196,7 +285,7 @@ export const ManagementAreaPage: React.FC = () => {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
             <Spin
               size="large"
-              tip={<span className="text-white font-medium mt-2 block">Đang tải dữ liệu bản đồ...</span>}
+              description={<span className="text-white font-medium mt-2 block">Đang tải dữ liệu bản đồ...</span>}
             />
           </div>
         )}
@@ -215,20 +304,6 @@ export const ManagementAreaPage: React.FC = () => {
         >
           <MapControls position="top-right" showFullscreen showExport />
           <MapFullscreenTitle />
-          <MapLegend districtColors={DISTRICT_COLORS} alwaysShow/>
-
-          {haiphongBoundary && (
-            <MapGeoJSON
-              id="haiphong-boundary"
-              data={haiphongBoundary}
-              fillPaint={false}
-              linePaint={{
-                "line-color": "#3b82f6",
-                "line-width": 3,
-                "line-opacity": 1,
-              }}
-            />
-          )}
 
           {/* Area polygon layers */}
           {areaItems.map((item: IAreaItem) => {
@@ -342,42 +417,37 @@ export const ManagementAreaPage: React.FC = () => {
             );
           })}
 
-          {/* Area label symbol layers */}
-          {areaItems.map((item: IAreaItem) => {
-            if (!item.rawJson) return null;
-
-            return (
-              <MapGeoJSON
-                key={`area-label-${item.id}`}
-                id={`area-label-${item.id}`}
-                data={item.rawJson}
-                fillPaint={false}
-                linePaint={false}
-                labelProperty="ten_xa"
-                symbolLayout={{
-                  "icon-image": "star-icon",
-                  "icon-size": 0.45,
-                  "icon-allow-overlap": true,
-                  "icon-ignore-placement": true,
-                  "icon-anchor": "center",
-                  "text-field": ["coalesce", ["get", "ten_xa"], ["get", "name"], ""],
-                  "text-variable-anchor": ["left", "right", "top", "bottom"],
-                  "text-radial-offset": 0.4,
-                  "text-size": 8,
-                  "text-font": ["Open Sans Regular"],
-                  "text-allow-overlap": true,
-                  "text-ignore-placement": true,
-                  "text-padding": 1,
-                }}
-                symbolPaint={{
-                  "text-color": "#ffffff",
-                  "text-halo-color": "rgba(15, 23, 42, 0.9)",
-                  "text-halo-width": 1.5,
-                  "text-halo-blur": 0.5,
-                }}
-              />
-            );
-          })}
+          {/* Area center star & label layer (single center point per area) */}
+          {areaCentersGeoJson.features.length > 0 && (
+            <MapGeoJSON
+              id="area-label-centers"
+              data={areaCentersGeoJson}
+              fillPaint={false}
+              linePaint={false}
+              labelProperty="ten_xa"
+              symbolLayout={{
+                "icon-image": "star-icon",
+                "icon-size": 0.45,
+                "icon-allow-overlap": true,
+                "icon-ignore-placement": true,
+                "icon-anchor": "center",
+                "text-field": ["coalesce", ["get", "ten_xa"], ["get", "name"], ""],
+                "text-variable-anchor": ["left", "right", "top", "bottom"],
+                "text-radial-offset": 0.4,
+                "text-size": 8,
+                "text-font": ["Open Sans Regular"],
+                "text-allow-overlap": true,
+                "text-ignore-placement": true,
+                "text-padding": 1,
+              }}
+              symbolPaint={{
+                "text-color": "#ffffff",
+                "text-halo-color": "rgba(15, 23, 42, 0.9)",
+                "text-halo-width": 1.5,
+                "text-halo-blur": 0.5,
+              }}
+            />
+          )}
 
           {/* Selected Headquarters Star Marker (only shown on click, clicking star has NO popup) */}
           {selectedHqCoords && (
