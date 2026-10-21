@@ -72,6 +72,15 @@ export const DIA_BAN_NAME_MAP: Record<string, string> = {
 
 export const DIA_BAN_FILES = AREA_FILES;
 
+export const AREA_TEAM_MAP: Record<string, string> = Object.fromEntries(
+  Object.keys(DIA_BAN_MODULES).map((path) => {
+    const parts = path.split("/");
+    const fileName = parts.pop() || "";
+    const team = parts.pop() || "";
+    return [fileName.replace(".geojson", ""), team];
+  })
+);
+
 export const ROUTE_FILES = Array.from(
   new Set(
     Object.keys(TUYEN_DUONG_MODULES).map((path) => {

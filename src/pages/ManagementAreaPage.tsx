@@ -5,7 +5,7 @@ import React from "react";
 
 import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
-import { AREA_FILES, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import { AREA_FILES, AREA_TEAM_MAP, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
 import { CompassOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
 
 interface IHoverInfo {
@@ -16,34 +16,31 @@ interface IHoverInfo {
   color?: string;
 }
 
-const DISTRICT_COLORS: Record<string, string> = {
-  AnBien: "#3b82f6",
-  AnDuong: "#ef4444",
-  AnHai: "#10b981",
-  AnPhong: "#f59e0b",
-  AnThanh: "#8b5cf6",
-  GiaVien: "#ec4899",
-  HongAn: "#06b6d4",
-  HongBang: "#84cc16",
-  HungDao: "#14b8a6",
-  KienAn: "#f97316",
-  KimThanh: "#6366f1",
-  LeChan: "#d97706",
-  NgoQuyen: "#0284c7",
-  PhuLien: "#65a30d",
-  PhuThai: "#7c3aed",
-};
+const TEAMS = [
+  { id: "Doi1", label: "ĐỘI 1", color: "#38bdf8" },
+  { id: "Doi2", label: "ĐỘI 2", color: "#facc15" },
+  { id: "Doi3", label: "ĐỘI 3", color: "#4ade80" },
+  { id: "Doi4", label: "ĐỘI 4", color: "#a78bfa" },
+  { id: "Doi5", label: "ĐỘI 5", color: "#f472b6" },
+];
 
-const STRAVA_ORANGE = "#FC4C02";
+const DEFAULT_AREA_COLOR = "#94a3b8";
+
+const TEAM_AREA_COUNTS: Record<string, number> = Object.values(AREA_TEAM_MAP).reduce(
+  (counts, team) => ({ ...counts, [team]: (counts[team] || 0) + 1 }),
+  {} as Record<string, number>
+);
+
+const ORANGE = "#FC4C02";
 
 const ROUTE_COLORS: Record<string, string> = {
-  QL5: STRAVA_ORANGE,
-  QL10: STRAVA_ORANGE,
-  QL17B: STRAVA_ORANGE,
-  ĐT351: STRAVA_ORANGE,
-  ĐT354: STRAVA_ORANGE,
-  ĐT355: STRAVA_ORANGE,
-  ĐT360: STRAVA_ORANGE,
+  QL5: ORANGE,
+  QL10: ORANGE,
+  QL17B: ORANGE,
+  ĐT351: ORANGE,
+  ĐT354: ORANGE,
+  ĐT355: ORANGE,
+  ĐT360: ORANGE,
 };
 
 const renderTruSoLink = (truSo: any) => {
@@ -203,6 +200,7 @@ export const ManagementAreaPage: React.FC = () => {
             id: feat.id || item.id,
             properties: {
               ...feat.properties,
+              team: AREA_TEAM_MAP[item.id] || "",
               ten_xa: feat.properties?.ten_xa || feat.properties?.name || item.name || item.id,
             },
             geometry: {
@@ -220,6 +218,36 @@ export const ManagementAreaPage: React.FC = () => {
       features,
     };
   }, [areaItems]);
+
+  const teamCentersGeoJson = React.useMemo(() => {
+    const median = (values: number[]) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      const middle = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    };
+
+    const features = TEAMS.flatMap((team) => {
+      const points = areaCentersGeoJson.features
+        .filter((feature) => feature.properties.team === team.id)
+        .map((feature) => feature.geometry.coordinates as [number, number]);
+      if (points.length === 0) return [];
+      return [
+        {
+          type: "Feature" as const,
+          properties: {},
+          geometry: {
+            type: "Point" as const,
+            coordinates: [median(points.map((point) => point[0])), median(points.map((point) => point[1]))],
+          },
+        },
+      ];
+    });
+
+    return {
+      type: "FeatureCollection" as const,
+      features,
+    };
+  }, [areaCentersGeoJson]);
 
   const activePopupInfo = selectedFeature;
   const activeProperties = activePopupInfo?.feature?.properties;
@@ -309,7 +337,8 @@ export const ManagementAreaPage: React.FC = () => {
           {areaItems.map((item: IAreaItem) => {
             if (!item.rawJson) return null;
 
-            const color = DISTRICT_COLORS[item.id] || "#3b82f6";
+            const team = TEAMS.find((teamItem) => teamItem.id === AREA_TEAM_MAP[item.id]);
+            const color = team?.color || DEFAULT_AREA_COLOR;
 
             return (
               <MapGeoJSON
@@ -319,11 +348,11 @@ export const ManagementAreaPage: React.FC = () => {
                 promoteId="ma_xa"
                 interactive
                 fillPaint={{
-                  "fill-color": ["coalesce", ["get", "mau_sac"], color],
-                  "fill-opacity": 0.25,
+                  "fill-color": color,
+                  "fill-opacity": 0.45,
                 }}
                 fillHoverPaint={{
-                  "fill-opacity": 0.7,
+                  "fill-opacity": 0.75,
                 }}
                 linePaint={{
                   "line-color": "#ffffff",
@@ -340,7 +369,7 @@ export const ManagementAreaPage: React.FC = () => {
                     feature: e.feature as any,
                     longitude: e.longitude,
                     latitude: e.latitude,
-                    color: e.feature?.properties?.mau_sac || color,
+                    color,
                   });
                 }}
               />
@@ -351,7 +380,7 @@ export const ManagementAreaPage: React.FC = () => {
           {routeItems.map((item: IRouteItem) => {
             if (!item.rawJson) return null;
 
-            const color = ROUTE_COLORS[item.id] || STRAVA_ORANGE;
+            const color = ROUTE_COLORS[item.id] || ORANGE;
 
             const formattedGeoJSON = {
               ...item.rawJson,
@@ -445,6 +474,31 @@ export const ManagementAreaPage: React.FC = () => {
                 "text-halo-color": "rgba(15, 23, 42, 0.9)",
                 "text-halo-width": 1.5,
                 "text-halo-blur": 0.5,
+              }}
+            />
+          )}
+
+          {/* Team name labels at team center */}
+          {teamCentersGeoJson.features.length > 0 && (
+            <MapGeoJSON
+              id="team-label-centers"
+              data={teamCentersGeoJson}
+              fillPaint={false}
+              linePaint={false}
+              labelProperty="label"
+              symbolLayout={{
+                "text-field": ["get", "label"],
+                "text-size": ["interpolate", ["linear"], ["zoom"], 8, 12, 11, 20, 14, 26],
+                "text-font": ["Open Sans Regular"],
+                "text-allow-overlap": true,
+                "text-ignore-placement": true,
+                "text-justify": "center",
+                "text-anchor": "center",
+              }}
+              symbolPaint={{
+                "text-color": "#0f172a",
+                "text-halo-color": "rgba(255, 255, 255, 0.95)",
+                "text-halo-width": 2.5,
               }}
             />
           )}
