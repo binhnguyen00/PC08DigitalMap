@@ -13,7 +13,6 @@ import {
   ReloadOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { cn } from "@/libs/tailwind";
 
 interface IHoverInfo {
   type: "area" | "route";
@@ -32,17 +31,87 @@ const TEAMS = [
 ];
 
 const DEFAULT_AREA_COLOR = "#94a3b8";
-const ORANGE = "#FC4C02";
+const QL_ROUTE_COLOR = "#FC4C02";
+const OTHER_ROUTE_COLOR = "#0033ff";
 
 const ROUTE_COLORS: Record<string, string> = {
-  QL5: ORANGE,
-  QL10: ORANGE,
-  QL17B: ORANGE,
-  ĐT351: ORANGE,
-  ĐT354: ORANGE,
-  ĐT355: ORANGE,
-  ĐT360: ORANGE,
+  QL5: QL_ROUTE_COLOR,
+  QL10: QL_ROUTE_COLOR,
+  QL17B: QL_ROUTE_COLOR,
+  QL18: QL_ROUTE_COLOR,
+  QL37: QL_ROUTE_COLOR,
+  QL38: QL_ROUTE_COLOR,
+  QL38B: QL_ROUTE_COLOR,
+  ĐT351: OTHER_ROUTE_COLOR,
+  ĐT353: OTHER_ROUTE_COLOR,
+  ĐT354: OTHER_ROUTE_COLOR,
+  ĐT355: OTHER_ROUTE_COLOR,
+  ĐT360: OTHER_ROUTE_COLOR,
 };
+
+const ROUTE_LINE_WIDTH_STANDARD = [
+  "interpolate",
+  ["linear"],
+  ["zoom"],
+  8,
+  1.2,
+  10,
+  2.2,
+  12,
+  2.8,
+  14,
+  3.6,
+  16,
+  4.6,
+];
+
+const ROUTE_CASING_WIDTH_STANDARD = [
+  "interpolate",
+  ["linear"],
+  ["zoom"],
+  8,
+  2.0,
+  10,
+  3.4,
+  12,
+  4.2,
+  14,
+  5.2,
+  16,
+  6.5,
+];
+
+const ROUTE_LINE_WIDTH_QL = [
+  "interpolate",
+  ["linear"],
+  ["zoom"],
+  8,
+  1.8,
+  10,
+  3.2,
+  12,
+  4.0,
+  14,
+  5.2,
+  16,
+  6.6,
+];
+
+const ROUTE_CASING_WIDTH_QL = [
+  "interpolate",
+  ["linear"],
+  ["zoom"],
+  8,
+  3.0,
+  10,
+  4.8,
+  12,
+  6.0,
+  14,
+  7.6,
+  16,
+  9.4,
+];
 
 const renderTruSoLink = (truSo: any) => {
   if (!truSo) return null;
@@ -382,7 +451,12 @@ export const ManagementAreaPage: React.FC = () => {
           {routeItems.map((item: IRouteItem) => {
             if (!item.rawJson) return null;
 
-            const color = ROUTE_COLORS[item.id] || ORANGE;
+            const isQL = item.id.trim().toUpperCase().startsWith("QL");
+            const defaultColor = isQL ? QL_ROUTE_COLOR : OTHER_ROUTE_COLOR;
+            const color = ROUTE_COLORS[item.id] || defaultColor;
+
+            const lineWidth = isQL ? ROUTE_LINE_WIDTH_QL : ROUTE_LINE_WIDTH_STANDARD;
+            const casingWidth = isQL ? ROUTE_CASING_WIDTH_QL : ROUTE_CASING_WIDTH_STANDARD;
 
             const formattedGeoJSON = {
               ...item.rawJson,
@@ -404,40 +478,12 @@ export const ManagementAreaPage: React.FC = () => {
                 fillPaint={false}
                 lineCasingPaint={{
                   "line-color": "#0f172a",
-                  "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    8,
-                    2.0,
-                    10,
-                    3.4,
-                    12,
-                    4.2,
-                    14,
-                    5.2,
-                    16,
-                    6.5,
-                  ],
+                  "line-width": casingWidth as any,
                   "line-opacity": 1,
                 }}
                 linePaint={{
                   "line-color": color,
-                  "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    8,
-                    1.2,
-                    10,
-                    2.2,
-                    12,
-                    2.8,
-                    14,
-                    3.6,
-                    16,
-                    4.6,
-                  ],
+                  "line-width": lineWidth as any,
                   "line-opacity": 1,
                 }}
                 labelProperty="ten_tuyen"
@@ -449,13 +495,13 @@ export const ManagementAreaPage: React.FC = () => {
                   "icon-allow-overlap": false,
                   "icon-ignore-placement": false,
                   "text-field": ["coalesce", ["get", "ten_tuyen"], ["get", "name"], ""],
-                  "text-size": 5.5,
+                  "text-size": isQL ? 6 : 5.5,
                   "text-font": ["Open Sans Regular"],
                   "text-allow-overlap": false,
                   "text-ignore-placement": false,
                   "text-keep-upright": true,
                   "text-max-angle": 75,
-                  "symbol-spacing": 220,
+                  "symbol-spacing": isQL ? 220 : 200,
                 }}
                 symbolPaint={{
                   "text-color": "#ffffff",
@@ -683,7 +729,7 @@ export const ManagementAreaPage: React.FC = () => {
           <div
             data-export-overlay="legend"
             data-legend-collapsed={false}
-            className="absolute right-6 bottom-6 z-20 w-38 p-2.5 rounded-xl bg-slate-900/85 text-white backdrop-blur-md border border-white/15 shadow-2xl font-sans select-none"
+            className="absolute right-6 bottom-6 z-20 w-34 p-2.5 rounded-xl bg-slate-900/85 text-white backdrop-blur-md border border-white/15 shadow-2xl font-sans select-none"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
               <div className="flex items-center gap-1.5">
@@ -724,7 +770,7 @@ export const ManagementAreaPage: React.FC = () => {
 
         <FloatButton.Group
           shape="circle"
-          style={{ right: 24, bottom: isLegendOpen ? 195 : 24, transition: "bottom 0.3s ease" }}
+          style={{ right: 24, bottom: isLegendOpen ? 245 : 24, transition: "bottom 0.3s ease" }}
         >
           <FloatButton
             icon={<CompassOutlined />}
