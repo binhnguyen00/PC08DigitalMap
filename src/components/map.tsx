@@ -24,7 +24,7 @@ import {
   PageOrientation,
   Size,
 } from "@watergis/maplibre-gl-export";
-import { CameraOutlined } from "@ant-design/icons";
+import { AimOutlined, CameraOutlined } from "@ant-design/icons";
 import { cn } from "@/libs/utils";
 import { MapExportModal } from "./MapExportModal";
 
@@ -151,6 +151,9 @@ type MapContextValue = {
   isFullscreen: boolean;
   toggleFullscreen: () => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  userLocation: { longitude: number; latitude: number } | null;
+  setUserLocation: React.Dispatch<React.SetStateAction<{ longitude: number; latitude: number } | null>>;
+  locateUser: () => void;
 };
 
 const MapContext = createContext<MapContextValue | null>(null);
@@ -218,6 +221,12 @@ type MapProps = {
   loading?: boolean;
   /** Show native Maplibre Export Control widget on the map */
   showNativeExportControl?: boolean;
+  /** Automatically locate and zoom to the user's position when map loads (default: true) */
+  locateUserOnLoad?: boolean;
+  /** Zoom level to use when zooming to user location (default: 15) */
+  userLocationZoom?: number;
+  /** Show visual GPS marker at user's current location (default: true) */
+  showUserLocationMarker?: boolean;
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
 function DefaultLoader() {
@@ -254,6 +263,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     onViewportChange,
     loading = false,
     showNativeExportControl = false,
+    locateUserOnLoad = true,
+    userLocationZoom = 15,
+    showUserLocationMarker = true,
     ...props
   },
   ref,
@@ -267,6 +279,13 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   const styleSwapInFlightRef = useRef(false);
   const internalUpdateRef = useRef(false);
   const resolvedTheme = useResolvedTheme(themeProp);
+
+  const [userLocation, setUserLocation] = useState<{ longitude: number; latitude: number } | null>(null);
+  const userMarkerRef = useRef<MapLibreGL.Marker | null>(null);
+  const locateUserOnLoadRef = useRef(locateUserOnLoad);
+  locateUserOnLoadRef.current = locateUserOnLoad;
+  const userLocationZoomRef = useRef(userLocationZoom);
+  userLocationZoomRef.current = userLocationZoom;
 
   const isControlled = viewport !== undefined && onViewportChange !== undefined;
 
@@ -365,6 +384,27 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       registerStarIcon(map);
       registerRouteShieldIcon(map);
       setIsLoaded(true);
+
+      if (locateUserOnLoadRef.current && "geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              longitude: position.coords.longitude,
+              latitude: position.coords.latitude,
+            };
+            setUserLocation(coords);
+            map.flyTo({
+              center: [coords.longitude, coords.latitude],
+              zoom: userLocationZoomRef.current,
+              duration: 1500,
+            });
+          },
+          (error) => {
+            console.warn("Could not determine user location on map load:", error);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+        );
+      }
     };
     const styleDataHandler = () => {
       hideNonRoadLayers(map);
@@ -398,6 +438,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     setMapInstance(map);
 
     return () => {
+      if (userMarkerRef.current) {
+        try {
+          userMarkerRef.current.remove();
+        } catch (e) {
+          // ignore
+        }
+        userMarkerRef.current = null;
+      }
       if (nativeExportControl && map) {
         try {
           map.removeControl(nativeExportControl);
@@ -499,6 +547,61 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     }
   }, []);
 
+  const locateUser = useCallback(() => {
+    if (!mapInstance || !("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+        };
+        setUserLocation(coords);
+        mapInstance.flyTo({
+          center: [coords.longitude, coords.latitude],
+          zoom: userLocationZoomRef.current,
+          duration: 1500,
+        });
+      },
+      (error) => {
+        console.warn("Could not determine user location:", error);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }, [mapInstance]);
+
+  useEffect(() => {
+    if (!mapInstance || !showUserLocationMarker || !userLocation) {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
+      }
+      return;
+    }
+
+    if (!userMarkerRef.current) {
+      const element = document.createElement("div");
+      element.className = "relative flex items-center justify-center w-6 h-6 cursor-pointer";
+      element.innerHTML = `
+        <span class="absolute inline-flex w-full h-full rounded-full bg-blue-500 opacity-60 animate-ping"></span>
+        <span class="relative inline-flex w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-md"></span>
+      `;
+      const popup = new MapLibreGL.Popup({ offset: 12, closeButton: false }).setText("Vị trí của bạn");
+      userMarkerRef.current = new MapLibreGL.Marker({ element })
+        .setLngLat([userLocation.longitude, userLocation.latitude])
+        .setPopup(popup)
+        .addTo(mapInstance);
+    } else {
+      userMarkerRef.current.setLngLat([userLocation.longitude, userLocation.latitude]);
+    }
+
+    return () => {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
+      }
+    };
+  }, [mapInstance, showUserLocationMarker, userLocation]);
+
   const contextValue = useMemo(
     () => ({
       map: mapInstance,
@@ -507,8 +610,11 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       isFullscreen,
       toggleFullscreen,
       containerRef,
+      userLocation,
+      setUserLocation,
+      locateUser,
     }),
-    [mapInstance, isLoaded, isStyleLoaded, resolvedTheme, isFullscreen, toggleFullscreen],
+    [mapInstance, isLoaded, isStyleLoaded, resolvedTheme, isFullscreen, toggleFullscreen, userLocation, locateUser],
   );
 
   return (
@@ -974,13 +1080,13 @@ function MapControls({
   position = "bottom-right",
   showZoom = true,
   showCompass = false,
-  showLocate = false,
+  showLocate = true,
   showFullscreen = true,
   showExport = false,
   className,
   onLocate,
 }: MapControlsProps) {
-  const { map, isFullscreen, toggleFullscreen } = useMap();
+  const { map, isFullscreen, toggleFullscreen, setUserLocation } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
 
@@ -1005,9 +1111,10 @@ function MapControls({
           longitude: pos.coords.longitude,
           latitude: pos.coords.latitude,
         };
+        setUserLocation(coords);
         map?.flyTo({
           center: [coords.longitude, coords.latitude],
-          zoom: 14,
+          zoom: 15,
           duration: 1500,
         });
         onLocate?.(coords);
@@ -1019,9 +1126,9 @@ function MapControls({
       },
       // Without a timeout the spec default is Infinity: a dismissed permission
       // prompt would leave the button disabled forever.
-      { timeout: 10000 },
+      { timeout: 10000, enableHighAccuracy: true },
     );
-  }, [map, onLocate]);
+  }, [map, onLocate, setUserLocation]);
 
   const handleFullscreen = useCallback(() => {
     toggleFullscreen();
@@ -1064,10 +1171,10 @@ function MapControls({
           <ControlGroup>
             <ControlButton
               onClick={handleLocate}
-              label="Find my location"
+              label="Vị trí của tôi"
               disabled={waitingForLocation}
             >
-              <span className="text-[10px] font-medium">{waitingForLocation ? "..." : "Vị trí"}</span>
+              <AimOutlined className={cn("text-sm", waitingForLocation && "animate-spin")} />
             </ControlButton>
           </ControlGroup>
         )}

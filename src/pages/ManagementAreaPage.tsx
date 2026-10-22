@@ -330,7 +330,7 @@ export const ManagementAreaPage: React.FC = () => {
             dark: SATELLITE_MAP_STYLE as any,
           }}
         >
-          <MapControls position="top-right" showFullscreen showExport />
+          <MapControls position="top-right" showFullscreen showExport showLocate />
           <MapFullscreenTitle />
 
           {/* Area polygon layers */}
