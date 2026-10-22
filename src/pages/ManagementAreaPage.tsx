@@ -6,7 +6,14 @@ import React from "react";
 import { Map, MapControls, MapFullscreenTitle, MapGeoJSON, MapMarker, MapPopup, MapRef, MarkerContent } from "@/components/map";
 import { IAreaItem, IRouteItem } from "@/interfaces";
 import { AREA_FILES, AREA_TEAM_MAP, ROUTE_FILES, SATELLITE_MAP_STYLE } from "@/libs/cdn";
-import { CompassOutlined, LoadingOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  CompassOutlined,
+  DownOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
+import { cn } from "@/libs/tailwind";
 
 interface IHoverInfo {
   type: "area" | "route";
@@ -17,20 +24,14 @@ interface IHoverInfo {
 }
 
 const TEAMS = [
-  { id: "Doi1", label: "ĐỘI 1", color: "#38bdf8" },
-  { id: "Doi2", label: "ĐỘI 2", color: "#facc15" },
-  { id: "Doi3", label: "ĐỘI 3", color: "#4ade80" },
-  { id: "Doi4", label: "ĐỘI 4", color: "#a78bfa" },
-  { id: "Doi5", label: "ĐỘI 5", color: "#f472b6" },
+  { id: "Doi1", label: "ĐỘI 1", name: "Đội CSGT số 1", color: "#38bdf8" },
+  { id: "Doi2", label: "ĐỘI 2", name: "Đội CSGT số 2", color: "#facc15" },
+  { id: "Doi3", label: "ĐỘI 3", name: "Đội CSGT số 3", color: "#4ade80" },
+  { id: "Doi4", label: "ĐỘI 4", name: "Đội CSGT số 4", color: "#a78bfa" },
+  { id: "Doi5", label: "ĐỘI 5", name: "Đội CSGT số 5", color: "#f472b6" },
 ];
 
 const DEFAULT_AREA_COLOR = "#94a3b8";
-
-const TEAM_AREA_COUNTS: Record<string, number> = Object.values(AREA_TEAM_MAP).reduce(
-  (counts, team) => ({ ...counts, [team]: (counts[team] || 0) + 1 }),
-  {} as Record<string, number>
-);
-
 const ORANGE = "#FC4C02";
 
 const ROUTE_COLORS: Record<string, string> = {
@@ -178,6 +179,7 @@ export const ManagementAreaPage: React.FC = () => {
   });
 
   const [selectedFeature, setSelectedFeature] = React.useState<IHoverInfo | null>(null);
+  const [isLegendOpen, setIsLegendOpen] = React.useState(true);
 
   const areaItems = React.useMemo<IAreaItem[]>(() => areaQuery?.data?.data || [], [areaQuery?.data]);
   const routeItems = React.useMemo<IRouteItem[]>(() => routeQuery?.data?.data || [], [routeQuery?.data]);
@@ -677,9 +679,52 @@ export const ManagementAreaPage: React.FC = () => {
           )}
         </Map>
 
+        {isLegendOpen && (
+          <div
+            data-export-overlay="legend"
+            data-legend-collapsed={false}
+            className="absolute right-6 bottom-6 z-20 w-38 p-2.5 rounded-xl bg-slate-900/85 text-white backdrop-blur-md border border-white/15 shadow-2xl font-sans select-none"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
+              <div className="flex items-center gap-1.5">
+                <UnorderedListOutlined className="text-[11px] text-blue-400" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-100">
+                  Chú giải
+                </span>
+              </div>
+              <button
+                type="button"
+                data-legend-toggle="true"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsLegendOpen(false);
+                }}
+                className="text-slate-400 hover:text-white hover:bg-white/10 p-0.5 rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                title="Thu gọn"
+              >
+                <DownOutlined className="text-[10px]" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              {TEAMS.map((team) => (
+                <div key={team.id} className="flex items-center gap-2">
+                  <span
+                    className="w-3 h-3 rounded-xs border border-white/30 shrink-0 shadow-xs"
+                    style={{ backgroundColor: team.color }}
+                  />
+                  <span className="text-[11px] font-medium text-slate-200 whitespace-nowrap leading-none">
+                    {team.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <FloatButton.Group
           shape="circle"
-          style={{ right: 24, bottom: 24 }}
+          style={{ right: 24, bottom: isLegendOpen ? 195 : 24, transition: "bottom 0.3s ease" }}
         >
           <FloatButton
             icon={<CompassOutlined />}
@@ -697,6 +742,15 @@ export const ManagementAreaPage: React.FC = () => {
             tooltip="Tải lại dữ liệu"
             onClick={handleRefetch}
           />
+          {!isLegendOpen && (
+            <FloatButton
+              data-legend-toggle="true"
+              data-legend-collapsed="true"
+              icon={<UnorderedListOutlined />}
+              tooltip="Chú giải"
+              onClick={() => setIsLegendOpen(true)}
+            />
+          )}
         </FloatButton.Group>
       </div>
     </div>

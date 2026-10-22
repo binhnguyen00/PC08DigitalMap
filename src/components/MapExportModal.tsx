@@ -154,44 +154,7 @@ const RATIO_OPTIONS: IAspectRatioOption[] = [
   },
 ];
 
-const DEFAULT_DISTRICT_COLORS: Record<string, string> = {
-  AnBien: "#3b82f6",
-  AnDuong: "#ef4444",
-  AnHai: "#10b981",
-  AnPhong: "#f59e0b",
-  AnThanh: "#8b5cf6",
-  GiaVien: "#ec4899",
-  HongAn: "#06b6d4",
-  HongBang: "#84cc16",
-  HungDao: "#14b8a6",
-  KienAn: "#f97316",
-  KimThanh: "#6366f1",
-  LeChan: "#d97706",
-  NgoQuyen: "#0284c7",
-  PhuLien: "#65a30d",
-  PhuThai: "#7c3aed",
-};
-
-const DEFAULT_DISTRICT_NAMES: Record<string, string> = {
-  AnBien: "An Biên",
-  AnDuong: "An Dương",
-  AnHai: "An Hải",
-  AnPhong: "An Phong",
-  AnThanh: "An Thạnh",
-  GiaVien: "Gia Viên",
-  HongAn: "Hồng An",
-  HongBang: "Hồng Bàng",
-  HungDao: "Hưng Đạo",
-  KienAn: "Kiến An",
-  KimThanh: "Kim Thành",
-  LeChan: "Lê Chân",
-  NgoQuyen: "Ngô Quyền",
-  PhuLien: "Phù Liễn",
-  PhuThai: "Phú Thái",
-};
-
-const EXPORT_FONT_FAMILY =
-  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const EXPORT_FONT_FAMILY = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 function drawCanvasTitleOverlay(
   ctx: CanvasRenderingContext2D,
@@ -257,95 +220,211 @@ function drawCanvasTitleOverlay(
   ctx.restore();
 }
 
+interface ILegendItem {
+  name: string;
+  color: string;
+  isLine?: boolean;
+}
+
+const DEFAULT_TEAMS_LEGEND: ILegendItem[] = [
+  { name: "Đội CSGT số 1", color: "#38bdf8" },
+  { name: "Đội CSGT số 2", color: "#facc15" },
+  { name: "Đội CSGT số 3", color: "#4ade80" },
+  { name: "Đội CSGT số 4", color: "#a78bfa" },
+  { name: "Đội CSGT số 5", color: "#f472b6" },
+];
+
+function getLegendItems(renderMap: MaplibreMap | null, showRoutes: boolean): ILegendItem[] {
+  const legendElement = document.querySelector('[data-export-overlay="legend"]') as HTMLElement | null;
+  if (legendElement && legendElement.offsetHeight > 0) {
+    const rowElements = legendElement.querySelectorAll<HTMLElement>("div.flex.items-center");
+    const extractedItems: ILegendItem[] = [];
+
+    rowElements.forEach((row) => {
+      const swatchElement = row.querySelector<HTMLElement>("span[style*='background'], div[style*='background']");
+      const textElement =
+        row.querySelector<HTMLElement>("span.capitalize, span.leading-none, span.text-slate-200") ||
+        row.lastElementChild;
+      const text = textElement?.textContent?.trim();
+      const color = swatchElement?.style?.backgroundColor;
+      if (text && color && !text.toUpperCase().includes("CHÚ GIẢI")) {
+        extractedItems.push({
+          name: text.charAt(0).toUpperCase() + text.slice(1),
+          color,
+        });
+      }
+    });
+
+    if (extractedItems.length > 0) {
+      if (showRoutes) {
+        const hasRoute = extractedItems.some((item) => item.name.toLowerCase().includes("tuyến"));
+        if (!hasRoute) {
+          extractedItems.push({ name: "Tuyến đường", color: "#FC4C02", isLine: true });
+        }
+      } else {
+        return extractedItems.filter((item) => !item.name.toLowerCase().includes("tuyến"));
+      }
+      return extractedItems;
+    }
+  }
+
+  const layers = renderMap?.getStyle()?.layers || [];
+  const hasCameraLayer = layers.some((layer) => layer.id.includes("camera"));
+
+  if (hasCameraLayer) {
+    return [
+      { name: "Vi phạm tốc độ", color: "#ef4444" },
+      { name: "AI giám sát", color: "#3b82f6" },
+      { name: "Giám sát giao thông", color: "#10b981" },
+    ];
+  }
+
+  const items: ILegendItem[] = [...DEFAULT_TEAMS_LEGEND];
+  if (showRoutes) {
+    items.push({ name: "Tuyến đường", color: "#FC4C02", isLine: true });
+  }
+  return items;
+}
+
 function drawCanvasLegendOverlay(
   ctx: CanvasRenderingContext2D,
   canvasWidth: number,
   canvasHeight: number,
   scaleFactor: number,
-  districtColors: Record<string, string> = DEFAULT_DISTRICT_COLORS,
+  items: ILegendItem[],
 ) {
-  const districts = Object.entries(districtColors);
-  if (districts.length === 0) return;
+  if (items.length === 0) return;
 
-  const fontSize = Math.round(12 * scaleFactor);
-  const headerFontSize = Math.round(14 * scaleFactor);
-  const padding = 16 * scaleFactor;
-  const itemHeight = Math.round(12 * 1.5 * scaleFactor);
-  const lineSpacing = Math.round(12 * 0.5 * scaleFactor);
-  const boxWidth = 250 * scaleFactor;
+  const fontSize = Math.round(8.5 * scaleFactor);
+  const headerFontSize = Math.round(9.5 * scaleFactor);
+  const paddingX = Math.round(10 * scaleFactor);
+  const paddingY = Math.round(8 * scaleFactor);
+  const itemHeight = Math.round(15 * scaleFactor);
+  const swatchSize = Math.round(9 * scaleFactor);
 
   ctx.save();
 
-  const rows = Math.ceil(districts.length / 2);
+  ctx.font = `bold ${headerFontSize}px ${EXPORT_FONT_FAMILY}`;
+  let maxTextWidth = ctx.measureText("CHÚ GIẢI").width;
+  ctx.font = `500 ${fontSize}px ${EXPORT_FONT_FAMILY}`;
+  for (const item of items) {
+    const textMetrics = ctx.measureText(item.name);
+    if (textMetrics.width > maxTextWidth) {
+      maxTextWidth = textMetrics.width;
+    }
+  }
+
+  const boxWidth = Math.max(
+    Math.round(120 * scaleFactor),
+    Math.round(maxTextWidth + swatchSize + paddingX * 2 + 8 * scaleFactor)
+  );
+  const headerSpacing = Math.round(5 * scaleFactor);
+  const dividerSpacing = Math.round(5 * scaleFactor);
   const contentHeight =
-    headerFontSize +
-    lineSpacing +
-    fontSize +
-    lineSpacing +
-    rows * itemHeight +
-    itemHeight + 8 * scaleFactor;
+    headerFontSize + headerSpacing + dividerSpacing + items.length * itemHeight;
+  const boxHeight = contentHeight + paddingY * 2;
 
-  const boxHeight = contentHeight + padding;
-  const boxX = canvasWidth - boxWidth - 24 * scaleFactor;
-  const boxY = canvasHeight - boxHeight - 24 * scaleFactor;
-  const radius = 12 * scaleFactor;
+  const margin = Math.round(16 * scaleFactor);
+  const boxX = canvasWidth - boxWidth - margin;
+  const boxY = canvasHeight - boxHeight - margin;
+  const radius = Math.round(6 * scaleFactor);
 
+  // Background panel with soft shadow
   ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+  ctx.shadowBlur = Math.round(8 * scaleFactor);
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = Math.round(2 * scaleFactor);
+
   ctx.beginPath();
   if (ctx.roundRect) {
     ctx.roundRect(boxX, boxY, boxWidth, boxHeight, radius);
   } else {
     ctx.rect(boxX, boxY, boxWidth, boxHeight);
   }
-  ctx.clip();
-  if ("filter" in ctx) {
-    ctx.filter = `blur(${Math.round(10 * scaleFactor)}px)`;
-    ctx.drawImage(ctx.canvas, boxX, boxY, boxWidth, boxHeight, boxX, boxY, boxWidth, boxHeight);
-    ctx.filter = "none";
-  }
-  ctx.fillStyle = "rgba(0, 0, 0, 0.40)";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
   ctx.fill();
-  ctx.lineWidth = Math.max(1, 1.5 * scaleFactor);
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+
+  ctx.restore(); // Remove shadow
+
+  // Crisp border
+  ctx.lineWidth = Math.max(1, 0.8 * scaleFactor);
+  ctx.strokeStyle = "#cbd5e1";
+  ctx.beginPath();
+  if (ctx.roundRect) {
+    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, radius);
+  } else {
+    ctx.rect(boxX, boxY, boxWidth, boxHeight);
+  }
   ctx.stroke();
-  ctx.restore();
 
-  let drawY = boxY + padding;
+  let drawY = boxY + paddingY;
 
-  ctx.font = `${headerFontSize}px ${EXPORT_FONT_FAMILY}`;
-  ctx.fillStyle = "#ffffff";
+  // Header "CHÚ GIẢI"
+  ctx.font = `bold ${headerFontSize}px ${EXPORT_FONT_FAMILY}`;
+  ctx.fillStyle = "#0f172a";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillText("Ký Hiệu", boxX + padding, drawY);
+  ctx.fillText("CHÚ GIẢI", boxX + paddingX, drawY);
 
-  drawY += headerFontSize + lineSpacing;
+  drawY += headerFontSize + headerSpacing;
 
-  ctx.font = `${fontSize}px ${EXPORT_FONT_FAMILY}`;
-  ctx.fillStyle = "#cbd5e1";
-  drawY += fontSize + lineSpacing;
+  // Divider line
+  ctx.beginPath();
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = Math.max(1, 0.8 * scaleFactor);
+  ctx.moveTo(boxX + paddingX, drawY);
+  ctx.lineTo(boxX + boxWidth - paddingX, drawY);
+  ctx.stroke();
 
-  const colWidth = (boxWidth - padding * 2) / 2;
-  districts.forEach(([id, color], idx) => {
-    const col = idx % 2;
-    const row = Math.floor(idx / 2);
-    const itemX = boxX + padding + col * colWidth;
-    const itemY = drawY + row * itemHeight;
+  drawY += dividerSpacing;
 
-    ctx.fillStyle = color;
-    const swatchSize = 14 * scaleFactor;
-    ctx.fillRect(itemX, itemY + 1 * scaleFactor, swatchSize, swatchSize);
-    ctx.lineWidth = Math.max(1, scaleFactor);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.strokeRect(itemX, itemY + 1 * scaleFactor, swatchSize, swatchSize);
+  // Items
+  for (const item of items) {
+    const itemCenterY = drawY + itemHeight / 2;
+    const swatchX = boxX + paddingX;
+    const swatchY = itemCenterY - swatchSize / 2;
 
-    ctx.fillStyle = "#f8fafc";
-    ctx.font = `normal ${fontSize}px ${EXPORT_FONT_FAMILY}`;
-    const name = DEFAULT_DISTRICT_NAMES[id] || id;
-    ctx.fillText(name, itemX + swatchSize + 20 * scaleFactor, itemY);
-  });
+    if (item.isLine) {
+      ctx.lineWidth = Math.max(2, 3 * scaleFactor);
+      ctx.strokeStyle = "#334155";
+      ctx.beginPath();
+      ctx.moveTo(swatchX, itemCenterY);
+      ctx.lineTo(swatchX + swatchSize, itemCenterY);
+      ctx.stroke();
 
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = `normal ${fontSize}px ${EXPORT_FONT_FAMILY}`;
+      ctx.lineWidth = Math.max(1, 1.8 * scaleFactor);
+      ctx.strokeStyle = item.color;
+      ctx.beginPath();
+      ctx.moveTo(swatchX, itemCenterY);
+      ctx.lineTo(swatchX + swatchSize, itemCenterY);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = item.color;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(swatchX, swatchY, swatchSize, swatchSize, Math.round(1.5 * scaleFactor));
+      } else {
+        ctx.rect(swatchX, swatchY, swatchSize, swatchSize);
+      }
+      ctx.fill();
+      ctx.lineWidth = Math.max(0.5, 0.8 * scaleFactor);
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "#334155";
+    ctx.font = `500 ${fontSize}px ${EXPORT_FONT_FAMILY}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      item.name,
+      swatchX + swatchSize + Math.round(6 * scaleFactor),
+      itemCenterY
+    );
+
+    drawY += itemHeight;
+  }
 
   ctx.restore();
 }
@@ -366,7 +445,8 @@ export function MapExportModal({
   const [avoidOverlap, setAvoidOverlap] = React.useState<boolean>(true);
   const [showCommuneLabels, setShowCommuneLabels] = React.useState<boolean>(true);
   const [showTeamLabels, setShowTeamLabels] = React.useState<boolean>(true);
-  const [showRouteLabels, setShowRouteLabels] = React.useState<boolean>(true);
+  const [showRoutes, setShowRoutes] = React.useState<boolean>(true);
+  const [showLegend, setShowLegend] = React.useState<boolean>(true);
 
   const selectedOption = React.useMemo(
     () => RATIO_OPTIONS.find((item) => item.key === selectedRatioKey) || RATIO_OPTIONS[0],
@@ -533,17 +613,19 @@ export function MapExportModal({
                   renderMap.setLayoutProperty(layer.id, "text-allow-overlap", true);
                   renderMap.setLayoutProperty(layer.id, "text-ignore-placement", true);
                 }
-              } else if (layer.id.includes("route") && layer.type === "symbol") {
-                if (!showRouteLabels) {
+              } else if (layer.id.toLowerCase().includes("route") || layer.id.toLowerCase().includes("tuyen")) {
+                if (!showRoutes) {
                   renderMap.setLayoutProperty(layer.id, "visibility", "none");
                 } else {
                   renderMap.setLayoutProperty(layer.id, "visibility", "visible");
-                  renderMap.setLayoutProperty(layer.id, "text-size", 5.5);
-                  renderMap.setLayoutProperty(layer.id, "text-allow-overlap", !avoidOverlap);
-                  renderMap.setLayoutProperty(layer.id, "text-ignore-placement", !avoidOverlap);
-                  renderMap.setLayoutProperty(layer.id, "icon-allow-overlap", !avoidOverlap);
-                  renderMap.setLayoutProperty(layer.id, "icon-ignore-placement", !avoidOverlap);
-                  renderMap.setLayoutProperty(layer.id, "symbol-spacing", 220);
+                  if (layer.type === "symbol") {
+                    renderMap.setLayoutProperty(layer.id, "text-size", 5.5);
+                    renderMap.setLayoutProperty(layer.id, "text-allow-overlap", !avoidOverlap);
+                    renderMap.setLayoutProperty(layer.id, "text-ignore-placement", !avoidOverlap);
+                    renderMap.setLayoutProperty(layer.id, "icon-allow-overlap", !avoidOverlap);
+                    renderMap.setLayoutProperty(layer.id, "icon-ignore-placement", !avoidOverlap);
+                    renderMap.setLayoutProperty(layer.id, "symbol-spacing", 220);
+                  }
                 }
               }
             }
@@ -642,32 +724,15 @@ export function MapExportModal({
           // drawCanvasTitleOverlay(ctx, exportCanvas.width, scaleX);
         }
 
-        const legendEl = document.querySelector('[data-export-overlay="legend"]') as HTMLElement | null;
-        if (legendEl && legendEl.offsetHeight > 0) {
-          try {
-            const legendDataUrl = await toPng(legendEl, {
-              pixelRatio: Math.max(scaleX, 2),
-              cacheBust: true,
-            });
-            const legendImg = new Image();
-            legendImg.src = legendDataUrl;
-            await legendImg.decode();
-
-            const legendRect = legendEl.getBoundingClientRect();
-            const posX = (legendRect.left - mapRect.left) * scaleX;
-            const posY = (legendRect.top - mapRect.top) * scaleY;
-            const drawW = legendRect.width * scaleX;
-            const drawH = legendRect.height * scaleY;
-
-            ctx.drawImage(legendImg, posX, posY, drawW, drawH);
-            legendDrawn = true;
-          } catch (e) {
-            console.warn("Could not capture legend overlay via toPng:", e);
-          }
-        }
-
-        if (!legendDrawn) {
-          // drawCanvasLegendOverlay(ctx, exportCanvas.width, exportCanvas.height, scaleX);
+        if (showLegend) {
+          const legendItems = getLegendItems(renderMap, showRoutes);
+          drawCanvasLegendOverlay(
+            ctx,
+            exportCanvas.width,
+            exportCanvas.height,
+            scaleFactor,
+            legendItems
+          );
         }
 
         return exportCanvas;
@@ -694,7 +759,8 @@ export function MapExportModal({
     avoidOverlap,
     showCommuneLabels,
     showTeamLabels,
-    showRouteLabels,
+    showRoutes,
+    showLegend,
     onClose,
   ]);
 
@@ -853,11 +919,18 @@ export function MapExportModal({
                 Tên Đội CSGT
               </Checkbox>
               <Checkbox
-                checked={showRouteLabels}
-                onChange={(e) => setShowRouteLabels(e.target.checked)}
+                checked={showRoutes}
+                onChange={(e) => setShowRoutes(e.target.checked)}
                 className="text-xs"
               >
                 Tuyến đường
+              </Checkbox>
+              <Checkbox
+                checked={showLegend}
+                onChange={(e) => setShowLegend(e.target.checked)}
+                className="text-xs"
+              >
+                Bảng chú giải
               </Checkbox>
             </div>
           </div>

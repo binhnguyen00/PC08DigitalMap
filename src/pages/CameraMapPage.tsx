@@ -23,9 +23,12 @@ import {
 } from "@/libs/cdn";
 
 import {
+  DownOutlined,
   EnvironmentOutlined,
-  SearchOutlined
+  SearchOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
+import { cn } from "@/libs/tailwind";
 
 const TYPE_COLORS: Record<string, string> = {
   "tốc độ": "#ef4444",
@@ -215,6 +218,7 @@ export function CameraMapPage() {
   const [selectedDiaBan, setSelectedDiaBan] = React.useState<string | null>(null);
   const [diaBanBoundary, setDiaBanBoundary] = React.useState<any>(null);
   const [isLoadingDiaBan, setIsLoadingDiaBan] = React.useState(false);
+  const [isLegendOpen, setIsLegendOpen] = React.useState(true);
 
   React.useEffect(() => {
     fetchCamerasGeoJson()
@@ -716,12 +720,40 @@ export function CameraMapPage() {
           </div>
 
           {/* Legend Panel at bottom-right */}
-          <div className="absolute bottom-4 right-4 z-20 bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl p-4 text-xs font-sans leading-relaxed w-72">
-            <div className="font-bold text-xs uppercase tracking-wider text-white border-b border-white/20 pb-1.5 mb-2.5 flex items-center gap-1.5">
-              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              CHÚ GIẢI
+          <div
+            data-export-overlay="legend"
+            data-legend-collapsed={!isLegendOpen}
+            className={cn(
+              "absolute bottom-4 right-4 z-20 bg-black/50 text-white backdrop-blur-md border border-white/15 shadow-2xl rounded-xl text-xs font-sans leading-relaxed select-none transition-all duration-300",
+              isLegendOpen ? "w-72 p-4" : "w-auto px-3 py-1.5 cursor-pointer hover:bg-black/75"
+            )}
+            onClick={!isLegendOpen ? () => setIsLegendOpen(true) : undefined}
+          >
+            <div
+              className={cn(
+                "flex items-center justify-between font-bold text-xs uppercase tracking-wider text-white",
+                isLegendOpen && "border-b border-white/20 pb-1.5 mb-2.5"
+              )}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <span>CHÚ GIẢI</span>
+              </div>
+              <button
+                type="button"
+                data-legend-toggle="true"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsLegendOpen((previous) => !previous);
+                }}
+                className="text-slate-300 hover:text-white p-0.5 rounded transition-colors ml-2 cursor-pointer"
+                title={isLegendOpen ? "Thu gọn" : "Mở rộng"}
+              >
+                {isLegendOpen ? <DownOutlined className="text-[10px]" /> : <UpOutlined className="text-[10px]" />}
+              </button>
             </div>
-            <div className="flex flex-col gap-2">
+            {isLegendOpen && (
+              <div className="flex flex-col gap-2">
               {stats.map(([type, count]) => {
                 const color = TYPE_COLORS[type] || DEFAULT_COLOR;
                 const visible = !hiddenTypes.has(type);
@@ -820,7 +852,8 @@ export function CameraMapPage() {
                 />
               </div>
             </div>
-          </div>
+          )}
+        </div>
         </Map>
       </div>
     </div>
