@@ -556,7 +556,12 @@ export function MapExportModal({
       const generatorAny = generator as unknown as {
         renderMapPost: (renderMap: MaplibreMap) => MaplibreMap;
         composeCanvas: (renderMap: MaplibreMap) => Promise<HTMLCanvasElement>;
+        getMarkers: () => HTMLCollectionOf<Element>;
+        renderMarkers: (renderMap: MaplibreMap) => MaplibreMap;
       };
+
+      generatorAny.getMarkers = () => [] as unknown as HTMLCollectionOf<Element>;
+      generatorAny.renderMarkers = (renderMap: MaplibreMap) => renderMap;
 
       generatorAny.renderMapPost = (renderMap: MaplibreMap) => {
         applyLayerCustomizations(renderMap);
@@ -568,6 +573,20 @@ export function MapExportModal({
       generatorAny.composeCanvas = async (renderMap: MaplibreMap) => {
         if (renderMap) {
           applyLayerCustomizations(renderMap);
+
+          try {
+            const style = renderMap.getStyle();
+            if (style?.layers) {
+              for (const layer of style.layers) {
+                if (/^point\d+$/.test(layer.id)) {
+                  if (renderMap.getLayer(layer.id)) renderMap.removeLayer(layer.id);
+                  if (renderMap.getSource(layer.id)) renderMap.removeSource(layer.id);
+                }
+              }
+            }
+          } catch (e) {
+            console.warn("Could not remove marker layers from export:", e);
+          }
 
           if (!renderMap.areTilesLoaded()) {
             await new Promise<void>((resolve) => {
