@@ -736,7 +736,6 @@ export function CameraMapPage() {
               )}
             >
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                 <span>CHÚ GIẢI</span>
               </div>
               <button

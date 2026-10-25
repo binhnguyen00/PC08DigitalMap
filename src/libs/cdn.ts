@@ -154,6 +154,31 @@ export async function fetchCamerasGeoJson(): Promise<any> {
   throw new Error(`Failed to fetch GeoJSON for cameras`);
 }
 
+export async function fetchBenBaiGeoJson(): Promise<any> {
+  const localUrl = `/data/BenBai/benbai.geojson?t=${Date.now()}`;
+  const cdnUrl = `${CDN_BASE_URL}/BenBai/benbai.geojson?t=${Date.now()}`;
+
+  try {
+    const res = await fetch(localUrl, { cache: "no-cache" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn(`Local fetch failed for ${localUrl}, falling back to CDN`, err);
+  }
+
+  try {
+    const cdnRes = await fetch(cdnUrl, { cache: "no-cache" });
+    if (cdnRes.ok) {
+      return await cdnRes.json();
+    }
+  } catch (err) {
+    console.error(`CDN fetch failed for ${cdnUrl}`, err);
+  }
+
+  throw new Error(`Failed to fetch GeoJSON for bến bãi`);
+}
+
 export async function fetchHaiphongGeoJson(): Promise<any> {
   const localUrl = `/data/Common/haiphong.geojson?t=${Date.now()}`;
   const cdnUrl = `${CDN_BASE_URL}/Common/haiphong.geojson?t=${Date.now()}`;

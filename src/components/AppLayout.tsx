@@ -43,6 +43,19 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
             >
               <span className="font-medium text-sm whitespace-nowrap">Bản đồ Camera</span>
             </Link>
+
+            <Link
+              to="/ben-bai"
+              title="Bến bãi"
+              className={cn(
+                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
+                location.pathname.startsWith("/ben-bai")
+                  ? "bg-white/15 text-white! border border-white/10"
+                  : "text-slate-300 hover:text-white! hover:bg-white/5"
+              )}
+            >
+              <span className="font-medium text-sm whitespace-nowrap">Bến bãi</span>
+            </Link>
           </div>
         </div>
       </Header>

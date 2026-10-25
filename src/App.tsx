@@ -7,7 +7,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { ErrorComponent, RefineThemes } from "@refinedev/antd";
 
 import { AppLayout } from "./components/AppLayout";
-import { ManagementAreaPage, CameraMapPage } from "./pages";
+import { ManagementAreaPage, CameraMapPage, BenBaiMapPage } from "./pages";
 import { dataProvider } from "./providers/dataProvider";
 import { i18nProvider } from "./providers/i18nProvider";
 
@@ -44,6 +44,13 @@ export default function App() {
           label: "Bản đồ Camera",
         },
       },
+      {
+        name: "ben-bai",
+        list: "/ben-bai",
+        meta: {
+          label: "Bến bãi",
+        },
+      },
     ],
   };
 
@@ -64,6 +71,7 @@ export default function App() {
                   <Route index element={<Navigate to="/management-area" replace />} />
                   <Route path="/management-area" element={<ManagementAreaPage />} />
                   <Route path="/cameras" element={<CameraMapPage />} />
+                  <Route path="/ben-bai" element={<BenBaiMapPage />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>
