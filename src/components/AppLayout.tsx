@@ -1,6 +1,6 @@
-import { Layout, theme } from "antd";
-import { Link, useLocation } from "react-router";
 import { cn } from "@/libs/tailwind";
+import { Layout } from "antd";
+import { Link, useLocation } from "react-router";
 
 const { Header, Content } = Layout;
 
@@ -19,16 +19,29 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
 
           <div className="flex h-full items-center gap-1 sm:gap-2 shrink-0">
             <Link
-              to="/management-area"
-              title="Địa bàn"
+              to="/road"
+              title="Đường bộ"
               className={cn(
                 "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
-                location.pathname.startsWith("/management-area") || location.pathname === "/"
+                location.pathname.startsWith("/road") || location.pathname === "/"
                   ? "bg-white/15 text-white! border border-white/10"
                   : "text-slate-300 hover:text-white! hover:bg-white/5"
               )}
             >
-              <span className="font-medium text-sm whitespace-nowrap">Địa bàn</span>
+              <span className="font-medium text-sm whitespace-nowrap">Đường bộ</span>
+            </Link>
+
+            <Link
+              to="/waterways"
+              title="Đường Thuỷ"
+              className={cn(
+                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
+                location.pathname.startsWith("/waterways")
+                  ? "bg-white/15 text-white! border border-white/10"
+                  : "text-slate-300 hover:text-white! hover:bg-white/5"
+              )}
+            >
+              <span className="font-medium text-sm whitespace-nowrap">Đường Thuỷ</span>
             </Link>
 
             <Link
@@ -42,19 +55,6 @@ export const AppLayout = ({ children }: React.PropsWithChildren) => {
               )}
             >
               <span className="font-medium text-sm whitespace-nowrap">Bản đồ Camera</span>
-            </Link>
-
-            <Link
-              to="/ben-bai"
-              title="Bến bãi"
-              className={cn(
-                "px-3 py-2 rounded-md flex items-center shrink-0 transition-all font-semibold",
-                location.pathname.startsWith("/ben-bai")
-                  ? "bg-white/15 text-white! border border-white/10"
-                  : "text-slate-300 hover:text-white! hover:bg-white/5"
-              )}
-            >
-              <span className="font-medium text-sm whitespace-nowrap">Bến bãi</span>
             </Link>
           </div>
         </div>

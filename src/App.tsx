@@ -31,10 +31,17 @@ export default function App() {
     },
     resources: [
       {
-        name: "management-area",
-        list: "/management-area",
+        name: "road",
+        list: "/road",
         meta: {
-          label: "Địa bàn",
+          label: "Đường Bộ",
+        },
+      },
+      {
+        name: "waterways",
+        list: "/waterways",
+        meta: {
+          label: "Đường Thuỷ",
         },
       },
       {
@@ -42,13 +49,6 @@ export default function App() {
         list: "/cameras",
         meta: {
           label: "Bản đồ Camera",
-        },
-      },
-      {
-        name: "ben-bai",
-        list: "/ben-bai",
-        meta: {
-          label: "Bến bãi",
         },
       },
     ],
@@ -68,10 +68,10 @@ export default function App() {
                     </AppLayout>
                   }
                 >
-                  <Route index element={<Navigate to="/management-area" replace />} />
-                  <Route path="/management-area" element={<ManagementAreaPage />} />
+                  <Route index element={<Navigate to="/road" replace />} />
+                  <Route path="/road" element={<ManagementAreaPage />} />
+                  <Route path="/waterways" element={<BenBaiMapPage />} />
                   <Route path="/cameras" element={<CameraMapPage />} />
-                  <Route path="/ben-bai" element={<BenBaiMapPage />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>
