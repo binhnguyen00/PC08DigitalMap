@@ -1,5 +1,5 @@
 {
-  "name": "personal_assistant",
+  "name": "pc08-digital-map",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -62,14 +62,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "core-js"
-    ],
-    "overrides": {
-      "react-router": "$react-router"
-    }
   }
 }

@@ -234,7 +234,7 @@ function getGeometryCenter(geometry: any): [number, number] | null {
   return null;
 }
 
-export const ManagementAreaPage: React.FC = () => {
+export const RoadPage: React.FC = () => {
   const mapRef = React.useRef<MapRef>(null);
 
   const { query: areaQuery } = useMany<IAreaItem>({

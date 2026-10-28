@@ -270,12 +270,22 @@ function getLegendItems(renderMap: MaplibreMap | null, showRoutes: boolean): ILe
 
   const layers = renderMap?.getStyle()?.layers || [];
   const hasCameraLayer = layers.some((layer) => layer.id.includes("camera"));
+  const hasBenBaiLayer = layers.some((layer) => layer.id.includes("benbai"));
 
   if (hasCameraLayer) {
     return [
       { name: "Vi phạm tốc độ", color: "#ef4444" },
       { name: "AI giám sát", color: "#3b82f6" },
       { name: "Giám sát giao thông", color: "#10b981" },
+    ];
+  }
+
+  if (hasBenBaiLayer) {
+    return [
+      { name: "Có phép", color: "#10b981" },
+      { name: "Không phép", color: "#ef4444" },
+      { name: "Hết phép", color: "#f59e0b" },
+      { name: "Không xác định", color: "#94a3b8" },
     ];
   }
 

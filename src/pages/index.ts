@@ -1,4 +1,4 @@
-export * from "./ManagementAreaPage";
-export * from "./CameraMapPage";
-export * from "./BenBaiMapPage";
+export * from "./RoadPage";
+export * from "./CameraPage";
+export * from "./WaterwaysPage";
 

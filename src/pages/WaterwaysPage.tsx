@@ -66,6 +66,13 @@ const PERMIT_COLORS: Record<string, string> = {
   "Không xác định": "#94a3b8",
 };
 
+const PERMIT_STATUSES = [
+  { id: "Có phép", label: "Có phép", color: PERMIT_COLORS["Có phép"] },
+  { id: "Không phép", label: "Không phép", color: PERMIT_COLORS["Không phép"] },
+  { id: "Hết phép", label: "Hết phép", color: PERMIT_COLORS["Hết phép"] },
+  { id: "Không xác định", label: "Không xác định", color: PERMIT_COLORS["Không xác định"] },
+];
+
 const STATUS_COLORS: Record<string, string> = {
   "Đang hoạt động": "#10b981",
   "Dừng hoạt động": "#ef4444",
@@ -99,13 +106,15 @@ function BenBaiMapLayers({
 
     const circleColorExpression = [
       "match",
-      ["get", "managementTeam"],
-      "Bạch Đằng",
-      TEAM_COLORS["Bạch Đằng"],
-      "ĐT1",
-      TEAM_COLORS["ĐT1"],
-      "ĐT2",
-      TEAM_COLORS["ĐT2"],
+      ["get", "permitStatus"],
+      "Có phép",
+      PERMIT_COLORS["Có phép"],
+      "Không phép",
+      PERMIT_COLORS["Không phép"],
+      "Hết phép",
+      PERMIT_COLORS["Hết phép"],
+      "Không xác định",
+      PERMIT_COLORS["Không xác định"],
       DEFAULT_COLOR,
     ];
 
@@ -164,7 +173,7 @@ function BenBaiMapLayers({
   return null;
 }
 
-export function BenBaiMapPage() {
+export function WaterwaysPage() {
   const mapRef = React.useRef<MapRef>(null);
   const [data, setData] = React.useState<any>(null);
   const [haiphongBoundary, setHaiphongBoundary] = React.useState<any>(null);
@@ -172,7 +181,7 @@ export function BenBaiMapPage() {
   const [selectedBenBai, setSelectedBenBai] = React.useState<ISelectedBenBai | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<string | null>(null);
-  const [hiddenTeams, setHiddenTeams] = React.useState<Set<string>>(new Set());
+  const [hiddenPermitStatuses, setHiddenPermitStatuses] = React.useState<Set<string>>(new Set());
   const [isLegendOpen, setIsLegendOpen] = React.useState(true);
 
   React.useEffect(() => {
@@ -207,11 +216,14 @@ export function BenBaiMapPage() {
   const filteredGeojson = React.useMemo(() => {
     if (!data) return null;
     let features = teamFilteredFeatures;
-    if (hiddenTeams.size > 0) {
-      features = features.filter((feature: any) => !hiddenTeams.has(feature.properties.managementTeam));
+    if (hiddenPermitStatuses.size > 0) {
+      features = features.filter((feature: any) => {
+        const status = feature.properties.permitStatus || "Không xác định";
+        return !hiddenPermitStatuses.has(status);
+      });
     }
     return { ...data, features };
-  }, [data, teamFilteredFeatures, hiddenTeams]);
+  }, [data, teamFilteredFeatures, hiddenPermitStatuses]);
 
   const searchResults = React.useMemo(() => {
     if (!filteredGeojson || !searchValue.trim()) return [];
@@ -237,27 +249,20 @@ export function BenBaiMapPage() {
       }));
   }, [filteredGeojson, searchValue]);
 
-  const teamStats = React.useMemo(() => {
-    const teamCounts: Record<string, number> = {};
-    const unitCounts: Record<string, Record<string, number>> = {};
+  const permitStats = React.useMemo(() => {
+    const permitCounts: Record<string, number> = {};
     for (const feature of teamFilteredFeatures) {
-      const team = feature.properties.managementTeam || "Chưa gán đơn vị";
-      const unit = feature.properties.managementUnit || "";
-      teamCounts[team] = (teamCounts[team] || 0) + 1;
-      if (unit && unit !== team) {
-        unitCounts[team] = unitCounts[team] || {};
-        unitCounts[team][unit] = (unitCounts[team][unit] || 0) + 1;
-      }
+      const status = feature.properties.permitStatus || "Không xác định";
+      permitCounts[status] = (permitCounts[status] || 0) + 1;
     }
-    return TEAMS.filter((team) => teamCounts[team.id]).map((team) => ({
-      ...team,
-      count: teamCounts[team.id],
-      units: Object.entries(unitCounts[team.id] || {}).sort((first, second) => second[1] - first[1]),
-    }));
+    return PERMIT_STATUSES.map((item) => ({
+      ...item,
+      count: permitCounts[item.id] || 0,
+    })).filter((item) => item.count > 0);
   }, [teamFilteredFeatures]);
 
   const selectedColor = selectedBenBai
-    ? TEAM_COLORS[selectedBenBai.properties.managementTeam] || DEFAULT_COLOR
+    ? PERMIT_COLORS[selectedBenBai.properties.permitStatus] || DEFAULT_COLOR
     : DEFAULT_COLOR;
 
   const selectedProperties = selectedBenBai?.properties;
@@ -421,7 +426,7 @@ export function BenBaiMapPage() {
                                 className="w-1.5 h-1.5 rounded-full shrink-0"
                                 style={{
                                   backgroundColor:
-                                    TEAM_COLORS[benBai.properties.managementTeam] || DEFAULT_COLOR,
+                                    PERMIT_COLORS[benBai.properties.permitStatus] || DEFAULT_COLOR,
                                 }}
                               />
                               <Typography.Text className="text-slate-400! text-[10px]! font-semibold! shrink-0">
@@ -483,28 +488,28 @@ export function BenBaiMapPage() {
 
             {isLegendOpen && (
               <Flex vertical gap={8}>
-                {teamStats.map((team) => {
-                  const visible = !hiddenTeams.has(team.id);
+                {permitStats.map((item) => {
+                  const visible = !hiddenPermitStatuses.has(item.id);
                   return (
-                    <Flex key={team.id} align="center" justify="space-between" gap={8}>
-                      <Flex align="center" gap={8} className="truncate min-w-0">
+                    <Flex key={item.id} align="center" justify="space-between" gap={8} className="items-center">
+                      <Flex align="center" gap={8} className="truncate min-w-0 items-center">
                         <span
                           className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-sm transition-opacity"
-                          style={{ backgroundColor: team.color, opacity: visible ? 1 : 0.3 }}
+                          style={{ backgroundColor: item.color, opacity: visible ? 1 : 0.3 }}
                         />
                         <Typography.Text
                           ellipsis
                           className={cn(
-                            "text-[11px]! font-medium! truncate! transition-opacity",
+                            "text-[11px]! font-medium! truncate! transition-opacity text-slate-200",
                             visible ? "text-slate-100!" : "text-slate-400!"
                           )}
                         >
-                          {team.label}
+                          {item.label}
                         </Typography.Text>
                       </Flex>
                       <Space size={8} className="shrink-0">
                         <Badge
-                          count={team.count}
+                          count={item.count}
                           overflowCount={99999}
                           style={{
                             backgroundColor: visible ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
@@ -521,14 +526,14 @@ export function BenBaiMapPage() {
                           size="small"
                           checked={visible}
                           onChange={(checked) => {
-                            setHiddenTeams((previous) => {
+                            setHiddenPermitStatuses((previous) => {
                               const next = new Set(previous);
-                              if (checked) next.delete(team.id);
-                              else next.add(team.id);
+                              if (checked) next.delete(item.id);
+                              else next.add(item.id);
                               return next;
                             });
                           }}
-                          style={{ backgroundColor: visible ? team.color : undefined }}
+                          style={{ backgroundColor: visible ? item.color : undefined }}
                         />
                       </Space>
                     </Flex>

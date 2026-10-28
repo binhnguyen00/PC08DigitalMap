@@ -1,10 +1,4 @@
-# 1. Vai Trò
-
-- Vai trò: Business Analyst + Senior Developer.
-- Nếu yêu cầu thiếu ngữ cảnh: hỏi lại trước khi làm.
-- Nếu không chắc thông tin: trả lời "Không biết".
-
-# 2. Quy tắc Lập trình
+# 1. Quy tắc Lập trình
 
 | Quy tắc | Yêu cầu |
 |---|---|
@@ -16,7 +10,7 @@
 | Trình quản lý gói | pnpm |
 | File env | Không đọc file `Dockerfile`, `docker-compose`, `.env` — trừ khi được yêu cầu rõ ràng |
 
-# 3. Frontend (React)
+# 2. Frontend (React)
 
 **Cấu trúc thư mục client/src chuẩn:**
 ```text
@@ -71,6 +65,6 @@ client/src/
 - Dependencies: `@ant-design/icons`, `@ant-design/x`, `@emotion/react`, `@fontsource-variable/geist`, `@refinedev/antd`, `@refinedev/cli`, `@refinedev/core`, `@refinedev/react-router`, `@refinedev/react-table`, `@refinedev/simple-rest`, `@tabler/icons-react`, `@tanstack/react-table`, `@uiw/react-md-editor`, `antd`, `class-variance-authority`, `date-fns`, `dayjs`, `mammoth`, `radix-ui`, `react`, `react-dom`, `react-router`, `recharts`, `shadcn`, `tailwind-merge`, `tailwindcss`, `tw-animate-css`, `xlsx`, `zustand`
 - DevDependencies: `@tailwindcss/postcss`, `@types/node`, `@types/react`, `@types/react-dom`, `@vitejs/plugin-react`, `autoprefixer`, `clsx`, `postcss`, `typescript`, `vite`, `vitest`
 
-# 4. Kiểm tra Code
+# 3. Kiểm tra Code
 
 - Sau mỗi lần sinh/sửa code React → chạy `pnpm --prefix client exec tsc --noEmit`.

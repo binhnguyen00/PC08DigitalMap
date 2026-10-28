@@ -7,7 +7,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { ErrorComponent, RefineThemes } from "@refinedev/antd";
 
 import { AppLayout } from "./components/AppLayout";
-import { ManagementAreaPage, CameraMapPage, BenBaiMapPage } from "./pages";
+import { RoadPage, CameraMapPage, WaterwaysPage } from "./pages";
 import { dataProvider } from "./providers/dataProvider";
 import { i18nProvider } from "./providers/i18nProvider";
 
@@ -69,8 +69,8 @@ export default function App() {
                   }
                 >
                   <Route index element={<Navigate to="/road" replace />} />
-                  <Route path="/road" element={<ManagementAreaPage />} />
-                  <Route path="/waterways" element={<BenBaiMapPage />} />
+                  <Route path="/road" element={<RoadPage />} />
+                  <Route path="/waterways" element={<WaterwaysPage />} />
                   <Route path="/cameras" element={<CameraMapPage />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
