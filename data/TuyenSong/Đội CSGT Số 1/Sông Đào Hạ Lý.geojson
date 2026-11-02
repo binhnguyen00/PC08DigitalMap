@@ -1,0 +1,40 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-02T09:28:05Z",
+    "timestamp_areas_base": "2026-11-02T08:49:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 236767674,
+      "bounds": {
+        "minlat": 20.856163,
+        "minlon": 106.6696514,
+        "maxlat": 20.8701504,
+        "maxlon": 106.6737094
+      },
+      "nodes": [
+        2447455530, 9300977942, 2447455576, 5981628546, 5981628547, 2447455596,
+        5930140531, 9283511937, 9300968273
+      ],
+      "geometry": [
+        { "lat": 20.856163, "lon": 106.6697408 },
+        { "lat": 20.8568688, "lon": 106.669669 },
+        { "lat": 20.865983, "lon": 106.6696514 },
+        { "lat": 20.8663992, "lon": 106.6697005 },
+        { "lat": 20.8671159, "lon": 106.6698563 },
+        { "lat": 20.8688851, "lon": 106.670517 },
+        { "lat": 20.8693041, "lon": 106.6711403 },
+        { "lat": 20.8697731, "lon": 106.6722017 },
+        { "lat": 20.8701504, "lon": 106.6737094 }
+      ],
+      "tags": {
+        "name": "Sông Đào Hạ Lý",
+        "waterway": "river"
+      }
+    }
+  ]
+}

@@ -45,6 +45,12 @@ const TUYEN_DUONG_MODULES = import.meta.glob("/data/TuyenDuong/**/*.geojson", {
   eager: true,
 }) as Record<string, string>;
 
+const TUYEN_SONG_MODULES = import.meta.glob("/data/TuyenSong/**/*.geojson", {
+  query: "?url",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
 export const AREA_FILES = Array.from(
   new Set(
     Object.keys(DIA_BAN_MODULES).map((path) => {
@@ -264,4 +270,176 @@ export function getRouteList(): IRouteItem[] {
       type: "Route",
     };
   });
+}
+
+export async function fetchTuyenSongGeoJson(): Promise<any> {
+  const allFeatures: any[] = [];
+  const entries = Object.entries(TUYEN_SONG_MODULES);
+
+  await Promise.all(
+    entries.map(async ([path, localUrl]) => {
+      const pathParts = path.split("/");
+      const rawFileName = pathParts.pop() || "";
+      const riverName = rawFileName.replace(/\.geojson$/i, "");
+      const folderName = pathParts.pop() || "";
+      const lowerFolder = folderName.toLowerCase();
+
+      let managementTeam = "Chưa gán đơn vị";
+      if (lowerFolder.includes("bạch đằng") || lowerFolder.includes("bach dang") || lowerFolder.includes("trạm")) {
+        managementTeam = "Bạch Đằng";
+      } else if (lowerFolder.includes("số 1") || lowerFolder.includes("so 1") || lowerFolder.includes("đt1") || lowerFolder.includes("doi1")) {
+        managementTeam = "ĐT1";
+      } else if (lowerFolder.includes("số 2") || lowerFolder.includes("so 2") || lowerFolder.includes("đt2") || lowerFolder.includes("doi2")) {
+        managementTeam = "ĐT2";
+      }
+
+      const defaultDisplayName = /^(sông|kênh|lạch|ngòi|suối|cửa)\s/i.test(riverName)
+        ? riverName
+        : `Sông ${riverName}`;
+
+      const relativePath = path
+        .replace(/^\/data\//, "")
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
+      const cdnUrl = `${CDN_BASE_URL}/${relativePath}?t=${Date.now()}`;
+      const localFetchUrl = `${localUrl}${localUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
+
+      let rawData: any = null;
+      try {
+        const localResponse = await fetch(localFetchUrl, { cache: "no-cache" });
+        if (localResponse.ok) {
+          rawData = await localResponse.json();
+        }
+      } catch {
+        // Fallback to CDN
+      }
+
+      if (!rawData) {
+        try {
+          const cdnResponse = await fetch(cdnUrl, { cache: "no-cache" });
+          if (cdnResponse.ok) {
+            rawData = await cdnResponse.json();
+          }
+        } catch (error) {
+          console.error(`Failed to fetch TuyenSong GeoJSON for ${path}`, error);
+        }
+      }
+
+      if (!rawData) return;
+
+      if (rawData.type === "FeatureCollection" && Array.isArray(rawData.features)) {
+        for (const feature of rawData.features) {
+          if (!feature?.geometry) continue;
+          allFeatures.push({
+            type: "Feature",
+            id: feature.id || `${managementTeam}-${riverName}-${allFeatures.length}`,
+            properties: {
+              ...feature.properties,
+              name: feature.properties?.name || feature.properties?.ten_song || defaultDisplayName,
+              riverName,
+              managementTeam,
+              managementUnit: folderName,
+            },
+            geometry: feature.geometry,
+          });
+        }
+        return;
+      }
+
+      if (rawData.type === "Feature" && rawData.geometry) {
+        allFeatures.push({
+          type: "Feature",
+          id: rawData.id || `${managementTeam}-${riverName}-${allFeatures.length}`,
+          properties: {
+            ...rawData.properties,
+            name: rawData.properties?.name || rawData.properties?.ten_song || defaultDisplayName,
+            riverName,
+            managementTeam,
+            managementUnit: folderName,
+          },
+          geometry: rawData.geometry,
+        });
+        return;
+      }
+
+      if (Array.isArray(rawData.elements)) {
+        const nodeMap = new Map<number, [number, number]>();
+        for (const element of rawData.elements) {
+          if (element.type === "node" && typeof element.lon === "number" && typeof element.lat === "number") {
+            nodeMap.set(element.id, [element.lon, element.lat]);
+          }
+        }
+
+        for (const element of rawData.elements) {
+          if (element.type === "way") {
+            let coordinates: [number, number][] = [];
+            if (Array.isArray(element.geometry)) {
+              coordinates = element.geometry
+                .filter((point: any) => point && typeof point.lon === "number" && typeof point.lat === "number")
+                .map((point: any) => [point.lon, point.lat] as [number, number]);
+            } else if (Array.isArray(element.nodes)) {
+              coordinates = element.nodes
+                .map((nodeId: number) => nodeMap.get(nodeId))
+                .filter((coordinate: [number, number] | undefined): coordinate is [number, number] => Boolean(coordinate));
+            }
+
+            if (coordinates.length >= 2) {
+              allFeatures.push({
+                type: "Feature",
+                id: element.id || `${managementTeam}-${riverName}-${allFeatures.length}`,
+                properties: {
+                  ...element.tags,
+                  id: element.id,
+                  name: element.tags?.name || defaultDisplayName,
+                  riverName,
+                  managementTeam,
+                  managementUnit: folderName,
+                },
+                geometry: {
+                  type: "LineString",
+                  coordinates,
+                },
+              });
+            }
+          } else if (element.type === "relation" && Array.isArray(element.members)) {
+            const multiLineCoordinates: [number, number][][] = [];
+            for (const member of element.members) {
+              if (Array.isArray(member.geometry)) {
+                const lineCoordinates = member.geometry
+                  .filter((point: any) => point && typeof point.lon === "number" && typeof point.lat === "number")
+                  .map((point: any) => [point.lon, point.lat] as [number, number]);
+                if (lineCoordinates.length >= 2) {
+                  multiLineCoordinates.push(lineCoordinates);
+                }
+              }
+            }
+            if (multiLineCoordinates.length > 0) {
+              allFeatures.push({
+                type: "Feature",
+                id: element.id || `${managementTeam}-${riverName}-${allFeatures.length}`,
+                properties: {
+                  ...element.tags,
+                  id: element.id,
+                  name: element.tags?.name || defaultDisplayName,
+                  riverName,
+                  managementTeam,
+                  managementUnit: folderName,
+                },
+                geometry: {
+                  type: "MultiLineString",
+                  coordinates: multiLineCoordinates,
+                },
+              });
+            }
+          }
+        }
+      }
+    })
+  );
+
+  return {
+    type: "FeatureCollection",
+    features: allFeatures,
+  };
 }

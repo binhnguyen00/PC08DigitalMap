@@ -1,0 +1,36 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-02T09:18:02Z",
+    "timestamp_areas_base": "2026-11-02T08:49:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 236764841,
+      "bounds": {
+        "minlat": 20.7581901,
+        "minlon": 106.519326,
+        "maxlat": 20.7623016,
+        "maxlon": 106.5483703
+      },
+      "nodes": [
+        2447429580, 9282576716, 4262797125, 2447429581, 4262797124, 9283344388
+      ],
+      "geometry": [
+        { "lat": 20.7621728, "lon": 106.519326 },
+        { "lat": 20.7621034, "lon": 106.520693 },
+        { "lat": 20.7623016, "lon": 106.5332478 },
+        { "lat": 20.7617767, "lon": 106.5400605 },
+        { "lat": 20.7592643, "lon": 106.5460355 },
+        { "lat": 20.7581901, "lon": 106.5483703 }
+      ],
+      "tags": {
+        "name": "Sông Kênh Khê",
+        "waterway": "river"
+      }
+    }
+  ]
+}

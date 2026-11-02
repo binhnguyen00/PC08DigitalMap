@@ -1,0 +1,30 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-02T09:29:05Z",
+    "timestamp_areas_base": "2026-11-02T08:49:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 1188229654,
+      "bounds": {
+        "minlat": 20.817088,
+        "minlon": 106.842133,
+        "maxlat": 20.8312475,
+        "maxlon": 106.8695345
+      },
+      "nodes": [11033803275, 11033803276],
+      "geometry": [
+        { "lat": 20.8312475, "lon": 106.8695345 },
+        { "lat": 20.817088, "lon": 106.842133 }
+      ],
+      "tags": {
+        "name": "Kênh Cái Tráp",
+        "waterway": "canal"
+      }
+    }
+  ]
+}

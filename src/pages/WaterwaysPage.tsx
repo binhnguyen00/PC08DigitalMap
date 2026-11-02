@@ -29,7 +29,12 @@ import {
   useMap,
 } from "@/components/map";
 import { IBenBaiProperties } from "@/interfaces";
-import { fetchBenBaiGeoJson, fetchHaiphongGeoJson, SATELLITE_MAP_STYLE } from "@/libs/cdn";
+import {
+  fetchBenBaiGeoJson,
+  fetchHaiphongGeoJson,
+  fetchTuyenSongGeoJson,
+  SATELLITE_MAP_STYLE,
+} from "@/libs/cdn";
 import { cn } from "@/libs/tailwind";
 
 import {
@@ -47,10 +52,16 @@ interface ISelectedBenBai {
 }
 
 const TEAMS = [
-  { id: "Bạch Đằng", label: "Thủy đội Bạch Đằng", color: "#2563eb" },
-  { id: "ĐT1", label: "Thủy đội 1 (ĐT1)", color: "#d97706" },
-  { id: "ĐT2", label: "Thủy đội 2 (ĐT2)", color: "#16a34a" },
+  { id: "Bạch Đằng", label: "Trạm CSĐT Bạch Đằng", color: "#a11d61" },
+  { id: "ĐT1", label: "Đội CSĐT số 1 (ĐT1)", color: "#1b56a4" },
+  { id: "ĐT2", label: "Đội CSĐT số 2 (ĐT2)", color: "#16764e" },
   { id: "Chưa gán đơn vị", label: "Chưa gán đơn vị", color: "#64748b" },
+];
+
+const RIVER_TEAMS = [
+  { id: "Bạch Đằng", label: "Trạm CSĐT Bạch Đằng", color: "#a11d61" },
+  { id: "ĐT1", label: "Đội CSĐT số 1", color: "#1b56a4" },
+  { id: "ĐT2", label: "Đội CSĐT số 2", color: "#16764e" },
 ];
 
 const DEFAULT_COLOR = "#64748b";
@@ -78,6 +89,140 @@ const STATUS_COLORS: Record<string, string> = {
   "Dừng hoạt động": "#ef4444",
   "Không xác định": "#94a3b8",
 };
+
+function TuyenSongMapLayers({ geojson }: { geojson: any }) {
+  const { map, isLoaded } = useMap();
+
+  React.useEffect(() => {
+    if (!isLoaded || !map || !geojson) return;
+
+    const sourceId = "tuyensong-source";
+    const casingLayerId = "tuyensong-casing-layer";
+    const lineLayerId = "tuyensong-line-layer";
+    const labelLayerId = "tuyensong-label-layer";
+    const beforeLayerId = map.getLayer("benbai-layer") ? "benbai-layer" : undefined;
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: "geojson",
+        data: geojson,
+        generateId: true,
+      });
+    } else {
+      (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(geojson);
+    }
+
+    const lineColorExpression = [
+      "match",
+      ["get", "managementTeam"],
+      "Bạch Đằng",
+      TEAM_COLORS["Bạch Đằng"],
+      "ĐT1",
+      TEAM_COLORS["ĐT1"],
+      "ĐT2",
+      TEAM_COLORS["ĐT2"],
+      DEFAULT_COLOR,
+    ];
+
+    const casingWidthExpression = [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      8,
+      4.5,
+      11,
+      6.5,
+      14,
+      9,
+    ];
+
+    const lineWidthExpression = [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      8,
+      2.5,
+      11,
+      4,
+      14,
+      6,
+    ];
+
+    if (!map.getLayer(casingLayerId)) {
+      map.addLayer(
+        {
+          id: casingLayerId,
+          type: "line",
+          source: sourceId,
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": "#ffffff",
+            "line-width": casingWidthExpression as any,
+            "line-opacity": 0.9,
+          },
+        },
+        beforeLayerId
+      );
+    } else {
+      map.setPaintProperty(casingLayerId, "line-width", casingWidthExpression);
+    }
+
+    if (!map.getLayer(lineLayerId)) {
+      map.addLayer(
+        {
+          id: lineLayerId,
+          type: "line",
+          source: sourceId,
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": lineColorExpression as any,
+            "line-width": lineWidthExpression as any,
+            "line-opacity": 1,
+          },
+        },
+        beforeLayerId
+      );
+    } else {
+      map.setPaintProperty(lineLayerId, "line-color", lineColorExpression);
+      map.setPaintProperty(lineLayerId, "line-width", lineWidthExpression);
+    }
+
+    if (!map.getLayer(labelLayerId)) {
+      map.addLayer(
+        {
+          id: labelLayerId,
+          type: "symbol",
+          source: sourceId,
+          layout: {
+            "symbol-placement": "line",
+            "text-field": ["coalesce", ["get", "name"], ""],
+            "text-font": ["Open Sans Semibold"],
+            "text-size": ["interpolate", ["linear"], ["zoom"], 9, 10, 12, 12, 15, 14],
+            "text-keep-upright": true,
+            "text-max-angle": 45,
+            "symbol-spacing": 280,
+          },
+          paint: {
+            "text-color": lineColorExpression as any,
+            "text-halo-color": "#ffffff",
+            "text-halo-width": 2,
+          },
+        },
+        beforeLayerId
+      );
+    } else {
+      map.setPaintProperty(labelLayerId, "text-color", lineColorExpression);
+    }
+  }, [map, isLoaded, geojson]);
+
+  return null;
+}
 
 function BenBaiMapLayers({
   geojson,
@@ -176,12 +321,14 @@ function BenBaiMapLayers({
 export function WaterwaysPage() {
   const mapRef = React.useRef<MapRef>(null);
   const [data, setData] = React.useState<any>(null);
+  const [tuyenSongData, setTuyenSongData] = React.useState<any>(null);
   const [haiphongBoundary, setHaiphongBoundary] = React.useState<any>(null);
   const [searchValue, setSearchValue] = React.useState("");
   const [selectedBenBai, setSelectedBenBai] = React.useState<ISelectedBenBai | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<string | null>(null);
   const [hiddenPermitStatuses, setHiddenPermitStatuses] = React.useState<Set<string>>(new Set());
+  const [hiddenRiverTeams, setHiddenRiverTeams] = React.useState<Set<string>>(new Set());
   const [isLegendOpen, setIsLegendOpen] = React.useState(true);
 
   React.useEffect(() => {
@@ -191,6 +338,14 @@ export function WaterwaysPage() {
       })
       .catch((error) => {
         console.error("Failed to load BenBai GeoJSON", error);
+      });
+
+    fetchTuyenSongGeoJson()
+      .then((response) => {
+        setTuyenSongData(response);
+      })
+      .catch((error) => {
+        console.error("Failed to load TuyenSong GeoJSON", error);
       });
 
     fetchHaiphongGeoJson()
@@ -224,6 +379,38 @@ export function WaterwaysPage() {
     }
     return { ...data, features };
   }, [data, teamFilteredFeatures, hiddenPermitStatuses]);
+
+  const filteredTuyenSongGeojson = React.useMemo(() => {
+    if (!tuyenSongData) return null;
+    const features = (tuyenSongData.features || []).filter((feature: any) => {
+      const teamId = feature.properties?.managementTeam || "Chưa gán đơn vị";
+      if (selectedTeam && teamId !== selectedTeam) return false;
+      if (hiddenRiverTeams.has(teamId)) return false;
+      return true;
+    });
+    return {
+      ...tuyenSongData,
+      features,
+    };
+  }, [tuyenSongData, selectedTeam, hiddenRiverTeams]);
+
+  const riverTeamStats = React.useMemo(() => {
+    const riverNamesByTeam: Record<string, Set<string>> = {};
+    for (const feature of tuyenSongData?.features || []) {
+      const teamId = feature.properties?.managementTeam || "Chưa gán đơn vị";
+      if (selectedTeam && teamId !== selectedTeam) continue;
+      if (!riverNamesByTeam[teamId]) {
+        riverNamesByTeam[teamId] = new Set();
+      }
+      const riverKey = feature.properties?.riverName || feature.properties?.name || String(feature.id);
+      riverNamesByTeam[teamId].add(riverKey);
+    }
+
+    return RIVER_TEAMS.filter((team) => !selectedTeam || team.id === selectedTeam).map((team) => ({
+      ...team,
+      count: riverNamesByTeam[team.id]?.size || 0,
+    }));
+  }, [tuyenSongData, selectedTeam]);
 
   const searchResults = React.useMemo(() => {
     if (!filteredGeojson || !searchValue.trim()) return [];
@@ -311,6 +498,8 @@ export function WaterwaysPage() {
               }}
             />
           )}
+
+          <TuyenSongMapLayers geojson={filteredTuyenSongGeojson} />
 
           <BenBaiMapLayers geojson={filteredGeojson} onBenBaiClick={handleBenBaiClick} />
 
@@ -488,6 +677,69 @@ export function WaterwaysPage() {
 
             {isLegendOpen && (
               <Flex vertical gap={8}>
+                <Typography.Text className="text-[10px]! font-bold! text-slate-400! uppercase! tracking-wider!">
+                  Tuyến sông quản lý
+                </Typography.Text>
+
+                {riverTeamStats.map((team) => {
+                  const visible = !hiddenRiverTeams.has(team.id);
+                  return (
+                    <Flex key={`river-team-${team.id}`} align="center" justify="space-between" gap={8} className="items-center">
+                      <Flex align="center" gap={8} className="truncate min-w-0 items-center">
+                        <span
+                          className="w-4 h-1.5 rounded-full border border-white/50 shrink-0 shadow-sm transition-opacity"
+                          style={{ backgroundColor: team.color, opacity: visible ? 1 : 0.3 }}
+                        />
+                        <Typography.Text
+                          ellipsis
+                          className={cn(
+                            "text-[11px]! font-medium! truncate! transition-opacity text-slate-200",
+                            visible ? "text-slate-100!" : "text-slate-400!"
+                          )}
+                        >
+                          {team.label}
+                        </Typography.Text>
+                      </Flex>
+                      <Space size={8} className="shrink-0">
+                        <Badge
+                          count={team.count}
+                          showZero
+                          overflowCount={99999}
+                          style={{
+                            backgroundColor: visible ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
+                            color: visible ? "#f1f5f9" : "#64748b",
+                            boxShadow: "none",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            fontSize: "10px",
+                            height: "18px",
+                            lineHeight: "16px",
+                            minWidth: "24px",
+                          }}
+                        />
+                        <Switch
+                          size="small"
+                          checked={visible}
+                          onChange={(checked) => {
+                            setHiddenRiverTeams((previous) => {
+                              const next = new Set(previous);
+                              if (checked) next.delete(team.id);
+                              else next.add(team.id);
+                              return next;
+                            });
+                          }}
+                          style={{ backgroundColor: visible ? team.color : undefined }}
+                        />
+                      </Space>
+                    </Flex>
+                  );
+                })}
+
+                <Divider className="my-1! border-white/10!" />
+
+                <Typography.Text className="text-[10px]! font-bold! text-slate-400! uppercase! tracking-wider!">
+                  Bến bãi
+                </Typography.Text>
+
                 {permitStats.map((item) => {
                   const visible = !hiddenPermitStatuses.has(item.id);
                   return (

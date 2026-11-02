@@ -1,0 +1,30 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-02T09:30:06Z",
+    "timestamp_areas_base": "2026-11-02T08:49:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 1131168012,
+      "bounds": {
+        "minlat": 20.8138901,
+        "minlon": 106.8446588,
+        "maxlat": 20.8186022,
+        "maxlon": 106.881483
+      },
+      "nodes": [12968802331, 11591977904],
+      "geometry": [
+        { "lat": 20.8186022, "lon": 106.881483 },
+        { "lat": 20.8138901, "lon": 106.8446588 }
+      ],
+      "tags": {
+        "name": "Kênh Hà Nam",
+        "waterway": "canal"
+      }
+    }
+  ]
+}
