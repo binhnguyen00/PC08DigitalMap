@@ -493,7 +493,7 @@ export function WaterwaysPage() {
               fillPaint={false}
               linePaint={{
                 "line-color": "#3b82f6",
-                "line-width": 3,
+                "line-width": 1.2,
                 "line-opacity": 1,
               }}
             />
@@ -658,7 +658,7 @@ export function WaterwaysPage() {
                 isLegendOpen && "border-b border-white/20 pb-1.5 mb-2.5"
               )}
             >
-              <Typography.Text className="text-white! font-bold! text-xs! uppercase! tracking-wider!">
+              <Typography.Text className="text-white! font-bold! text-xs! uppercase! tracking-wider! py-2">
                 CHÚ GIẢI
               </Typography.Text>
               <Button
@@ -677,66 +677,7 @@ export function WaterwaysPage() {
 
             {isLegendOpen && (
               <Flex vertical gap={8}>
-                <Typography.Text className="text-[10px]! font-bold! text-slate-400! uppercase! tracking-wider!">
-                  Tuyến sông quản lý
-                </Typography.Text>
-
-                {riverTeamStats.map((team) => {
-                  const visible = !hiddenRiverTeams.has(team.id);
-                  return (
-                    <Flex key={`river-team-${team.id}`} align="center" justify="space-between" gap={8} className="items-center">
-                      <Flex align="center" gap={8} className="truncate min-w-0 items-center">
-                        <span
-                          className="w-4 h-1.5 rounded-full border border-white/50 shrink-0 shadow-sm transition-opacity"
-                          style={{ backgroundColor: team.color, opacity: visible ? 1 : 0.3 }}
-                        />
-                        <Typography.Text
-                          ellipsis
-                          className={cn(
-                            "text-[11px]! font-medium! truncate! transition-opacity text-slate-200",
-                            visible ? "text-slate-100!" : "text-slate-400!"
-                          )}
-                        >
-                          {team.label}
-                        </Typography.Text>
-                      </Flex>
-                      <Space size={8} className="shrink-0">
-                        <Badge
-                          count={team.count}
-                          showZero
-                          overflowCount={99999}
-                          style={{
-                            backgroundColor: visible ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
-                            color: visible ? "#f1f5f9" : "#64748b",
-                            boxShadow: "none",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            fontSize: "10px",
-                            height: "18px",
-                            lineHeight: "16px",
-                            minWidth: "24px",
-                          }}
-                        />
-                        <Switch
-                          size="small"
-                          checked={visible}
-                          onChange={(checked) => {
-                            setHiddenRiverTeams((previous) => {
-                              const next = new Set(previous);
-                              if (checked) next.delete(team.id);
-                              else next.add(team.id);
-                              return next;
-                            });
-                          }}
-                          style={{ backgroundColor: visible ? team.color : undefined }}
-                        />
-                      </Space>
-                    </Flex>
-                  );
-                })}
-
-                <Divider className="my-1! border-white/10!" />
-
-                <Typography.Text className="text-[10px]! font-bold! text-slate-400! uppercase! tracking-wider!">
+                <Typography.Text className="text-[10px]! font-bold! text-slate-400! uppercase! tracking-wider! py-2">
                   Bến bãi
                 </Typography.Text>
 
