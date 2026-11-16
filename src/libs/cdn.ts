@@ -33,19 +33,19 @@ export const SATELLITE_MAP_STYLE = {
 } as const;
 
 
-const DIA_BAN_MODULES = import.meta.glob("/data/DiaBan/**/*.geojson", {
+const DIA_BAN_MODULES = import.meta.glob(["/data/DiaBan/**/*.geojson", "!**/bak/**"], {
   query: "?url",
   import: "default",
   eager: true,
 }) as Record<string, string>;
 
-const TUYEN_DUONG_MODULES = import.meta.glob("/data/TuyenDuong/**/*.geojson", {
+const TUYEN_DUONG_MODULES = import.meta.glob(["/data/TuyenDuong/**/*.geojson", "!**/bak/**"], {
   query: "?url",
   import: "default",
   eager: true,
 }) as Record<string, string>;
 
-const TUYEN_SONG_MODULES = import.meta.glob("/data/TuyenSong/**/*.geojson", {
+const TUYEN_SONG_MODULES = import.meta.glob(["/data/TuyenSong/**/*.geojson", "!**/bak/**"], {
   query: "?url",
   import: "default",
   eager: true,

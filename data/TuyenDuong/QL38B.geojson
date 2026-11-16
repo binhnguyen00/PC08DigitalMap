@@ -1,93 +1,1201 @@
 {
   "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-11-16T08:29:08Z",
   "features": [
     {
       "type": "Feature",
+      "id": "way/285857170",
       "properties": {
-        "id": 39529,
-        "shape": "Line"
+        "@id": "way/285857170",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [106.201701, 20.753415],
-          [106.2039, 20.755903],
-          [106.204747, 20.756686],
-          [106.205455, 20.757027],
-          [106.206667, 20.757097],
-          [106.209789, 20.756846],
-          [106.210561, 20.756927],
-          [106.215775, 20.760277],
-          [106.224442, 20.765865],
-          [106.225787, 20.766623],
-          [106.227129, 20.767485]
+          [106.2805177, 20.8137872],
+          [106.2804074, 20.8136265],
+          [106.2803771, 20.8135817],
+          [106.2803449, 20.8135215],
+          [106.2802365, 20.8133314],
+          [106.2801987, 20.813267],
+          [106.2801719, 20.8132069],
+          [106.2801155, 20.8130765],
+          [106.2800527, 20.8129428],
+          [106.2799263, 20.8126355],
+          [106.2796511, 20.8119662],
+          [106.2795576, 20.8117389],
+          [106.2789642, 20.8103999],
+          [106.2784096, 20.8091801],
+          [106.2783221, 20.8089877],
+          [106.2781928, 20.8087093],
+          [106.2779869, 20.8082659],
+          [106.2779247, 20.8081319],
+          [106.2778401, 20.8079498],
+          [106.2776501, 20.8075406],
+          [106.2775578, 20.8073676],
+          [106.2773048, 20.8068176],
+          [106.2772563, 20.8066893],
+          [106.2772241, 20.8065965],
+          [106.2771928, 20.8064905],
+          [106.2771553, 20.8063553],
+          [106.2769757, 20.8056857],
+          [106.2768431, 20.8051886],
+          [106.2767843, 20.804972],
+          [106.2767727, 20.8049294],
+          [106.2765625, 20.8041656]
         ]
       }
     },
     {
       "type": "Feature",
+      "id": "way/285857173",
       "properties": {
-        "id": 40274,
-        "shape": "Line"
+        "@id": "way/285857173",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Cầu Tràng Thưa",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [106.227129, 20.767485],
-          [106.22952, 20.769186],
-          [106.231515, 20.770535],
-          [106.235955, 20.773499],
-          [106.236845, 20.77363],
-          [106.239023, 20.773489],
-          [106.24119, 20.773419],
-          [106.242573, 20.77366],
-          [106.243635, 20.773951],
-          [106.24548, 20.774803],
-          [106.246811, 20.775836],
-          [106.250168, 20.779357],
-          [106.253134, 20.782477],
-          [106.254346, 20.783099],
-          [106.254711, 20.782908],
-          [106.255172, 20.783039],
-          [106.255633, 20.783259],
-          [106.259785, 20.782818],
-          [106.260847, 20.782838],
-          [106.261716, 20.783019],
-          [106.268463, 20.785245],
-          [106.27049, 20.785928],
-          [106.271113, 20.786249],
-          [106.271703, 20.78687],
-          [106.272314, 20.787974],
-          [106.27329, 20.791795],
-          [106.277103, 20.805626]
+          [106.2811847, 20.8148122],
+          [106.2805177, 20.8137872]
         ]
       }
     },
     {
       "type": "Feature",
+      "id": "way/541698555",
       "properties": {
-        "id": 41765,
-        "shape": "Line"
+        "@id": "way/541698555",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [106.277103, 20.805626],
-          [106.277467, 20.807251],
-          [106.280492, 20.81381],
-          [106.281521, 20.815374],
-          [106.282315, 20.817942],
-          [106.283474, 20.822715],
-          [106.286198, 20.834347],
-          [106.287826, 20.842489],
-          [106.287826, 20.843412],
-          [106.290057, 20.856526],
-          [106.290872, 20.86222],
-          [106.287826, 20.86992],
-          [106.28774, 20.871965],
-          [106.291688, 20.883313],
-          [106.293324, 20.887893],
-          [106.29431, 20.891612]
+          [106.2458539, 20.7750609],
+          [106.2463566, 20.7755046],
+          [106.2470681, 20.7761303],
+          [106.2478147, 20.7768985]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/544342967",
+      "properties": {
+        "@id": "way/544342967",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2556069, 20.7832844],
+          [106.2560534, 20.7832293],
+          [106.2566623, 20.7831541],
+          [106.2584631, 20.7829591],
+          [106.2595927, 20.7828368],
+          [106.2598597, 20.7828226],
+          [106.2600957, 20.78281],
+          [106.2605233, 20.7828255],
+          [106.2611209, 20.7828921],
+          [106.2614325, 20.7829468],
+          [106.2614849, 20.782956],
+          [106.2617828, 20.7830217]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/544342969",
+      "properties": {
+        "@id": "way/544342969",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.236012, 20.7734879],
+          [106.2360906, 20.7735092],
+          [106.2367372, 20.7736166],
+          [106.2372176, 20.7736221],
+          [106.2372927, 20.7736208],
+          [106.2373589, 20.7736165],
+          [106.2391972, 20.7734356],
+          [106.2400849, 20.7733939],
+          [106.240153, 20.7733922],
+          [106.2402217, 20.7733939],
+          [106.2410197, 20.7734152],
+          [106.2410826, 20.7734207],
+          [106.2411337, 20.7734277],
+          [106.2418847, 20.773513],
+          [106.241937, 20.7735189],
+          [106.2419786, 20.7735293],
+          [106.2428168, 20.7737144],
+          [106.2434819, 20.773903],
+          [106.2435369, 20.7739218],
+          [106.2435986, 20.7739431],
+          [106.2436509, 20.7739657],
+          [106.243709, 20.7739881],
+          [106.244249, 20.7742064],
+          [106.2447721, 20.7744371],
+          [106.2452871, 20.774718],
+          [106.2456293, 20.7749202]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/548851810",
+      "properties": {
+        "@id": "way/548851810",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2018997, 20.7536534],
+          [106.2019364, 20.7536934],
+          [106.2029028, 20.7547444],
+          [106.2036712, 20.7556072],
+          [106.2040352, 20.7560151],
+          [106.2040787, 20.7560651],
+          [106.2041607, 20.7561716],
+          [106.204307, 20.756328],
+          [106.2045711, 20.7565804],
+          [106.2048615, 20.7567708],
+          [106.2051627, 20.7569108],
+          [106.2054053, 20.7569892],
+          [106.2056735, 20.7570494],
+          [106.2058479, 20.757072],
+          [106.2063279, 20.7570738],
+          [106.2074881, 20.7569886],
+          [106.2097428, 20.756823],
+          [106.2099194, 20.7568237],
+          [106.2099963, 20.7568295],
+          [106.2100857, 20.7568362],
+          [106.2103567, 20.7568814],
+          [106.2105444, 20.7569441],
+          [106.2107011, 20.7570151],
+          [106.2108825, 20.7571204],
+          [106.2112914, 20.7573579],
+          [106.2121675, 20.7579168],
+          [106.2128861, 20.7583697],
+          [106.2131274, 20.7585217],
+          [106.2153748, 20.7600131],
+          [106.2159105, 20.7603666],
+          [106.2164331, 20.7607138],
+          [106.2172633, 20.7612655],
+          [106.2176672, 20.7615321],
+          [106.2183402, 20.7619765],
+          [106.2204096, 20.7632906],
+          [106.220534, 20.7633695],
+          [106.2234674, 20.7652322]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/628161305",
+      "properties": {
+        "@id": "way/628161305",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2886965, 20.8479599],
+          [106.2886696, 20.8477809],
+          [106.2886118, 20.8473961],
+          [106.2885755, 20.8471847],
+          [106.2884987, 20.8467807],
+          [106.2879607, 20.8438527],
+          [106.2878663, 20.8433832],
+          [106.2878428, 20.8432671],
+          [106.2877465, 20.8423768],
+          [106.2877125, 20.8419242],
+          [106.2876614, 20.8415838],
+          [106.2876063, 20.8412844],
+          [106.2873515, 20.8402454],
+          [106.2869472, 20.8383283],
+          [106.28624, 20.8344549],
+          [106.2862187, 20.8343381],
+          [106.2862138, 20.8343177],
+          [106.2842273, 20.8260618]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/636723478",
+      "properties": {
+        "@id": "way/636723478",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2733034, 20.7918796],
+          [106.2732438, 20.7916371],
+          [106.2728664, 20.7901414],
+          [106.27279, 20.7898501],
+          [106.2724179, 20.7884019],
+          [106.2723888, 20.7883059],
+          [106.2723486, 20.7881247],
+          [106.2722693, 20.7878937],
+          [106.2721413, 20.7876252],
+          [106.2719812, 20.7873323],
+          [106.2718208, 20.787015],
+          [106.271611, 20.7867404],
+          [106.2711196, 20.786279],
+          [106.2705832, 20.7859581],
+          [106.2692217, 20.7855038],
+          [106.263333, 20.7835389],
+          [106.2617828, 20.7830217]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/636723907",
+      "properties": {
+        "@id": "way/636723907",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2842273, 20.8260618],
+          [106.2834321, 20.8227346],
+          [106.2826631, 20.8195167],
+          [106.2824338, 20.818557],
+          [106.2823346, 20.8181531],
+          [106.2822386, 20.8177619],
+          [106.2821245, 20.8172973],
+          [106.2817327, 20.8160513],
+          [106.2817148, 20.8159946],
+          [106.2816852, 20.8158896],
+          [106.2816095, 20.8156651],
+          [106.2815483, 20.8155117],
+          [106.2814754, 20.8153417],
+          [106.2813901, 20.8151571],
+          [106.2811847, 20.8148122]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/636773620",
+      "properties": {
+        "@id": "way/636773620",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2234674, 20.7652322],
+          [106.2244536, 20.7658265],
+          [106.225819, 20.7666628],
+          [106.2266512, 20.7671889],
+          [106.2267205, 20.7672344],
+          [106.2275908, 20.7678297],
+          [106.227905, 20.7680596],
+          [106.2286158, 20.7685562],
+          [106.2287606, 20.7686515],
+          [106.2295184, 20.7691807],
+          [106.2296686, 20.769281],
+          [106.2302452, 20.7696872]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/699683481",
+      "properties": {
+        "@id": "way/699683481",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2504336, 20.7796137],
+          [106.2530844, 20.7824152],
+          [106.2531647, 20.7824845],
+          [106.2534493, 20.782663],
+          [106.2539369, 20.7829236]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/699683482",
+      "properties": {
+        "@id": "way/699683482",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Cầu Cống Neo",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2478147, 20.7768985],
+          [106.2495808, 20.77875]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/722693636",
+      "properties": {
+        "@id": "way/722693636",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "oneway": "yes",
+        "ref": "QL.38B",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2940082, 20.8918101],
+          [106.2940447, 20.8916383],
+          [106.2940771, 20.8914077],
+          [106.294075, 20.8911999],
+          [106.2940451, 20.8909605],
+          [106.2939939, 20.8907652],
+          [106.2935257, 20.8892745],
+          [106.2931871, 20.88751]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/722693637",
+      "properties": {
+        "@id": "way/722693637",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "oneway": "yes",
+        "ref": "QL.38B",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2931871, 20.88751],
+          [106.293478, 20.8882652],
+          [106.293716, 20.8890147],
+          [106.2943341, 20.8909618],
+          [106.2944925, 20.8913432],
+          [106.2945084, 20.8913815],
+          [106.2946271, 20.8915893]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/722693638",
+      "properties": {
+        "@id": "way/722693638",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "ref": "QL.38B",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2931871, 20.88751],
+          [106.2914482, 20.8825602],
+          [106.2913892, 20.8823922],
+          [106.2909914, 20.8812597],
+          [106.2880058, 20.8725246],
+          [106.2879074, 20.8719137],
+          [106.287854, 20.8715821],
+          [106.2878304, 20.8712476],
+          [106.2878098, 20.8703811],
+          [106.2879712, 20.8695302],
+          [106.2881669, 20.8689815],
+          [106.2882248, 20.8688192],
+          [106.288987, 20.8670791]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955959",
+      "properties": {
+        "@id": "way/729955959",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2909517, 20.8615995],
+          [106.2909345, 20.8619114],
+          [106.2909169, 20.8621681],
+          [106.2908937, 20.862313],
+          [106.2907946, 20.8627303],
+          [106.2906447, 20.8631277],
+          [106.2901324, 20.8642577],
+          [106.2896188, 20.8655855],
+          [106.2895239, 20.8658443],
+          [106.2894153, 20.8661571],
+          [106.2891962, 20.8667345],
+          [106.288987, 20.8670791]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955960",
+      "properties": {
+        "@id": "way/729955960",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.288987, 20.8670791],
+          [106.2892718, 20.8662785],
+          [106.2893057, 20.8661594],
+          [106.2893994, 20.86583],
+          [106.2895122, 20.8654858],
+          [106.2895947, 20.8651916],
+          [106.2897224, 20.8646941],
+          [106.2904538, 20.8629094],
+          [106.2905626, 20.8625453]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955961",
+      "properties": {
+        "@id": "way/729955961",
+        "highway": "secondary",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2913784, 20.8642822],
+          [106.2912799, 20.8639921],
+          [106.2912024, 20.863851],
+          [106.2910042, 20.8635844],
+          [106.2906447, 20.8631277],
+          [106.2905856, 20.8628315],
+          [106.2905626, 20.8625453]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955962",
+      "properties": {
+        "@id": "way/729955962",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2899581, 20.8557519],
+          [106.2900723, 20.8562892],
+          [106.290167, 20.8565756],
+          [106.2902784, 20.8566964],
+          [106.2904687, 20.8568468]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955963",
+      "properties": {
+        "@id": "way/729955963",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2896081, 20.8570178],
+          [106.2898171, 20.8563755],
+          [106.2898922, 20.8561048],
+          [106.2899581, 20.8557519]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/729955964",
+      "properties": {
+        "@id": "way/729955964",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2905626, 20.8625453],
+          [106.2906178, 20.862367],
+          [106.2906457, 20.8621763],
+          [106.2906713, 20.8619576],
+          [106.2906564, 20.861689],
+          [106.2906242, 20.8613259],
+          [106.2905952, 20.8610783],
+          [106.2904908, 20.8602656]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/739713039",
+      "properties": {
+        "@id": "way/739713039",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2503495, 20.7795285],
+          [106.2504336, 20.7796137]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/739713040",
+      "properties": {
+        "@id": "way/739713040",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2495808, 20.77875],
+          [106.2503495, 20.7795285]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/740043686",
+      "properties": {
+        "@id": "way/740043686",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2906467, 20.8577227],
+          [106.2904978, 20.8580824],
+          [106.2904764, 20.8581719],
+          [106.2904571, 20.858323],
+          [106.2904571, 20.8584395],
+          [106.2907446, 20.8602073]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/740052872",
+      "properties": {
+        "@id": "way/740052872",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.245784, 20.7750171],
+          [106.2458539, 20.7750609]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/740052873",
+      "properties": {
+        "@id": "way/740052873",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2456293, 20.7749202],
+          [106.245784, 20.7750171]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/747966538",
+      "properties": {
+        "@id": "way/747966538",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Cầu Tràng",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2016247, 20.7533487],
+          [106.2018997, 20.7536534]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/760142783",
+      "properties": {
+        "@id": "way/760142783",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2302452, 20.7696872],
+          [106.2303438, 20.7697405]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/760142784",
+      "properties": {
+        "@id": "way/760142784",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2303438, 20.7697405],
+          [106.2304055, 20.7697851],
+          [106.2305577, 20.7699123],
+          [106.2308246, 20.7700634],
+          [106.2318854, 20.7707581],
+          [106.232399, 20.7711067],
+          [106.2328067, 20.771365],
+          [106.2331883, 20.771634],
+          [106.2336141, 20.7719443],
+          [106.2341425, 20.7722879],
+          [106.2344804, 20.7725061],
+          [106.2355775, 20.7732459],
+          [106.2358028, 20.7733951],
+          [106.2359007, 20.7734478],
+          [106.2359463, 20.7734679],
+          [106.236012, 20.7734879]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/761264498",
+      "properties": {
+        "@id": "way/761264498",
+        "bridge": "yes",
+        "highway": "trunk",
+        "layer": "1",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2733309, 20.7919984],
+          [106.2733034, 20.7918796]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/761264499",
+      "properties": {
+        "@id": "way/761264499",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.27509, 20.7985929],
+          [106.2746905, 20.7970583],
+          [106.2741331, 20.7949173],
+          [106.2736709, 20.7931649],
+          [106.2735709, 20.7928216],
+          [106.2734463, 20.7923944],
+          [106.2733309, 20.7919984]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1184384391",
+      "properties": {
+        "@id": "way/1184384391",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2899581, 20.8557519],
+          [106.2897876, 20.8548529],
+          [106.2896907, 20.8543421],
+          [106.2895184, 20.8532705],
+          [106.2892166, 20.8512896],
+          [106.2891984, 20.8511554],
+          [106.2888974, 20.8491395],
+          [106.2888556, 20.8489328]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1184384392",
+      "properties": {
+        "@id": "way/1184384392",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2888556, 20.8489328],
+          [106.2887928, 20.8488396],
+          [106.2887087, 20.8483565],
+          [106.2886718, 20.84811],
+          [106.2886965, 20.8479599]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1184384393",
+      "properties": {
+        "@id": "way/1184384393",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2886965, 20.8479599],
+          [106.2887686, 20.8481895],
+          [106.2888652, 20.8487861],
+          [106.2888556, 20.8489328]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258924",
+      "properties": {
+        "@id": "way/1384258924",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.254361, 20.7832092],
+          [106.2539369, 20.7829236]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258925",
+      "properties": {
+        "@id": "way/1384258925",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2556069, 20.7832844],
+          [106.255079, 20.7834017]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258926",
+      "properties": {
+        "@id": "way/1384258926",
+        "highway": "trunk",
+        "junction": "roundabout",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.255079, 20.7834017],
+          [106.2549672, 20.783465],
+          [106.2548169, 20.7834876],
+          [106.2546533, 20.7834851],
+          [106.2544897, 20.7834487]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258927",
+      "properties": {
+        "@id": "way/1384258927",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2550747, 20.7830526],
+          [106.2552793, 20.7831302],
+          [106.2556069, 20.7832844]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258928",
+      "properties": {
+        "@id": "way/1384258928",
+        "highway": "trunk",
+        "junction": "roundabout",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2550747, 20.7830526],
+          [106.2551227, 20.7831616],
+          [106.2551227, 20.7832995],
+          [106.255079, 20.7834017]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258929",
+      "properties": {
+        "@id": "way/1384258929",
+        "highway": "trunk",
+        "junction": "roundabout",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2544897, 20.7834487],
+          [106.2544411, 20.7834089],
+          [106.2544076, 20.7833675],
+          [106.2543623, 20.7832946]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258930",
+      "properties": {
+        "@id": "way/1384258930",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2539369, 20.7829236],
+          [106.2545087, 20.7829692]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1384258931",
+      "properties": {
+        "@id": "way/1384258931",
+        "highway": "trunk",
+        "junction": "roundabout",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2543623, 20.7832946],
+          [106.254361, 20.7832092],
+          [106.2543932, 20.7830964],
+          [106.2544428, 20.7830287],
+          [106.2545087, 20.7829692],
+          [106.2546292, 20.7829384],
+          [106.254774, 20.7829284],
+          [106.2549148, 20.7829566],
+          [106.2550231, 20.7830085],
+          [106.2550747, 20.7830526]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1460404138",
+      "properties": {
+        "@id": "way/1460404138",
+        "highway": "trunk",
+        "lit": "yes",
+        "maxheight": "3.5",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B",
+        "sidewalk": "no",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2907446, 20.8602073],
+          [106.2908683, 20.8610044]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1460404139",
+      "properties": {
+        "@id": "way/1460404139",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2908683, 20.8610044],
+          [106.2909517, 20.8615995]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1460404151",
+      "properties": {
+        "@id": "way/1460404151",
+        "highway": "trunk",
+        "lit": "yes",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2904908, 20.8602656],
+          [106.2902803, 20.858764],
+          [106.2902039, 20.8584295],
+          [106.290143, 20.8582849],
+          [106.2900258, 20.8581158],
+          [106.2899294, 20.8580165],
+          [106.2898029, 20.8578741]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1566456604",
+      "properties": {
+        "@id": "way/1566456604",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.27509, 20.7985929],
+          [106.2755046, 20.7996184],
+          [106.2757426, 20.8004638],
+          [106.2759653, 20.8013563],
+          [106.27599, 20.8014553],
+          [106.276379, 20.8030146],
+          [106.2765625, 20.8041656]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1566456605",
+      "properties": {
+        "@id": "way/1566456605",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.275583, 20.8004866],
+          [106.27509, 20.7985929]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1566456606",
+      "properties": {
+        "@id": "way/1566456606",
+        "highway": "trunk",
+        "name": "Quốc lộ 38B",
+        "note": "Đoạn QL.38B này rộng chuẩn trục chính yếu, có lưu lượng phương tiện vận tải lớn, mang tính trục chính trunk huyết mạch liên tỉnh cho trục Hà Nam - Hưng Yên - Hải Phòng. Vui lòng không hạ xuống primary dựa trên quy hoạch giấy tờ thứ yếu!",
+        "oneway": "yes",
+        "ref": "QL.38B"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [106.2765625, 20.8041656],
+          [106.27637, 20.8034663],
+          [106.2758475, 20.8014882],
+          [106.2758213, 20.8013889],
+          [106.275583, 20.8004866]
         ]
       }
     }
